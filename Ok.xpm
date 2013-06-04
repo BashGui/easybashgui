@@ -1,0 +1,38 @@
+/* XPM */
+static char *Ok[] = {
+/* columns rows colors chars-per-pixel */
+"26 26 6 1",
+"  c black",
+". c magenta",
+"X c #808000",
+"o c yellow",
+"O c #808080",
+"+ c gray100",
+/* pixels */
+"........OO      OO........",
+"......O   XXXXXX   O......",
+".....O XXXooooooXXX O.....",
+"....O XXooooooooooXX O....",
+"...O Xoooo+++++oooooX O...",
+"..O Xooo+++++++++ooooX O..",
+".O Xooo++++ooooo+++oooX O.",
+". XXoo+++ooooooooo++ooXX .",
+"O Xooo++oooooooooooo+ooX O",
+"O Xoo++  oooooooo  ooooX O",
+" Xooo++  oooooooo  oooooX ",
+" Xoo+++oooooooooooooooooX ",
+" Xoo++ooooooooooooooooooX ",
+" Xoo++oooooo  ooooooooooX ",
+" Xoo++oooooo  ooooooooooX ",
+" Xooo+oooooo  ooooooooooX ",
+"O Xoo++ooooo  oooooooooX O",
+"O Xooo oooooooooooo oooX O",
+". XXooX XooooooooX XooXX .",
+".O Xooo   oooooo   oooX O.",
+"..O Xooo          oooX O..",
+"...O Xoooo      ooooX O...",
+"....O XXooooooooooXX O....",
+".....O XXXooooooXXX O.....",
+"......O   XXXXXX   O......",
+"........OO      OO........"
+};
