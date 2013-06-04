@@ -208,6 +208,9 @@ EasyBashGUI sets gtkdialog output statements as variables through "eval". This w
 
 
 
+Note on Git.
+From 7.1.0 version project is housed at github ( https://github.com/BashGui )
+
 
 
 Credits.
@@ -216,6 +219,7 @@ I would like to thank to Bash, Yad, Gtkdialog, Xdialog, Kdialog, Zenity, Cdialog
 I would like to thank Jose Joao Dias de Almeida for the makefile tip.
 I would like to thank Chris "cgat" for his many ideas and suggestions that lead to version's "5.X.X" EasyBashGUI "revolution".
 I would like to thank Davide Depau for his tests and support, and his effort to make EasyBashGUI Debian policy compliant, and finally for his man page.
+I would like to thank Christian Prause for his patience and Git support.
 
 
 
