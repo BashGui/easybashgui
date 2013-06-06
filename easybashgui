@@ -80,7 +80,7 @@
 #	something like if [ -e $(eb_incl__absolute_path)/$module_*.*.* ] ?
 #
 ###################################################################
-MODULE_VERSION="7.1.0"
+MODULE_VERSION="8.0.0"
 MODULE_NAME="easybashgui"
 libexec_dir="/usr/libexec/easybashgui"
 ###################################################################
@@ -302,7 +302,7 @@ function load_easybashgui_lib()
 	if eb_incl easybashlib
 		then
 		# include it without safety settings, until fixed
-		if eb_skip_exit_on_err_or_unset eb_incl easybashgui_${MODULE_VERSION}.lib
+		if eb_skip_exit_on_err_or_unset eb_incl easybashgui.lib
 			then
 			# register easybashgui cleanup
 			#
@@ -312,13 +312,13 @@ function load_easybashgui_lib()
 			return 1
 		fi
 		#
-	elif eb_incl easybashgui_${MODULE_VERSION}.lib
+	elif eb_incl easybashgui.lib
 		then
 		echo "$eb_runtime_invoke_name: easybashgui: Could not load easybashlib, calling script needs to call \"clean_temp\" manually." 1>&2
 		return 0 # OK!
 		#
 	else
-		echo -e "$eb_runtime_invoke_name: easybashgui: Could not load \"easybashgui_${MODULE_VERSION}.lib\" (https://sites.google.com/site/easybashgui/download)." 1>&2
+		echo -e "$eb_runtime_invoke_name: easybashgui: Could not load \"easybashgui.lib\" (download tarball at URL: https://github.com/BashGui/easybashgui/tags)." 1>&2
 		return 1 # DOH!
 	fi
 }

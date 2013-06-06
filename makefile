@@ -1,8 +1,7 @@
 #EBGlib=$(wildcard easybashgui_[0-9].[0-9].[0-9])
-VERSION=7.1.0
-EBGlib=easybashgui_${VERSION}
+VERSION=8.0.0
 install:
-	@echo Installing ${EBGlib} ...
+	@echo Installing easybashgui v.${VERSION} ...
 	@echo
 	
 	@echo Copying easybashgui ...
@@ -18,18 +17,18 @@ install:
 
 	@echo Creating /usr/libexec/easybashgui directory...
 	mkdir -p /usr/libexec/easybashgui
-	@echo Copying ${EBGlib}.lib ...
-	cp ${EBGlib}.lib easybashlib /usr/libexec/easybashgui/
+	@echo Copying easybashgui.lib and easybashlib ...
+	cp easybashgui.lib easybashlib /usr/libexec/easybashgui/
 	@echo
 
 	@echo Copying easybashgui man page ...
 	cp easybashgui.1.gz /usr/share/man/man1/
 	@echo
 	
-	@echo "=> ${EBGlib} installed."
+	@echo "=> easybashgui v.${VERSION} installed."
 
 uninstall:
-	@echo Uninstalling ${EBGlib} ...
+	@echo Uninstalling easybashgui ...
 	@echo
 	
 	@echo Removing easybashgui ...

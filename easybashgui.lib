@@ -35,9 +35,9 @@
 #####################################
 #####################################
 #
-LIB_VERSION="7.1.0"
+LIB_VERSION="8.0.0"
 LIB_NAME="easybashgui.lib"
-LIB_URL="https://sites.google.com/site/easybashgui"
+LIB_URL="https://github.com/BashGui/easybashgui"
 LIB_AUTHOR="Vittorio Cagnetta"
 #
 #####################################
@@ -5679,14 +5679,14 @@ if [ "${mode}" = "yad" ]
 			#
 			#############
 			scelta="$(eval $(local IFS=$'\t' && echo -e "${dialogo}\t--title\t\"${supertitle:-EasyBashGUI}: data input\"\t--entry\t--text\t\"${testo}\"\t${dimensione_finestra}\t--entry-text\t\"${parametro}\"\t2>\t/dev/null" ) )"
-			echo "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
+			echo -e "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
 			#############
 			#
-			if [ $(grep "${scelta}" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -gt 0 ]
+			if [ $(grep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -gt 0 ]
 				then
 				:
 			else
-				question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?"
+				question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?" ; conferma="${?}"
 				if [ "${conferma}" -eq 0 ] #"Confermato"
 					then
 					:
@@ -5712,14 +5712,14 @@ if [ "${mode}" = "yad" ]
 			#############
 			scelta="$(eval $(local IFS=$'\t' && echo -e "${dialogo}\t--title\t\"${supertitle:-EasyBashGUI}: data input\"\t--form\t${stringa_yad}\t--separator\t\"\\\n\"\t${dimensione_finestra}\t2>\t/dev/null" ) )"
 			unset stringa_yad
-			echo "${scelta}" 1> "${dir_tmp}/${file_tmp}"
+			echo -e "${scelta}" 1> "${dir_tmp}/${file_tmp}"
 			#############
 			#
-			if [ $(grep "${scelta}" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -gt 0 ]
+			if [ $(grep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -gt 0 ]
 				then
 				:
 			else
-				question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?"
+				question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?" ; conferma="${?}"
 				if [ "${conferma}" -eq 0 ] #"Confermato"
 					then
 					:
@@ -5935,14 +5935,14 @@ elif [ "${mode}" = "kdialog" ]
 			#
 			#############
 			scelta="$(eval $(local IFS=$'\t' && echo -e "${dialogo}\t--title\t\"${supertitle:-EasyBashGUI}: data input\"\t--inputbox\t\"${testo}\"\t\"${parametro}\"\t2>\t/dev/null" ) )"
-			echo "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
+			echo -e "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
 			#############
 			#
-			if [ $(grep "${scelta}" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -gt 0 ]
+			if [ $(grep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -gt 0 ]
 				then
 				:
 			else
-				question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?"
+				question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?" ; conferma="${?}"
 				if [ "${conferma}" -eq 0 ] #"Confermato"
 					then
 					:
@@ -5963,14 +5963,14 @@ elif [ "${mode}" = "kdialog" ]
 				#
 				#############
 				scelta="$(eval $(local IFS=$'\t' && echo -e "${dialogo}\t--title\t\"${supertitle:-EasyBashGUI}: data input\"\t--inputbox\t\"${testo}\"\t\"${parametro}\"\t2>\t/dev/null" ) )"
-				echo "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
+				echo -e "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
 				#############
 				#
-				if [ $(grep "${scelta}" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -gt 0 ]
+				if [ $(grep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -gt 0 ]
 					then
 					:
 				else
-					question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?"
+					question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?" ; conferma="${?}"
 					if [ "${conferma}" -eq 0 ] #"Confermato"
 						then
 						:
@@ -6056,14 +6056,14 @@ elif [ "${mode}" = "zenity" ]
 			#
 			#############
 			scelta="$(eval $(local IFS=$'\t' && echo -e "${dialogo}\t--title\t\"${supertitle:-EasyBashGUI}: data input\"\t--entry\t--text\t\"${testo}\"\t${dimensione_finestra}\t--entry-text\t\"${parametro}\"\t2>\t/dev/null" ) )"
-			echo "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
+			echo -e "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
 			#############
 			#
-			if [ $(grep "${scelta}" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -gt 0 ]
+			if [ $(grep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -gt 0 ]
 				then
 				:
 			else
-				question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?"
+				question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?" ; conferma="${?}"
 				if [ "${conferma}" -eq 0 ] #"Confermato"
 					then
 					:
@@ -6084,14 +6084,14 @@ elif [ "${mode}" = "zenity" ]
 				#
 				#############
 				scelta="$(eval $(local IFS=$'\t' && echo -e "${dialogo}\t--title\t\"${supertitle:-EasyBashGUI}: data input\"\t--entry\t--text\t\"${testo}\"\t${dimensione_finestra}\t--entry-text\t\"${parametro}\"\t2>\t/dev/null" ) )"
-				echo "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
+				echo -e "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
 				#############
 				#
-				if [ $(grep "${scelta}" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -gt 0 ]
+				if [ $(grep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -gt 0 ]
 					then
 					:
 				else
-					question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?"
+					question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?" ; conferma="${?}"
 					if [ "${conferma}" -eq 0 ] #"Confermato"
 						then
 						:
@@ -6181,15 +6181,16 @@ elif [ "${mode}" = "Xdialog" ]
 			#
 			#############
 			scelta=$( ${dialogo} --stdout --separator "\\n" --title "${supertitle:-EasyBashGUI}: data input" ${inputbox} "Please, write data ..." ${dimensione_finestra} ${parametri} 2> /dev/null | grep -v "${string_to_clean}" )
-			echo "${scelta}" 1> "${dir_tmp}/${file_tmp}"
+			echo -e "${scelta}" 1> "${dir_tmp}/${file_tmp}"
 			#############
 			#
 		local IFS=$' \t\n'
-		if [ "${scelta}" = "$(0< "${dir_tmp}/${file_tmp}" )" ]
+		#
+		if [ $(grep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -gt 0 ]
 			then
 			:
 		else
-			question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\n Continue ?"
+			question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\n Continue ?" ; conferma="${?}"
 			if [ "${conferma}" -eq 0 ] #"Confermato"
 				then
 				:
@@ -6274,17 +6275,17 @@ elif [ "${mode}" = "dialog" ]
 			else
 				scelta="$(eval $(local IFS=$'\t' && echo -e "${dialogo}\t--stdout\t${separator}\t\"\\n\"\t--title\t\"${supertitle:-EasyBashGUI}: data input\"\t--inputbox\t\"${testo}\"\t${dimensione_finestra}\t\"${parametro}\"\t2>\t/dev/null" ) )"
 				#
-				echo "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
+				echo -e "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
 				#
 			fi
 			#
 			#############
 			#
-			if [ $(grep "${scelta}" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -gt 0 ]
+			if [ $(grep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -gt 0 ]
 				then
 				:
 			else
-				question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\n Continue ?"
+				question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\n Continue ?" ; conferma="${?}"
 				if [ "${conferma}" -eq 0 ] #"Confermato"
 					then
 					:
@@ -6315,17 +6316,17 @@ elif [ "${mode}" = "dialog" ]
 					#
 					scelta="$(eval $(local IFS=$'\t' && echo -e "${dialogo}\t--stdout\t${separator}\t\"\\n\"\t--title\t\"${supertitle:-EasyBashGUI}: data input\"\t--inputbox\t\"${testo}\"\t${dimensione_finestra}\t\"${parametro}\"\t2>\t/dev/null" ) )"
 					#
-					echo "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
+					echo -e "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
 					#
 				fi
 				#
 				#############
 				#
-				if [ $(grep "${scelta}" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -gt 0 ]
+				if [ $(grep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -gt 0 ]
 					then
 					:
 				else
-					question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?"
+					question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?" ; conferma="${?}"
 					if [ "${conferma}" -eq 0 ] #"Confermato"
 						then
 						:
