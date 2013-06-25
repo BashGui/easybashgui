@@ -35,7 +35,7 @@
 #####################################
 #####################################
 #
-LIB_VERSION="8.0.0"
+LIB_VERSION="8.0.1"
 LIB_NAME="easybashgui.lib"
 LIB_URL="https://github.com/BashGui/easybashgui"
 LIB_AUTHOR="Vittorio Cagnetta"
@@ -642,16 +642,49 @@ elif [ "${mode}" = "dialog" ]
 			then
 			required_whiptail_first_field=0
 			required_whiptail_second_field=52
-			required_whiptail_third_field=11
+			required_whiptail_third_field=10
+			# versione minima => 0.52.10 ...
 			#
-			vers_whiptail="$(whiptail --version | cut -d ' ' -f 3 )"
-			if [ $(echo -n "${vers_whiptail}" | tr -dc '[[:digit:]]' | wc -c ) -gt 0 ]
+			whiptail_version="$(whiptail --version | cut -d ' ' -f 3 )"
+			if [ $(echo -n "${whiptail_version}" | tr -dc '[[:digit:]]' | wc -c ) -gt 0 ]
 				then
-				vers_whiptail_primo_campo=$(echo "${vers_whiptail}" | cut -d '.' -f 1 )
-				vers_whiptail_secondo_campo=$(echo "${vers_whiptail}" | cut -d '.' -f 2 )
-				vers_whiptail_terzo_campo=$(echo "${vers_whiptail}" | cut -d '.' -f 3 )
-				# versione minima => 0.52.11 ...
-				if [ ${vers_whiptail_primo_campo} -ge ${required_whiptail_first_field} -a ${vers_whiptail_secondo_campo} -ge ${required_whiptail_second_field} -a ${vers_whiptail_terzo_campo} -ge ${required_whiptail_third_field} ]
+				whiptail_first_field=$(echo "${whiptail_version}" | cut -d '.' -f 1 )
+				whiptail_second_field=$(echo "${whiptail_version}" | cut -d '.' -f 2 )
+				whiptail_third_field=$(echo "${whiptail_version}" | cut -d '.' -f 3 )
+				#
+				if [ ${whiptail_first_field} -gt ${required_whiptail_first_field} ]
+					then
+					obsolete_lib="NO"
+				elif [ ${whiptail_first_field} -lt ${required_whiptail_first_field} ]
+					then
+					obsolete_lib="YES"
+				elif [ ${whiptail_first_field} -eq ${required_whiptail_first_field} ]
+					then
+					if [ ${whiptail_second_field} -gt ${required_whiptail_second_field} ]
+						then
+						obsolete_lib="NO"
+					elif [ ${whiptail_second_field} -lt ${required_whiptail_second_field} ]
+						then
+						obsolete_lib="YES"
+					elif [ ${whiptail_second_field} -eq ${required_whiptail_second_field} ]
+						then
+						if [ ${whiptail_third_field} -gt ${required_whiptail_third_field} ]
+							then
+							obsolete_lib="NO"
+						elif [ ${whiptail_third_field} -lt ${required_whiptail_third_field} ]
+							then
+							obsolete_lib="YES"
+						elif [ ${whiptail_third_field} -eq ${required_whiptail_third_field} ]
+							then
+							obsolete_lib="NO"
+							# perche' le due versioni sono ESATTAMENTE identiche...
+						fi
+						#
+					fi #if [ ${array_LIB_VERSION[1]} -gt ${array_MIN_LIB_VERSION_REQUIRED[1]} ]
+					#
+				fi #if [ ${array_LIB_VERSION[0]} -gt ${array_MIN_LIB_VERSION_REQUIRED[0]} ]
+				#
+				if [ "${obsolete_lib}" = "NO" ]
 					then
 					#
 					whiptail="SI"
@@ -682,7 +715,7 @@ elif [ "${mode}" = "dialog" ]
 	#
 	if [ "${ERR_MESSAGE}" = "YES" ]
 		then
-		echo -e "\nMaybe your \"dialog\" is NOT an alias to \"cdialog\", but is the original one obsolete... \nPlease, try to install \"cdialog\" and alias \"dialog\" to it. \nAlternately, you could install \"whiptail\", that is a cdialog replacement."
+		echo -e "\nYour \"whiptail\" version is obsolete or your \"dialog\" is NOT an alias to \"cdialog\", but is the original very old one... \nPlease, try to install \"cdialog\" and alias \"dialog\" to it. \nAlternately, you could install newest \"whiptail\", that is a cdialog replacement."
 		export eb_gui_fallback="true"
 		return 1
 	fi
