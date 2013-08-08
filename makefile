@@ -65,7 +65,7 @@ uninstall:
 	@echo
 	
 	@echo Removing easybashgui ...
-	-rm $(BINDIR)/easybashgui $(BINDIR)/easybashgui-debug $(BINDIR)/easydialog.sh 
+	-rm $(BINDIR)/easybashgui $(BINDIR)/easybashgui-debug $(BINDIR)/easydialog
 	@echo
 
 	@echo Removing /usr/share/easybashgui directory...
