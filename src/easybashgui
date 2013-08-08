@@ -1,0 +1,1662 @@
+#!/usr/bin/env bash
+#
+#####################################
+#####################################
+#
+# easybashgui "module"
+#
+# This file is intended to be packaged with scripts that use easybashgui.
+#
+# This file will try to source easybashgui_X.X.X.lib, or provide
+# fallback functions, thus avoiding a hard dependency on easybashgui ".lib" file.
+#
+#########################
+#
+# Copyright (C) 2013 Vittorio Cagnetta
+# Copyright (C) 2013 Christian ?
+#
+# Author: Vittorio Cagnetta <vaisarger@gmail.com>
+# Author: Christian ? <https://launchpad.net/~cgat-1>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with this program, 
+# called, in this distribution, "EasyBashGUI-license"; if not, write to the 
+# Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
+#
+#########################
+#
+# There are two easy methods to use easybashgui in your projects.
+# 
+# The basic method introduces a hard dependency on easybashgui. This means
+# easybashgui must be installed on the machine your script is running on, 
+# or your script will fail with an error. This method only requires to
+# call "source easybashgui" (once) in your script to be able to use
+# easybashgui functions if easybashgui is installed, but will make
+# your script fail without it.
+# 
+# The easybashincl method however allows your script to run
+# without easybashgui installed, or even available:
+#
+#  1) Ship a copy of just the "easybashgui" file from the easybashgui
+#      package with your script's package.
+#      (in same directory as the calling script, or in an includes/ subdirectory)
+#  2) Copy the "easybashincl code snippet" from the "easybashgui" file
+#      into your script.
+#  3) Call "eb_incl easybashgui" from your script.
+#
+# If you also include the easybashgui.lib file in your package, and
+# use the easybashincl method, your script will also work with any supported dialog 
+# frontend without requiring a separate easybashgui download and installation
+# on the target system.
+ 
+ 
+### INCLUDABLE EASYBASH MODULES ###
+# The easybashincl code snippet below allows easy inclusion of
+# bash scripts from other bash scripts.
+#
+# Unlike the bash builtin "source" (or "."), it does not require the
+# file to be installed in your $PATH.
+#
+# If the requested module (bash script file) is not in the $PATH,
+# the "eb_incl" function will look for it in these places:
+#
+#    * same directory as the calling script
+#    * includes/ subdirectory
+#    * ${SHELL_LIBRARY_PATH}
+#
+# Improvement thanks to Stefano Borini's answer at
+# http://stackoverflow.com/questions/78497/design-patterns-or-best-practices-for-shell-scripts
+#
+# TODO
+# Load newest version of module if there are several available?
+#	something like if [ -e $(eb_incl__absolute_path)/$module_*.*.* ] ?
+#
+###################################################################
+MODULE_VERSION="9.0.0"
+MODULE_NAME="easybashgui"
+libexec_dir="/usr/libexec/easybashgui"
+###################################################################
+
+
+###################################################################
+# Every easybash module should prevent repeated inclusion by
+# starting with an if-clause similar to the following:
+#  ( With its proper module-name in the
+#    "eb_incl_<module-name>__imported" variable. )
+#
+# avoid inclusion if "easybashgui-debug" has been sourced...
+if [ "${eb_incl_easybashgui_debug__imported+defined}" = "defined" ]
+	then
+	# "easybashgui-debug" was sourced!...
+	[ "${target:-unset}" = "unset" ] && declare target=""
+	if [ "${target}" = "easybashgui-debug" ]
+		then
+		# "easybashgui" has been sourced by "easybashgui-debug"...
+		ebg_check="NO"
+		unset target
+		#
+	else
+		# "easybashgui" has been sourced manually or through a script...
+		ebg_check="YES"
+		#
+	fi
+	#
+else
+	# "easybashgui-debug" was not sourced!...
+	ebg_check="YES"
+	#
+fi
+#
+##
+#
+if [ "${ebg_check}" = "YES" ]
+	then
+	#
+	# avoid "easybashgui" repeated inclusion
+	if [ "${eb_incl_easybashgui__imported+defined}" = "defined" ]
+		then
+		#
+		[ "${supermode:-unset}" = "unset" ] && declare supermode=""
+		#
+		if [ ${#supermode} -eq 0 ]
+			then
+			# Prevent repeated inclusion *only if* ${supermode} is not set ...
+			echo "${MODULE_NAME}: ERR: easybashgui not sourced (already sourced)! -supermode not set- ."
+			return 0
+		fi
+		#
+		if [ "${supermode}" = "${mode}" ]
+			then
+			# Prevent repeated inclusion *only if* ${supermode} = ${mode} ...
+			echo "${MODULE_NAME}: ERR: easybashgui not sourced (already sourced) -supermode is not different from mode- ."
+			return 0
+		fi
+		#
+	fi
+	#
+	#echo -e "...easybashgui sourcing..."
+	#
+	#eb_incl_easybashgui__imported=1
+	eb_incl_easybashgui__imported=please_prevent_next_time
+	#
+	export easybashgui_debug_mode=NO
+	#
+fi
+#
+###################################################################
+
+
+
+
+##################################################################################
+##################################################################################
+##################################################################################
+##################################################################################
+#
+# The master copy of the "easybashincl code snippet" is
+# being maintained in easybashgui (as it loads easybashlib).
+#
+##################################################################################
+##################################################################################
+################## BEGIN easybashincl code snippet ###############################
+##################################################################################
+#
+
+# avoid repeated definitions
+function eb_incl_loading_required()
+{
+	local this_eb_incl_version="4"
+
+	if    [ "${eb_incl_snippet__version:-0}" = "0" ] \
+	   || [ "${this_eb_incl_version}" -gt "${eb_incl_snippet__version}" ]
+	then
+		declare eb_incl_snippet__version="${this_eb_incl_version}"
+		return 0
+	else
+		return 1
+	fi
+}
+
+
+declare eb_current_process_path="$(echo "${0}" | sed s\#'^-'#''# )"
+if eb_incl_loading_required
+then
+	
+	declare eb_runtime_invoke_path="${eb_current_process_path}"
+	declare eb_runtime_invoke_name="$(basename "${eb_current_process_path}" )"
+	declare eb_runtime_abs_invoke_dir
+
+
+	function eb_absolute_path()
+	# Returns the absolute path of the given path (or of the running script if no path is specified).
+	{
+		if [ "$#" = "0" ]
+		then
+			local given_path="$0"
+		else
+			local given_path="$1"
+		fi
+
+		# if path is already absolute
+		if [ "x${given_path:0:1}" = 'x/' ]
+		then
+			echo $(dirname "$given_path")
+		else
+			echo $(dirname "$(pwd)/$given_path")
+		fi
+	}
+
+
+	eb_runtime_abs_invoke_dir=$(eb_absolute_path)
+
+
+	# eb_incl() lets you include files into your main script (modularization)
+	#  it searches for file in system, same dir, and $SHELL_LIBRARY_PATH
+	#		
+	function eb_incl() { 
+		local module=$1
+
+		if [ "${module:-unspecified}" = "unspecified" ]
+		then
+			echo "$eb_runtime_invoke_name: eb_incl: No module specified." 1>&2
+			return 1
+		fi
+
+		if [ "x${eb_runtime_abs_invoke_dir:-notset}" == "xnotset" ]
+		then
+			echo "$eb_runtime_invoke_name: eb_incl: Error, eb_runtime_abs_invoke_dir not set."
+			exit 1
+		fi
+
+		if [ "x$eb_runtime_abs_invoke_dir" == "x" ]
+		then
+			echo "$eb_runtime_invoke_name: eb_incl: Error, eb_runtime_abs_invoke_dir is empty."
+			exit 1
+		fi
+
+		# if installed in system's PATH
+		if type "$module" &>/dev/null
+		then
+			source "$module"
+			return 0
+			
+		# if in same dir
+		elif [ -e "$eb_runtime_abs_invoke_dir/$module" ]
+		then
+			source "$eb_runtime_abs_invoke_dir/$module"
+			return 0
+			
+		# if in includes/ subdir
+		elif    [ -e "$eb_runtime_abs_invoke_dir/includes" ] \
+		     && [ -e "$eb_runtime_abs_invoke_dir/includes/$module" ]
+		then
+			source "$eb_runtime_abs_invoke_dir/includes/$module"
+			return 0	
+			
+		# if in "libexec_dir"
+		elif [ -e "$libexec_dir/$module" ]
+		then
+			source "$libexec_dir/$module"
+			return 0	
+			
+		# if lib path is defined
+		elif [ "${SHELL_LIBRARY_PATH:-unset}" != "unset" ]
+		then
+			local saved_IFS="$IFS"
+			IFS=':'
+			for path in $SHELL_LIBRARY_PATH
+				do
+				if [ -e "$path/$module" ]
+				then
+					source "$path/$module"
+					return 0
+				fi
+			done
+			IFS="$saved_IFS"
+
+		fi
+	echo -e "$eb_runtime_invoke_name: eb_incl: Could not find requested module \"$module\" in \$PATH, $eb_runtime_abs_invoke_dir, an includes/ subdirectory, or \$SHELL_LIBRARY_PATH." 1>&2 && return 1
+	#exit 1
+	}
+fi
+
+################## END easybashincl code snippet #################################
+
+
+
+
+
+
+
+function load_easybashgui_lib()
+{
+	# first, try to include easybashlib to enable registration of an on_exit hook
+	if eb_incl easybashlib
+		then
+		# include it without safety settings, until fixed
+		if eb_skip_exit_on_err_or_unset eb_incl easybashgui.lib
+			then
+			# register easybashgui cleanup
+			#
+			eb_add_on_exit clean_temp
+			return 0 # OK!
+		else
+			return 1
+		fi
+		#
+	elif eb_incl easybashgui.lib
+		then
+		echo "$eb_runtime_invoke_name: easybashgui: Could not load easybashlib, calling script needs to call \"clean_temp\" manually." 1>&2
+		return 0 # OK!
+		#
+	else
+		echo -e "$eb_runtime_invoke_name: easybashgui: Could not load \"easybashgui.lib\" (download tarball at URL: https://github.com/BashGui/easybashgui/tags)." 1>&2
+		return 1 # DOH!
+	fi
+}
+
+
+
+
+if load_easybashgui_lib
+	then
+	# "load_easybashgui_lib()" returned "0"...
+	: eb_gui_fallback # could be "false", or not defined... let's go to next "if"
+else
+	# "load_easybashgui_lib()" returned "1"...
+	eb_gui_fallback="true"
+fi
+
+# => 
+
+if [ "${eb_gui_fallback:-undefined}" != "true" ]
+	then
+	return 0
+	#
+elif [ "${eb_gui_fallback}" = "true" ]
+	then
+	#
+	echo -e "${MODULE_NAME}: Initializing fallback mode." 1>&2
+	set +o nounset +o errexit
+	shopt -u extdebug
+	#echo "easybashgui_debug_mode OFF"
+	
+	#
+	##
+	#
+	export mode="none"
+	#
+	# define temp files...
+	default_tmp="${HOME}/tmp"
+	if [ -d "${default_tmp}" ]
+		then
+		dir_tmp="${default_tmp}"
+	else
+		dir_tmp="/tmp"
+	fi
+	[ ! -d "${dir_tmp}" -o ! -w "${dir_tmp}" ] && mkdir "${default_tmp}" && dir_tmp="${default_tmp}"
+	: dir_tmp
+	#
+	if [ -f "${dir_tmp}/${file_tmp}" ]
+		then
+		: 1> "${dir_tmp}/${file_tmp}"
+		: 1> "${dir_tmp}/${file_ignore}"
+	else
+		cd "${dir_tmp}"
+		export file_tmp="$(mktemp "XXXXXXXXXXXXXXXXXXXX" )"
+		export file_ignore="$(mktemp "XXXXXXXXXXXXXXXXXXXX" )"
+		cd - 1>/dev/null
+	fi
+	: file_tmp
+	#
+	##
+	#
+	# define fall back functions
+	frame="----------------------------"
+	#
+	clean_temp()
+		{
+		local FUNCT_NAME="clean_temp"
+		local IFS=$' \t\n'
+		#
+		if [ -f "${dir_tmp}/${file_tmp}" ] 2> /dev/null
+			then
+			rm -f "${dir_tmp}/${file_tmp}" 2> /dev/null
+		fi
+		#
+		if [ -f "${dir_tmp}/${file_ignore}" ] 2> /dev/null
+			then
+			rm -f "${dir_tmp}/${file_ignore}" 2> /dev/null
+		fi
+		#
+		}
+	#
+	##
+	#
+	arrotonda()
+		{
+		local FUNCT_NAME="arrotonda"
+		local IFS=$' \t\n'
+		#
+		float="${1}"
+		#
+		float__integer_part=$(echo "${float}" | cut -d '.' -f 1 ) ; [ ${#float__integer_part} -eq 0 ] && float__integer_part=0
+		float__decimal_part=$(echo "${float}" | cut -d '.' -f 2 )
+		# =>
+		[ ${float__decimal_part} -le 50 ] && \
+		arrotondato=${float__integer_part} || \
+		arrotondato=$(( ${float__integer_part} + 1 ))
+		#
+		echo "${arrotondato}"
+		#
+		}
+	#
+	##
+	#
+	if_arg_is_an_empty_variable_then_exit()
+		{
+		local FUNCT_NAME="if_arg_is_an_empty_variable_then_exit"
+		local IFS=$' \t\n'
+		#
+		var_da_controllare="${1}"
+		if [ $(echo -n "${!var_da_controllare}" | wc -c ) -eq 0 ]
+			then
+			#
+			clean_temp
+			exit
+		fi
+		}
+	#
+	##
+	#
+	# question()
+	question()
+		{
+		local FUNCT_NAME="question"
+		local IFS=$' \t\n'
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		testo="${@}"
+		#
+		#########################################
+		echo "${frame}"
+		echo "$(basename "${eb_current_process_path}" ): please confirm"
+		echo "${frame}"
+		echo -e "\n${testo}\n"
+		select okcancel in "Ok" "Cancel" 
+			do
+			if [ ${#okcancel} -eq 0 ]
+				then
+				echo -e "\n\nErr.: Incorrect selection, please select only number."
+				echo -e "\n${testo}\n"
+				echo "1) Ok"
+				echo "2) Cancel"
+			else
+				break
+			fi
+		done
+		if [ "${okcancel}" = "Ok" ]
+			then
+			exit_code="0"
+		elif [ "${okcancel}" = "Cancel" ]
+			then
+			exit_code="1"
+		fi
+		echo -e "${frame}\n\n"
+		echo
+		#########################################
+		#
+		echo "${exit_code}" 1>&2
+		return "${exit_code}"
+		#
+		}
+	# question()
+	#
+	##
+	#
+	# message()
+	message()
+		{
+		local FUNCT_NAME="message"
+		local IFS=$' \t\n'
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		testo="${@}"
+		#
+		#########################################
+		echo -e "\n\n\n${frame}"
+		echo "$(basename "${eb_current_process_path}" ): message"
+		echo "${frame}"
+		echo -e "\n${testo}\n"
+		select okcancel in "Ok" 
+			do
+			if [ ${#okcancel} -eq 0 ]
+				then
+				echo -e "\n\nErr.: Incorrect selection, please select only number."
+				echo -e "\n${testo}\n"
+				echo "1) Ok"
+			else
+				break
+			fi
+		done
+		#
+		echo -e "${frame}\n"
+		echo
+		#########################################
+		#
+		}
+	# message()
+	#
+	##
+	#
+	# alert_message()
+	alert_message()
+		{
+		local FUNCT_NAME="alert_message"
+		local IFS=$' \t\n'
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		testo="${@}"
+		#
+		#########################################
+		echo -e "\n\n\n${frame}"
+		echo "$(basename "${eb_current_process_path}" ): alert message"
+		echo "${frame}"
+		echo -e "\n:-(\n${testo}\n"
+		select okcancel in "Ok" 
+			do
+			if [ ${#okcancel} -eq 0 ]
+				then
+				echo -e "\n\nErr.: Incorrect selection, please select only number."
+				echo -e "\n${testo}\n"
+				echo "1) Ok"
+			else
+				break
+			fi
+		done
+		#
+		echo -e "${frame}\n"
+		echo
+		#########################################
+		#
+		}
+	# alert_message()
+	#
+	##
+	#
+	# ok_message()
+	ok_message()
+		{
+		local FUNCT_NAME="ok_message"
+		local IFS=$' \t\n'
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		testo="${@}"
+		#
+		#########################################
+		echo -e "\n\n\n${frame}"
+		echo "$(basename "${eb_current_process_path}" ): ok message"
+		echo "${frame}"
+		echo -e "\n:-)\n${testo}\n"
+		select okcancel in "Ok" 
+			do
+			if [ ${#okcancel} -eq 0 ]
+				then
+				echo -e "\n\nErr.: Incorrect selection, please select only number."
+				echo -e "\n${testo}\n"
+				echo "1) Ok"
+			else
+				break
+			fi
+		done
+		#
+		echo -e "${frame}\n"
+		echo
+		#########################################
+		#
+		}
+	# ok_message()
+	#
+	##
+	#
+	# text()
+	text()
+		{
+		local FUNCT_NAME="text"
+		local IFS=$' \t\n'
+		local editable="--editable"
+		local window_title="editing text"
+		#
+		#########################################
+		# Begin check for text options...
+		while getopts ":w:h:F" function_option
+			do
+			case ${function_option} in
+				#
+				w	) : ;;
+				h	) : ;;
+				F	) editable="" ; window_title="text" ; F_param_number=$(($OPTIND - 1)) ;;
+				#
+			esac
+		done
+		#
+		if [ ${#editable} -eq 0 ]
+			then
+			array_parameters=( $@ )
+			F_param_array_number=$(( ${F_param_number} - 1 ))
+			#echo "devo eliminare array_parameters[${F_param_array_number}]: ${array_parameters[${F_param_array_number}]} ..." 2>/dev/null
+			unset array_parameters[${F_param_array_number}]
+			#echo "ora i parametri sono: \"${array_parameters[@]}\" ..." 2>/dev/null
+			set -- "${array_parameters[@]}"
+		fi
+		# End check for text options...
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		file_input="${dir_tmp}/${file_ignore}"
+		#
+		cat - 1> "${file_input}"
+		#
+		#########################################
+		echo -e "\n\n\n${frame}"
+		echo "$(basename "${eb_current_process_path}" ): ${window_title}"
+		echo "${frame}"
+		#
+		if [ ${#editable} -gt 0 ]
+			then
+			less -o "${dir_tmp}/${file_tmp}" -X -f -P "Q) Ok (Press \"Q\" to continue, \"V\" to edit)" "${file_input}"
+		elif [ ${#editable} -eq 0 ]
+			then
+			less -X -f -P "Q) Ok (Press \"Q\" to continue)" 0< "${file_input}"
+		fi
+		#
+		echo -e "${frame}\n"
+		echo
+		#########################################
+		#
+		}
+	# text()
+	#
+	##
+	#
+	# wait_seconds()
+	wait_seconds()
+		{
+		local FUNCT_NAME="wait_seconds"
+		local IFS=$' \t\n'
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		num_secondi=${1}
+		testo="############################\n############################\n\n\tPlease wait...\n\n############################\n############################"
+		#
+		#########################################
+		echo -e "\n\n\n${frame}"
+		echo "$(basename "${eb_current_process_path}" ): please wait"
+		echo "${frame}"
+		echo -e "\n${testo}\n"
+		#
+		sleep ${num_secondi}
+		#
+		echo -e "${frame}\n"
+		echo
+		#########################################
+		#
+		}
+	# wait_seconds()
+	#
+	##
+	#
+	# wait_for()
+	wait_for()
+		{
+		local FUNCT_NAME="wait_for"
+		local IFS=$' \t\n'
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		num_secondi=1972
+		testo="############################\n############################\n\n\t$(echo -e "${@}" )\n\n############################\n############################"
+		#
+		#########################################
+		echo -e "\n\n\n${frame}"
+		echo "$(basename "${eb_current_process_path}" ): please wait"
+		echo "${frame}"
+		echo -e "\n${testo}\n"
+		#
+		sleep "${num_secondi}" &
+		#
+		export wait_for__PID="${!}"
+		#
+		echo -e "${frame}\n"
+		echo
+		#########################################
+		#
+		}
+	# wait_for()
+	#
+	##
+	#
+	terminate_wait_for()
+		{
+		local FUNCT_NAME="terminate_wait_for"
+		local IFS=$' \t\n'
+		#
+		[ ${#} -gt 0 ] && wait_for__PID="${1}"
+		[ ${#wait_for__PID} -gt 0 ] && kill "${wait_for__PID}"
+		}
+	#
+	##
+	#
+	# fselect()
+	fselect()
+		{
+		local FUNCT_NAME="fselect"
+		local IFS=$' \t\n'
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		if [ ${#} -gt 0 ]
+			then
+			dir="${1}"
+		else
+			dir="${HOME}/"
+		fi
+		#
+		#########################################
+		echo -e "\n\n\n${frame}"
+		echo "$(basename "${eb_current_process_path}" ): file select"
+		echo "${frame}"
+		#
+		cd "${dir}"
+			while :
+				do
+				#
+				######################################
+				local IFS=$'\n'
+					args=( ".." 
+						$(for element in $(find "${PWD}" -maxdepth 1 -type d | grep -v '~' )
+							do
+							echo "${element}/" | tr -s '/' | grep -v "^${PWD}/$"
+						done | sort ) 
+						$(for element in $(find "${PWD}" -maxdepth 1 -type f | grep -v '~' )
+							do
+							echo "${element}"
+						done | sort ) 
+						)
+				local IFS=$' \t\n'
+				: args[@]
+				#
+				#
+				IFS=$'\n'
+				select file_to_select in $(for ((index=0; index < ${#args[@]} ; index++)) ; do file_to_output="${args[${index}]}" ; echo "${file_to_output}" ; done )
+					do
+					if [ ${#file_to_select} -eq 0 ]
+						then
+						echo -e "\n\nErr.: Incorrect selection, please select only number."
+						sleep 1
+						echo -e "\n$(for ((index=0; index < ${#args[@]} ; index++)) ; do file_to_output="${args[${index}]}" ; echo "$((${index} + 1))) ${file_to_output}" ; done)"
+					else
+						break
+					fi
+				done
+				IFS=$' \t\n'
+				######################################
+				#
+				if [[ ${file_to_select} = .. ]]
+					then
+					cd ..
+				elif [[ ${file_to_select} = */ ]]
+					then
+					cd "${file_to_select}"
+				else
+					break
+				fi
+				#
+			done
+		cd "${dir}"
+		#
+		echo -e "${frame}\n"
+		echo
+		#########################################
+		#
+		echo "${file_to_select}" 1> "${dir_tmp}/${file_tmp}" 
+		echo "${file_to_select}" 1>&2
+		#
+		}
+	# fselect()
+	#
+	##
+	#
+	# dselect()
+	dselect()
+		{
+		local FUNCT_NAME="dselect"
+		local IFS=$' \t\n'
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		if [ ${#} -gt 0 ]
+			then
+			dir="${1}"
+		else
+			dir="${HOME}/"
+		fi
+		#
+		#########################################
+		echo -e "\n\n\n${frame}"
+		echo "$(basename "${eb_current_process_path}" ): dir select"
+		echo "${frame}"
+		#
+		cd "${dir}"
+			while :
+				do
+				#
+				######################################
+				local IFS=$'\n'
+					args=( ".." 
+						$(for element in $(find "${PWD}" -maxdepth 1 -type d | grep -v '~' )
+							do
+							echo "${element}/" | tr -s '/'
+						done | sort )
+						)
+				local IFS=$' \t\n'
+				: args[@]
+				#
+				#
+				IFS=$'\n'
+				select dir_to_select in $(for ((index=0; index < ${#args[@]} ; index++)) ; do dir_to_output="${args[${index}]}" ; echo "${dir_to_output}" ; done )
+					do
+					if [ ${#dir_to_select} -eq 0 ]
+						then
+						echo -e "\n\nErr.: Incorrect selection, please select only number."
+						sleep 1
+						echo -e "\n$(for ((index=0; index < ${#args[@]} ; index++)) ; do dir_to_output="${args[${index}]}" ; echo "$((${index} + 1))) ${dir_to_output}" ; done)"
+					else
+						break
+					fi
+				done
+				IFS=$' \t\n'
+				######################################
+				#
+				if [[ ${dir_to_select} = .. ]]
+					then
+					cd ..
+				elif [[ ${dir_to_select} = ${PWD}/ ]]
+					then
+					break
+				else
+					cd "${dir_to_select}"
+				fi
+				#
+			done
+		cd "${dir}"
+		#
+		echo -e "${frame}\n"
+		echo
+		#########################################
+		#
+		echo "${dir_to_select}" 1> "${dir_tmp}/${file_tmp}" 
+		echo "${dir_to_select}" 1>&2
+		#
+		}
+	# dselect()
+	#
+	##
+	#	
+	# menu()
+	menu()
+		{
+		local FUNCT_NAME="menu"
+		local IFS=$' \t\n'
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		unset args
+		local IFS=$'\n'
+			threshold=${#}
+			args=( $(for (( num=1 ; num <= ${threshold} ; num++ ))
+						do
+						echo "${1}"
+						shift
+					done) )
+		local IFS=$' \t\n'
+		: args[@]
+		#
+		#########################################
+		echo -e "\n\n\n${frame}"
+		echo "$(basename "${eb_current_process_path}" ): menu"
+		echo "${frame}"
+		#
+		IFS=$'\n'
+		select item_to_select in $(for ((index=0; index < ${#args[@]} ; index++)) ; do item_to_output="${args[${index}]}" ; echo "${item_to_output}" ; done)
+			do
+			if [ ${#item_to_select} -eq 0 ]
+				then
+				echo -e "\n\nErr.: Incorrect selection, please select only number."
+				sleep 1
+				echo -e "\n$(for ((index=0; index < ${#args[@]} ; index++)) ; do item_to_output="${args[${index}]}" ; echo "$((${index} + 1))) ${item_to_output}" ; done)"
+			else
+				break
+			fi
+		done
+		IFS=$' \t\n'
+		#
+		echo -e "${frame}\n"
+		echo
+		#########################################
+		#
+		echo "${item_to_select}" 1> "${dir_tmp}/${file_tmp}" 
+		echo "${item_to_select}" 1>&2
+		#
+		}
+	# menu()
+	#
+	##
+	#
+	# tagged_menu()
+	tagged_menu()
+		{
+		local FUNCT_NAME="tagged_menu"
+		local IFS=$' \t\n'
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		unset tagged_tags
+		unset tagged_args
+		local IFS=$'\n'
+			threshold=${#}
+			for (( num=1,array_index=0 ; num <= ${threshold} ; num++,num++,array_index++ ))
+				do
+				tagged_tags[${array_index}]="${1}"
+				tagged_args[${array_index}]="${2}"
+				#
+				shift ; shift
+			done
+				
+		local IFS=$' \t\n'
+		: tagged_tags[@]
+		: tagged_args[@]
+		#
+		#########################################
+		#
+		echo -e "\n\n\n${frame}"
+		echo "$(basename "${eb_current_process_path}" ): tagged menu"
+		echo "${frame}"
+		#
+		not_correct_answer="NO"
+		while :
+			do
+			for ((index=0; index < ${#tagged_args[@]} ; index++)) ; do item_to_output="${tagged_args[${index}]}" ; echo "$((${index} + 1))) ${item_to_output}" ; done ; echo -n "#? "
+			#
+			read number
+			if [ ${#number} -eq 0 ]
+				then
+				not_correct_answer="YES"
+				#
+			else
+				if [ $(echo -n "${number}" | tr -dc [[:digit:]] | wc -c) -eq 0 ]
+					then
+					#
+					not_correct_answer="YES"
+					#
+				else
+					#
+					[ ${number} -eq 0 -o ${number} -gt ${#tagged_args[@]} ] && not_correct_answer="YES"
+					#
+				fi
+				#
+			fi
+			if [ "${not_correct_answer}" = "YES" ]
+				then
+				echo -e "\n\nErr.: Incorrect selection, please select only number (1->${#tagged_args[@]}).\n"
+				sleep 1
+				not_correct_answer="NO"
+				continue 1
+			fi
+			#
+			: number
+			selected_index=$((${number} - 1))
+			tag="${tagged_tags[${selected_index}]}"
+			echo "${tag}" 1> "${dir_tmp}/${file_tmp}" 
+			break 1
+		done
+		#
+		echo -e "${frame}\n"
+		echo
+		#########################################
+		#
+		echo "${tag}" 1>&2
+		#
+		}
+	# tagged_menu()
+	#
+	##
+	#
+	# list()
+	list()
+		{
+		local FUNCT_NAME="list"
+		local IFS=$' \t\n'
+		#
+		: 1> "${dir_tmp}/${file_tmp}"
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		[ ${#PS3} -eq 0 ] && PS3="#?"
+		exit_selection="DONE (exit from loop)"
+		local IFS=$'\n'
+			threshold=${#}
+			args=( $(for (( num=1 ; num <= ${threshold} ; num++ ))
+						do
+						echo "${1}"
+						shift
+					done) "${exit_selection}" )
+		local IFS=$' \t\n'
+		: args[@]
+		#
+		for (( index=0 ; index < ${#args[@]} ; index++ ))
+			do
+			#
+			arg_prog="${args[${index}]}"
+			first_char="${arg_prog:0:1}"
+			#
+			if [ "${first_char}" = "+" ]
+				then
+				arg="${arg_prog:1}"
+				#
+				args[${index}]="*${arg}*"
+				echo -e "${arg}" 1>> "${dir_tmp}/${file_tmp}"
+				#
+			else
+				#
+				if [ "${first_char}" = "-" ]
+					then
+					arg="${arg_prog:1}"
+				else
+					arg="${arg_prog}"
+				fi
+				#
+				args[${index}]="${arg}"
+				#
+			fi #if [ "${first_char}" = "+" ]
+			#
+		done
+		#
+		items="$(0< "${dir_tmp}/${file_tmp}" )"
+		#
+		#########################################
+		echo -e "\n\n\n${frame}"
+		echo "$(basename "${eb_current_process_path}" ): list"
+		echo "${frame}"
+		#
+		IFS=$'\n'
+		while :
+			do
+			echo -e "\n$(for ((index=0; index < ${#args[@]} ; index++)) ; do item_to_output="${args[${index}]}" ; echo "$((${index} + 1))) ${item_to_output}" ; done)"
+			echo -en "${PS3}"
+			read index_plus_1
+			#echo "${index_plus_1}" && break
+			#
+			if [ $(echo -n "${index_plus_1}" | tr -dc '[[:digit:]]' | wc -c) -eq 0 ]
+				then
+				echo -e "\n\nErr.: Incorrect selection, please select only number."
+				sleep 1
+				#
+			else
+				if [ ${index_plus_1} -gt ${#args[@]} ]
+					then
+					echo -e "\n\nErr.: Incorrect selection, please select a number less/equal than ${#args[@]}."
+					sleep 1
+					#
+				else
+					index_minus_1=$((${index_plus_1} - 1))
+					item_to_select="${args[${index_minus_1}]}"
+					#
+					if [ "${item_to_select}" = "${exit_selection}" ]
+						then
+						break
+					elif [ "${item_to_select}" != "${exit_selection}" ]
+						then
+						if [ $(echo "${item_to_select}" | grep "^\*.*\*$" | cut -d '*' -f 2 | wc -c ) -gt 0 -a $(echo "${items}" | grep "^$(echo "${item_to_select}" | cut -d '*' -f 2 )$" | wc -c ) -gt 0 ]
+							then
+							args[${index_minus_1}]="$(echo "${item_to_select}" | cut -d '*' -f 2 )"
+							items="$(echo -e "${items}" | grep -v "^$(echo "${item_to_select}" | cut -d '*' -f 2 )$" | grep -v "^$" )"
+							echo "Item #${index_plus_1} deselected."
+							#echo -e "\${items} :\n${items}"
+							#
+						else
+							args[${index_minus_1}]="*${item_to_select}*"
+							items="$(echo -e "${items}\n${item_to_select}" | grep -v "^$" )"
+							echo "Item #${index_plus_1} selected."
+							#echo -e "\${items} :\n${items}"
+							#
+						fi
+						: items
+						#
+						sleep 1 && continue
+					fi
+				fi
+			fi
+		done
+		IFS=$' \t\n'
+		#
+		echo -e "${frame}\n"
+		echo
+		#########################################
+		#
+		echo "${items}" 1> "${dir_tmp}/${file_tmp}" 
+		echo "${items}" 1>&2
+		#
+		unset items
+		#
+		}
+	# list()
+	#
+	##
+	#
+	# input()
+	input()
+		{
+		local FUNCT_NAME="input"
+		local IFS=$' \t\n'
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		: 1> "${dir_tmp}/${file_tmp}"
+		#
+		quanti_campi=${1}
+		#
+		shift #...perche' il primo parametro e': "quanti_campi" ...
+		threshold=${#}
+		local IFS=$'\n'
+			args=( $(for (( num=1 ; num <= ${threshold} ; num++ ))
+					do
+					echo "${1}"
+					shift
+				done) )
+		local IFS=$' \t\n'
+		#
+		#########################################
+		echo -e "\n\n\n${frame}"
+		echo "$(basename "${eb_current_process_path}" ): input"
+		echo "${frame}"
+		#
+		for (( volta=1 ; volta <= $(( ${quanti_campi} * 2 )) ; volta++,volta++ ))
+			do
+			if [ ${quanti_campi} -eq 1 ]
+				then
+				#
+				# Questo "if" qui sotto e' per standardizzare col comportamento di Xdialog...
+				if [ ${#args[@]} -eq 1 ]
+					then
+					#Cioe' c'e' al massimo ${quanti_campi} e L'UNICO ARGOMENTO, quindi va bene ...
+					:
+				elif [ ${#args[@]} -gt 1 ] #Quando il campo e' unico, Xdialog NON METTE IL TITOLO sul campo (quindi ci devi mettere SOLO 1 argomento aggiuntivo, NON due o comunque piu' di uno )...
+					then
+					alert_message "Warning, problems in \"${0}\" source :\nwhen you use \"input 1 [args]\", args must be UNIQUE...\nE.g.: input \"1\" \"ciccio\" (NOT: input \"1\" \"ciccio\" \"franco\" )"
+					exit
+				fi
+				#
+				testo="" #Perche' il campo e' UNO, e Xdialog con un solo arg NON ha il testo... sai, per standardizzare con Xdialog...
+				# =>
+				testo="Please, write data ..."
+				parametro="${args[0]}"
+				#
+			else
+				#
+				testo="${args[$(( ${volta} - 1 ))]}"
+				parametro="${args[${volta}]}"				
+				#
+			fi
+			#
+			#############
+			#
+			echo -e "\n############################"
+			echo -e "${testo} [${parametro}]:"
+			echo -e "############################"
+			read scelta
+			if [ ${#scelta} -eq 0 ]
+				then
+				scelta="${parametro}"
+			fi
+			#
+			echo "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
+			#
+			#############
+			#
+			if [ $(grep "${scelta}" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -gt 0 ]
+				then
+				:
+			else
+				question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nContinue ?"
+				if [ "${conferma}" -eq 0 ] #"Confermato"
+					then
+					:
+				elif [ "${conferma}" -eq 1 ] #"Non confermato"
+					then
+					exit
+				fi
+			fi
+			#
+		done
+		#
+		echo -e "${frame}\n"
+		echo
+		#########################################
+		#
+		OUT_STDERR="$(0< "${dir_tmp}/${file_tmp}" )"
+		echo "${OUT_STDERR}" 1>&2
+		#
+		}
+	# input()
+	#
+	##
+	#
+	# progress()
+	progress()
+		{
+		local FUNCT_NAME="progress"
+		local IFS=$' \t\n'
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		array_symbols=( '|' '|' '/' '-' '\' )
+		#
+		steps=100
+		[ ${#} -eq 0 ] && testo="Progress" || testo="${1}"
+		#
+		if [ ${#} -ge 2 ]
+			then
+			if [ $(echo -n "${2}" | tr -dc '[[:digit:]]' | wc -c ) -eq 0 ]
+				then
+				# Il secondo argomento c'e', ma NON e' formato da cifre numeriche...
+				alert_message "$(basename "${eb_current_process_path}" ): \n second argument \n\n must be an integer..."
+				return
+				#
+			else
+				quanti_sono_gli_elementi=$(echo -n "${2}" | tr -dc '[[:digit:]]' )
+				steps=${quanti_sono_gli_elementi}
+				#
+				if [ ${quanti_sono_gli_elementi} -eq 0 ]
+					then
+					alert_message "$(basename "${eb_current_process_path}" ): \n this progress \n\n \"${testo}\" \n\n has 0 elements..."
+					return
+				fi
+				#
+				percentuale_di_1_elemento_sul_totale_degli_elementi=$(echo "scale=10; 100 / ${quanti_sono_gli_elementi}" | bc -l)
+				if [ $(echo -n "${percentuale_di_1_elemento_sul_totale_degli_elementi}" | cut -d '.' -f 1 | tr -dc '[[:digit:]]' | wc -c) -eq 0 ]
+					then
+					secondo_numero=$(echo -n "${percentuale_di_1_elemento_sul_totale_degli_elementi}" | cut -d '.' -f 2)
+					percentuale_di_1_elemento_sul_totale_degli_elementi="0.${secondo_numero}"
+				fi
+				#
+			fi #if [ $(echo -n "${2}" | tr -dc '[[:digit:]]' | wc -c ) -eq 0 ] # Il secondo argomento c'e', ma NON e' formato da cifre numeriche...
+			#
+		fi #if [ ${#} -ge 2 ]
+		#
+		#########################################
+		echo -e "\n\n\n${frame}"
+		echo "$(basename "${eb_current_process_path}" ): progress"
+		echo "${frame}"
+		#
+		echo -e "\n############################"
+		echo -e "${testo} :"
+		echo -e "############################"
+			{
+			index=0
+			while read standard_input
+				do
+				if [ "${standard_input}" = "PROGRESS" ]
+					then
+					index=$(( ${index} + 1 ))
+					percentuale=$(echo "scale=10; ${index} * ${percentuale_di_1_elemento_sul_totale_degli_elementi}" | bc -l )
+					[ "X${percentuale%%.*}" = "X" ] && secondo_numero=${percentuale_di_1_elemento_sul_totale_degli_elementi##*.} && percentuale="0.${secondo_numero}"
+					#
+					echo "${percentuale%%.*}"
+					#
+				else
+					#
+					echo "${standard_input%%.*}"
+					#
+				fi
+			done
+			sleep 1 
+			} \
+		| \
+			\
+			{
+			for (( index_symb=0 ; ; index_symb++ ))
+				do
+				read percentuale_to_display
+				if [ ${#percentuale_to_display} -eq 0 ]
+					then
+					break
+				fi
+				#
+				symb="${array_symbols[${index_symb}]}"
+				#
+				echo -en "${percentuale_to_display}% ${symb} \r"
+				#
+				if [ ${index_symb} -eq $(( ${#array_symbols[@]} - 1 )) ]
+					then
+					index_symb="0"
+				fi
+			done
+			}
+		#
+		echo
+		echo -e "${frame}\n"
+		echo
+		#########################################
+		#
+		}
+	# progress()
+	#
+	##
+	#
+	# adjust()
+	adjust()
+		{
+		local FUNCT_NAME="adjust"
+		local IFS=$' \t\n'
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		##
+		#
+		testo="${1-"Please adjust parameter..."}"
+		#
+		start_value=${2-"0"}
+		init_value=${3-"50"}
+		end_value=${4-"100"}
+		#
+		start_value_percent=0
+		end_value_percent=100
+		#
+		num_tot_elementi=$(( ${end_value} - ${start_value} ))
+		diff_values_percent=$(( ${end_value_percent} - ${start_value_percent} ))
+		step=$(echo "scale=2; ${num_tot_elementi} / ${diff_values_percent}" | bc -l )
+		# =>
+		init_value_percent_float=$(echo "scale=2; $(( ${init_value} - ${start_value} )) / ${step}" | bc -l )
+		init_value_percent=$(arrotonda "${init_value_percent_float}" )
+		#
+		#########################################
+		echo -e "\n\n\n${frame}"
+		echo "$(basename "${eb_current_process_path}" ): adjust"
+		echo "${frame}"
+		#
+		echo -e "\n############################"
+		echo -e "${testo} [${init_value_percent} %]:"
+		echo "(please write percent)"
+		echo -e "############################"
+		read selected_value
+		selected_value_percent="$(echo "${selected_value}" | tr -dc '[[:digit:]]' )"
+		if [ ${#selected_value_percent} -eq 0 ]
+			then
+			selected_value_percent="${init_value_percent}"
+		fi
+		if [ ${selected_value_percent} -gt 100 ]
+			then
+			selected_value_percent=100
+		fi
+		echo "${selected_value_percent}" 1> "${dir_tmp}/${file_tmp}"
+		#
+		#
+		value_percent=$(tr -dc '[[:digit:]]' 0< "${dir_tmp}/${file_tmp}" )
+		: value_percent
+		#
+		final_value_temp=$(echo "scale=2; ${value_percent} * ${step}" | bc -l )
+		final_value_float=$(echo "scale=2; ${start_value} + ${final_value_temp}" | bc -l )
+		: final_value_float
+		#
+		final_value=$(arrotonda "${final_value_float}" )
+		: final_value
+		#
+		echo "${final_value}" 1> "${dir_tmp}/${file_tmp}" 
+		#
+		#####################################################
+		#
+		echo -e "${frame}\n"
+		echo
+		#########################################
+		#
+		OUT_STDERR="${final_value}"
+		echo "${OUT_STDERR}" 1>&2
+		}
+	# adjust()
+	#
+	##
+	#
+	
+	echo -e "easybashgui: Fallback functions successfully loaded." 1>&2
+	#
+	##########################################
+	#
+	if [ "${easybashgui_debug_mode}" = "YES" ]
+		then
+		# enable some sane default checks to make bash scripts more robust
+		# http://www.davidpashley.com/articles/writing-robust-shell-scripts.html
+		echo "easybashgui_debug_mode ON" ; echo
+		set -o nounset -o errexit
+		shopt -s extdebug
+		#
+	elif [ "${easybashgui_debug_mode}" = "NO" ]
+		then
+		#
+		#echo "easybashgui_debug_mode OFF"
+		#set +o nounset +o errexit
+		#shopt -u extdebug
+		:
+		#
+	else
+		#
+		echo "easybashgui_debug_mode UNSET"
+		:
+		#
+	fi
+	##########################################à
+	#
+
+fi
+
+
+
+
+

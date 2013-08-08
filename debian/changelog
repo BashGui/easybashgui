@@ -1,0 +1,5 @@
+easybashgui (8.0.1~precise-1) precise; urgency=low
+
+  * Initial release: (Closes: "Create RPMs, DEBs, etc")
+
+ -- Lucio Messina <lucio.messina@mensa.it>  Sat, 06 Jul 2013 09:20:18 +0200
