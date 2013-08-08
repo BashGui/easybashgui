@@ -1,28 +1,61 @@
 #EBGlib=$(wildcard easybashgui_[0-9].[0-9].[0-9])
-VERSION=8.0.0
+VERSION=9.0.0
+
+#cartelle di destinazione
+DESTDIR ?= ""
+BINDIR = $(DESTDIR)/usr/bin
+SHAREDIR = $(DESTDIR)/usr/share/easybashgui
+LIBDIR = $(DESTDIR)/usr/libexec/easybashgui
+MANDIR = $(DESTDIR)/usr/share/man/man1
+DOCDIR = $(DESTDIR)/usr/share/doc/easybashgui
+
+#file nella build directory
+BINARI = src/easybashgui src/easybashgui-debug src/easydialog
+ICONE = icons/Ok.xpm icons/Attenzione.xpm
+LIBRERIE = lib/easybashgui.lib lib/easybashlib
+MANUALE = easybashgui.1.gz
+DOCUMENTAZIONE = EasyBashGUI-license README
+
+build:
+	#we don't need to build, because all the excutable files are scripts.
+	#By the way, dh_auto_build calls `make build`, so I added the "build" target
+
 install:
 	@echo Installing easybashgui v.${VERSION} ...
 	@echo
 	
 	@echo Copying easybashgui ...
-	cp easybashgui easybashgui-debug easydialog.sh /usr/bin/
-	chmod 755 /usr/bin/easybashgui /usr/bin/easydialog.sh
+	
+	#of course we don't need to create /usr/bin directory, but it is useful to prevent errors while packaging
+	mkdir -p $(BINDIR)
+	
+	cp $(BINARI) $(BINDIR)
+	chmod 755 $(BINDIR)/easybashgui $(BINDIR)/easydialog.sh
 	@echo
 
 	@echo Creating /usr/share/easybashgui directory...
-	mkdir -p /usr/share/easybashgui
+	mkdir -p $(SHAREDIR)
 	@echo Copying Xdialog icons ...
-	cp Ok.xpm Attenzione.xpm /usr/share/easybashgui/
+	cp $(ICONE) $(SHAREDIR)
 	@echo
 
 	@echo Creating /usr/libexec/easybashgui directory...
-	mkdir -p /usr/libexec/easybashgui
+	mkdir -p $(LIBDIR)
 	@echo Copying easybashgui.lib and easybashlib ...
-	cp easybashgui.lib easybashlib /usr/libexec/easybashgui/
+	cp $(LIBRERIE) $(LIBDIR)
 	@echo
 
 	@echo Copying easybashgui man page ...
-	cp easybashgui.1.gz /usr/share/man/man1/
+	
+	#see above for /usr/share/man/man1 directory
+	mkdir -p $(MANDIR)
+	
+	cp $(MANUALE) $(MANDIR)
+	@echo
+	
+	@echo Copying easybashgui documentation ...
+	mkdir -p $(DOCDIR)
+	cp $(DOCUMENTAZIONE) $(DOCDIR)
 	@echo
 	
 	@echo "=> easybashgui v.${VERSION} installed."
@@ -32,21 +65,27 @@ uninstall:
 	@echo
 	
 	@echo Removing easybashgui ...
-	rm /usr/bin/easybashgui /usr/bin/easybashgui-debug /usr/bin/easydialog.sh 
+	-rm $(BINDIR)/easybashgui $(BINDIR)/easybashgui-debug $(BINDIR)/easydialog.sh 
 	@echo
 
 	@echo Removing /usr/share/easybashgui directory...
-	rm /usr/share/easybashgui/Ok.xpm /usr/share/easybashgui/Attenzione.xpm 
-	rmdir /usr/share/easybashgui
+	#rm $(SHAREDIR)/Ok.xpm $(SHAREDIR)/Attenzione.xpm 
+	#rmdir $(SHAREDIR)
+	-rm -r $(SHAREDIR)
 	@echo
 
 	@echo Removing /usr/libexec/easybashgui directory...
-	rm /usr/libexec/easybashgui/*
-	rmdir /usr/libexec/easybashgui
+	#rm /usr/libexec/easybashgui/*
+	#rmdir /usr/libexec/easybashgui
+	-rm -r $(LIBDIR)
 	@echo
 
 	@echo Removing easybashgui man page ...
-	rm /usr/share/man/man1/easybashgui.1.gz
+	-rm $(MANDIR)/easybashgui.1.gz
+	@echo
+	
+	@echo Removing /usr/share/doc/easybashgui directory...
+	-rm -r $(DOCDIR)
 	@echo
 	
 	@echo "=> easybashgui uninstalled."
