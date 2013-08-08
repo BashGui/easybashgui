@@ -1,11 +1,11 @@
 #EBGlib=$(wildcard easybashgui_[0-9].[0-9].[0-9])
-VERSION=9.0.0
+VERSION=9.0.1
 
 #cartelle di destinazione
 DESTDIR ?= ""
 BINDIR = $(DESTDIR)/usr/bin
 SHAREDIR = $(DESTDIR)/usr/share/easybashgui
-LIBDIR = $(DESTDIR)/usr/libexec/easybashgui
+LIBDIR = $(DESTDIR)/usr/lib/easybashgui
 MANDIR = $(DESTDIR)/usr/share/man/man1
 DOCDIR = $(DESTDIR)/usr/share/doc/easybashgui
 
@@ -39,7 +39,7 @@ install:
 	cp $(ICONE) $(SHAREDIR)
 	@echo
 
-	@echo Creating /usr/libexec/easybashgui directory...
+	@echo Creating /usr/lib/easybashgui directory...
 	mkdir -p $(LIBDIR)
 	@echo Copying easybashgui.lib and easybashlib ...
 	cp $(LIBRERIE) $(LIBDIR)
@@ -69,14 +69,12 @@ uninstall:
 	@echo
 
 	@echo Removing /usr/share/easybashgui directory...
-	#rm $(SHAREDIR)/Ok.xpm $(SHAREDIR)/Attenzione.xpm 
-	#rmdir $(SHAREDIR)
 	-rm -r $(SHAREDIR)
 	@echo
 
 	@echo Removing /usr/libexec/easybashgui directory...
-	#rm /usr/libexec/easybashgui/*
-	#rmdir /usr/libexec/easybashgui
+	-rm -r /usr/libexec/easybashgui
+	@echo Removing /usr/lib/easybashgui directory...
 	-rm -r $(LIBDIR)
 	@echo
 

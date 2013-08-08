@@ -80,9 +80,9 @@
 #	something like if [ -e $(eb_incl__absolute_path)/$module_*.*.* ] ?
 #
 ###################################################################
-MODULE_VERSION="9.0.0"
+MODULE_VERSION="9.0.1"
 MODULE_NAME="easybashgui"
-libexec_dir="/usr/libexec/easybashgui"
+libexec_dir="/usr/lib/easybashgui"
 ###################################################################
 
 
