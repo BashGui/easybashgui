@@ -30,7 +30,7 @@ install:
 	mkdir -p $(BINDIR)
 	
 	cp $(BINARI) $(BINDIR)
-	chmod 755 $(BINDIR)/easybashgui $(BINDIR)/easydialog.sh
+	chmod 755 $(BINDIR)/easybashgui $(BINDIR)/easydialog
 	@echo
 
 	@echo Creating /usr/share/easybashgui directory...
