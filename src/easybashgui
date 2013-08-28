@@ -80,7 +80,7 @@
 #	something like if [ -e $(eb_incl__absolute_path)/$module_*.*.* ] ?
 #
 ###################################################################
-MODULE_VERSION="9.0.1"
+MODULE_VERSION="10.0.0"
 MODULE_NAME="easybashgui"
 libexec_dir="/usr/lib/easybashgui"
 ###################################################################
@@ -1350,31 +1350,9 @@ elif [ "${eb_gui_fallback}" = "true" ]
 		#
 		for (( volta=1 ; volta <= $(( ${quanti_campi} * 2 )) ; volta++,volta++ ))
 			do
-			if [ ${quanti_campi} -eq 1 ]
-				then
-				#
-				# Questo "if" qui sotto e' per standardizzare col comportamento di Xdialog...
-				if [ ${#args[@]} -eq 1 ]
-					then
-					#Cioe' c'e' al massimo ${quanti_campi} e L'UNICO ARGOMENTO, quindi va bene ...
-					:
-				elif [ ${#args[@]} -gt 1 ] #Quando il campo e' unico, Xdialog NON METTE IL TITOLO sul campo (quindi ci devi mettere SOLO 1 argomento aggiuntivo, NON due o comunque piu' di uno )...
-					then
-					alert_message "Warning, problems in \"${0}\" source :\nwhen you use \"input 1 [args]\", args must be UNIQUE...\nE.g.: input \"1\" \"ciccio\" (NOT: input \"1\" \"ciccio\" \"franco\" )"
-					exit
-				fi
-				#
-				testo="" #Perche' il campo e' UNO, e Xdialog con un solo arg NON ha il testo... sai, per standardizzare con Xdialog...
-				# =>
-				testo="Please, write data ..."
-				parametro="${args[0]}"
-				#
-			else
-				#
-				testo="${args[$(( ${volta} - 1 ))]}"
-				parametro="${args[${volta}]}"				
-				#
-			fi
+			#
+			testo="${args[$(( ${volta} - 1 ))]}"
+			parametro="${args[${volta}]}"; [ ${#parametro} -eq 0 -a ${quanti_campi} -eq 1 ] && testo="Please, write data ..." && parametro="${args[$(( ${volta} - 1 ))]}"		
 			#
 			#############
 			#

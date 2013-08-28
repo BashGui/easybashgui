@@ -35,7 +35,7 @@
 #####################################
 #####################################
 #
-LIB_VERSION="9.0.1"
+LIB_VERSION="10.0.0"
 LIB_NAME="easybashgui.lib"
 LIB_URL="https://github.com/BashGui/easybashgui"
 LIB_AUTHOR="Vittorio Cagnetta"
@@ -5691,80 +5691,35 @@ if [ "${mode}" = "yad" ]
 				done) )
 		local IFS=$' \t\n'
 		#
-		if [ ${quanti_campi} -eq 1 ]
-			then
+		for (( volta=1 ; volta <= $(( ${quanti_campi} * 2 )) ; volta++,volta++ ))
+			do
 			#
-			# Questo "if" qui sotto e' per standardizzare col comportamento di Xdialog...
-			if [ ${#args[@]} -eq 1 ]
+			testo="${args[$(( ${volta} - 1 ))]}"
+			parametro="${args[${volta}]}" ; [ ${#parametro} -eq 0 -a ${quanti_campi} -eq 1 ] && testo=" " && parametro="${args[$(( ${volta} - 1 ))]}"
+			#
+			stringa_yad="${stringa_yad}\t--field=\"${testo}\"\t\"${parametro}\""
+			#
+		done	
+		#
+		#############
+		scelta="$(eval $(local IFS=$'\t' && echo -e "${dialogo}\t--title\t\"${supertitle:-EasyBashGUI}: data input\"\t--form\t${stringa_yad}\t--separator\t\"\\\n\"\t${dimensione_finestra}\t2>\t/dev/null" ) )"
+		unset stringa_yad
+		echo -e "${scelta}" 1> "${dir_tmp}/${file_tmp}"
+		#############
+		#
+		if [ $(grep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -eq 0 ]
+			then
+			question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?" ; conferma="${?}"
+			if [ "${conferma}" -eq 0 ] #"Confermato"
 				then
-				#Cioe' c'e' al massimo ${quanti_campi} e L'UNICO ARGOMENTO, quindi va bene ...
 				:
-			elif [ ${#args[@]} -gt 1 ] #Quando il campo e' unico, Xdialog NON METTE IL TITOLO sul campo (quindi ci devi mettere SOLO un argomento aggiuntivo, NON due o comunque piu' di uno )...
+			elif [ "${conferma}" -eq 1 ] #"Non confermato"
 				then
-				alert_message "Warning, problems in \"${0}\" source :\nwhen you use \"input 1 [args]\", args must be UNIQUE...\nE.g.: input \"1\" \"ciccio\" (NOT: input \"1\" \"ciccio\" \"franco\" )"
 				exit
 			fi
-			#
-			#
-			#
-			testo=" " #Perche' il campo e' UNO, e Xdialog con un solo arg NON ha il testo... sai, per standardizzare con Xdialog...
-			parametro="${args[0]}"
-			#
-			#############
-			scelta="$(eval $(local IFS=$'\t' && echo -e "${dialogo}\t--title\t\"${supertitle:-EasyBashGUI}: data input\"\t--entry\t--text\t\"${testo}\"\t${dimensione_finestra}\t--entry-text\t\"${parametro}\"\t2>\t/dev/null" ) )"
-			echo -e "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
-			#############
-			#
-			if [ $(grep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -gt 0 ]
-				then
-				:
-			else
-				question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?" ; conferma="${?}"
-				if [ "${conferma}" -eq 0 ] #"Confermato"
-					then
-					:
-				elif [ "${conferma}" -eq 1 ] #"Non confermato"
-					then
-					exit
-				fi
-			fi
-			#
-			exit_if_user_closes_window
-			#
-		else
-			for (( volta=1 ; volta <= $(( ${quanti_campi} * 2 )) ; volta++,volta++ ))
-				do
-				#
-				testo="${args[$(( ${volta} - 1 ))]}"
-				parametro="${args[${volta}]}"
-				#
-				stringa_yad="${stringa_yad}\t--field=\"${testo}\"\t\"${parametro}\""
-				#
-			done	
-			#
-			#############
-			scelta="$(eval $(local IFS=$'\t' && echo -e "${dialogo}\t--title\t\"${supertitle:-EasyBashGUI}: data input\"\t--form\t${stringa_yad}\t--separator\t\"\\\n\"\t${dimensione_finestra}\t2>\t/dev/null" ) )"
-			unset stringa_yad
-			echo -e "${scelta}" 1> "${dir_tmp}/${file_tmp}"
-			#############
-			#
-			if [ $(grep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -gt 0 ]
-				then
-				:
-			else
-				question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?" ; conferma="${?}"
-				if [ "${conferma}" -eq 0 ] #"Confermato"
-					then
-					:
-				elif [ "${conferma}" -eq 1 ] #"Non confermato"
-					then
-					exit
-				fi
-			fi
-			#
-			exit_if_user_closes_window
-			#
-		fi #if [ ${quanti_campi} -eq 1 ]
+		fi
+		#
+		exit_if_user_closes_window
 		#
 		OUT_STDERR="$(0< "${dir_tmp}/${file_tmp}" )"
 		echo "${OUT_STDERR}" 1>&2
@@ -5810,27 +5765,14 @@ elif [ "${mode}" = "gtkdialog" ]
 				done) )
 		local IFS=$' \t\n'
 		#
-		if [ ${quanti_campi} -eq 1 ]
-			then
-			#
-			default_value="${args[0]}"
-			inputboxes="$(echo -e "<hbox>"
-					echo -e "<entry>"
-					echo -e "<default>\"${default_value}\"</default>"
-					echo -e "<variable>INPUT1</variable>"
-					echo -e "</entry>"
-					echo -e "</hbox>" )"
-			#
-		else
-			#
-			inputboxes="$(for (( index=0 ; index < ${quanti_campi} ; index++ ))
+		inputboxes="$(for (( index=0 ; index < ${quanti_campi} ; index++ ))
 					do
 					#
 					array_label_index=$(( ${index} * 2 ))
 					label_value="${args[${array_label_index}]}"
 					#
 					array_default_index=$(( ${array_label_index} + 1 ))
-					default_value="${args[${array_default_index}]}"
+					default_value="${args[${array_default_index}]}" ; [ ${#default_value} -eq 0 -a ${quanti_campi} -eq 1 ] && label_value=" " && default_value="${args[${array_label_index}]}"
 					#
 					echo -e "<hbox>"
 					echo -e "<text>"
@@ -5843,8 +5785,7 @@ elif [ "${mode}" = "gtkdialog" ]
 					echo -e "</hbox>"
 					#
 				done )"
-			#
-		fi
+		#
 		: inputboxes
 		#
 		export INPUT_DIALOG="
@@ -5946,35 +5887,19 @@ elif [ "${mode}" = "kdialog" ]
 				done) )
 		local IFS=$' \t\n'
 		#
-		if [ ${quanti_campi} -eq 1 ]
-			then
+		for (( volta=1 ; volta <= $(( ${quanti_campi} * 2 )) ; volta++,volta++ ))
+			do
 			#
-			# Questo "if" qui sotto e' per standardizzare col comportamento di Xdialog...
-			if [ ${#args[@]} -eq 1 ]
-				then
-				#Cioe' c'e' un UNICO ARGOMENTO, quindi va bene ...
-				:
-			elif [ ${#args[@]} -gt 1 ]
-				then
-				#Quando il campo e' unico, Xdialog NON METTE IL TITOLO sul campo (quindi ci devi mettere SOLO un argomento aggiuntivo, NON due o comunque piu' di uno )...
-				alert_message "Warning, problems in \"${0}\" source :\nwhen you use \"input 1 [args]\", args must be UNIQUE...\nE.g.: input \"1\" \"ciccio\" (NOT: input \"1\" \"ciccio\" \"franco\" )"
-				exit
-			fi
-			#
-			#
-			#
-			testo=" " #Perche' il campo e' UNO, e Xdialog con un solo arg NON ha il testo... sai, per standardizzare il comportamento di kdialog con quello di Xdialog...
-			parametro="${args[0]}"
+			testo="${args[$(( ${volta} - 1 ))]}"
+			parametro="${args[${volta}]}" ; [ ${#parametro} -eq 0 -a ${quanti_campi} -eq 1 ] && testo=" " && parametro="${args[$(( ${volta} - 1 ))]}"
 			#
 			#############
 			scelta="$(eval $(local IFS=$'\t' && echo -e "${dialogo}\t--title\t\"${supertitle:-EasyBashGUI}: data input\"\t--inputbox\t\"${testo}\"\t\"${parametro}\"\t2>\t/dev/null" ) )"
 			echo -e "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
 			#############
 			#
-			if [ $(grep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -gt 0 ]
+			if [ $(grep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -eq 0 ]
 				then
-				:
-			else
 				question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?" ; conferma="${?}"
 				if [ "${conferma}" -eq 0 ] #"Confermato"
 					then
@@ -5987,36 +5912,7 @@ elif [ "${mode}" = "kdialog" ]
 			#
 			exit_if_user_closes_window
 			#
-		else
-			for (( volta=1 ; volta <= $(( ${quanti_campi} * 2 )) ; volta++,volta++ ))
-				do
-				#
-				testo="${args[$(( ${volta} - 1 ))]}"
-				parametro="${args[${volta}]}"
-				#
-				#############
-				scelta="$(eval $(local IFS=$'\t' && echo -e "${dialogo}\t--title\t\"${supertitle:-EasyBashGUI}: data input\"\t--inputbox\t\"${testo}\"\t\"${parametro}\"\t2>\t/dev/null" ) )"
-				echo -e "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
-				#############
-				#
-				if [ $(grep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -gt 0 ]
-					then
-					:
-				else
-					question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?" ; conferma="${?}"
-					if [ "${conferma}" -eq 0 ] #"Confermato"
-						then
-						:
-					elif [ "${conferma}" -eq 1 ] #"Non confermato"
-						then
-						exit
-					fi
-				fi
-				#
-				exit_if_user_closes_window
-				#
-			done
-		fi #if [ ${quanti_campi} -eq 1 ]
+		done
 		#
 		OUT_STDERR="$(0< "${dir_tmp}/${file_tmp}" )"
 		echo "${OUT_STDERR}" 1>&2
@@ -6068,34 +5964,19 @@ elif [ "${mode}" = "zenity" ]
 				done) )
 		local IFS=$' \t\n'
 		#
-		if [ ${quanti_campi} -eq 1 ]
-			then
+		for (( volta=1 ; volta <= $(( ${quanti_campi} * 2 )) ; volta++,volta++ ))
+			do
 			#
-			# Questo "if" qui sotto e' per standardizzare col comportamento di Xdialog...
-			if [ ${#args[@]} -eq 1 ]
-				then
-				#Cioe' c'e' al massimo ${quanti_campi} e L'UNICO ARGOMENTO, quindi va bene ...
-				:
-			elif [ ${#args[@]} -gt 1 ] #Quando il campo e' unico, Xdialog NON METTE IL TITOLO sul campo (quindi ci devi mettere SOLO un argomento aggiuntivo, NON due o comunque piu' di uno )...
-				then
-				alert_message "Warning, problems in \"${0}\" source :\nwhen you use \"input 1 [args]\", args must be UNIQUE...\nE.g.: input \"1\" \"ciccio\" (NOT: input \"1\" \"ciccio\" \"franco\" )"
-				exit
-			fi
-			#
-			#
-			#
-			testo=" " #Perche' il campo e' UNO, e Xdialog con un solo arg NON ha il testo... sai, per standardizzare con Xdialog...
-			parametro="${args[0]}"
+			testo="${args[$(( ${volta} - 1 ))]}"
+			parametro="${args[${volta}]}" ; [ ${#parametro} -eq 0 -a ${quanti_campi} -eq 1 ] && testo=" " && parametro="${args[$(( ${volta} - 1 ))]}"
 			#
 			#############
 			scelta="$(eval $(local IFS=$'\t' && echo -e "${dialogo}\t--title\t\"${supertitle:-EasyBashGUI}: data input\"\t--entry\t--text\t\"${testo}\"\t${dimensione_finestra}\t--entry-text\t\"${parametro}\"\t2>\t/dev/null" ) )"
 			echo -e "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
 			#############
 			#
-			if [ $(grep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -gt 0 ]
+			if [ $(grep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -eq 0 ]
 				then
-				:
-			else
 				question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?" ; conferma="${?}"
 				if [ "${conferma}" -eq 0 ] #"Confermato"
 					then
@@ -6108,36 +5989,7 @@ elif [ "${mode}" = "zenity" ]
 			#
 			exit_if_user_closes_window
 			#
-		else
-			for (( volta=1 ; volta <= $(( ${quanti_campi} * 2 )) ; volta++,volta++ ))
-				do
-				#
-				testo="${args[$(( ${volta} - 1 ))]}"
-				parametro="${args[${volta}]}"
-				#
-				#############
-				scelta="$(eval $(local IFS=$'\t' && echo -e "${dialogo}\t--title\t\"${supertitle:-EasyBashGUI}: data input\"\t--entry\t--text\t\"${testo}\"\t${dimensione_finestra}\t--entry-text\t\"${parametro}\"\t2>\t/dev/null" ) )"
-				echo -e "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
-				#############
-				#
-				if [ $(grep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -gt 0 ]
-					then
-					:
-				else
-					question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?" ; conferma="${?}"
-					if [ "${conferma}" -eq 0 ] #"Confermato"
-						then
-						:
-					elif [ "${conferma}" -eq 1 ] #"Non confermato"
-						then
-						exit
-					fi
-				fi
-				#
-				exit_if_user_closes_window
-				#
-			done
-		fi #if [ ${quanti_campi} -eq 1 ]
+		done
 		#
 		OUT_STDERR="$(0< "${dir_tmp}/${file_tmp}" )"
 		echo "${OUT_STDERR}" 1>&2
@@ -6179,50 +6031,52 @@ elif [ "${mode}" = "Xdialog" ]
 		quanti_campi=${1}
 		: 1> "${dir_tmp}/${file_tmp}"
 		#
+		shift
+		local IFS=$'\n'
+			threshold=${#}
+			args=( $(for (( num=1 ; num <= ${threshold} ; num++ ))
+					do
+					echo "${1}"
+					shift
+				done) )
+			parametri="$(for (( index=0 ; index < ${#args[@]} ; index++ ))
+					do
+					echo -ne "${args[${index}]}\t"
+				done)"
+		#
 		if [ ${quanti_campi} -eq 1 ]
 			then
 			inputbox="--inputbox"
-			if [ ${#} -le 2 ]
-				then
-				#Cioe' c'e' al massimo ${quanti_campi} e L'UNICO ARGOMENTO, quindi va bene ...
-				:
-			elif [ ${#} -gt 2 ] #Quando il campo e' unico, Xdialog NON METTE IL TITOLO sul campo (quindi ci devi mettere SOLO un argomento aggiuntivo, NON due)...
-				then
-				alert_message "Warning, problems in \"${0}\" source :\nwhen you use \"input 1 [args]\", args must be UNIQUE...\nE.g.: input \"1\" \"ciccio\" (NOT: input \"1\" \"ciccio\" \"franco\" )"
-				exit
-			fi
+			#
+			testo="${args[0]}"
+			parametro="${args[1]}" ; [ ${#parametro} -eq 0 -a ${quanti_campi} -eq 1 ] && testo="Please, write data ..." && parametro="${args[0]}"
+			#
+			local IFS=$'\t\n'
+				#
+				#############
+				scelta=$( ${dialogo} --stdout --separator "\\n" --title "${supertitle:-EasyBashGUI}: data input" ${inputbox} "${testo}" ${dimensione_finestra} ${parametro} 2> /dev/null | grep -v "${string_to_clean}" )
+				echo -e "${scelta}" 1> "${dir_tmp}/${file_tmp}"
+				#############
+				#
+			local IFS=$' \t\n'
 			#
 		elif [ ${quanti_campi} -gt 1 ]
 			then
 			inputbox="--${quanti_campi}inputsbox"
 			#
+			local IFS=$'\t\n'
+				#
+				#############
+				scelta=$( ${dialogo} --stdout --separator "\\n" --title "${supertitle:-EasyBashGUI}: data input" ${inputbox} "Please, write data ..." ${dimensione_finestra} ${parametri} 2> /dev/null | grep -v "${string_to_clean}" )
+				echo -e "${scelta}" 1> "${dir_tmp}/${file_tmp}"
+				#############
+				#
+			local IFS=$' \t\n'
+			#
 		fi #if [ ${quanti_campi} -eq 1 ]
 		#
-		shift
-		local IFS=$'\n'
-			threshold=${#}
-			args=( $(for (( num=1 ; num <= ${threshold} ; num++ ))
-						do
-						echo "${1}"
-						shift
-					done) )
-			parametri="$(for (( index=0 ; index < ${#args[@]} ; index++ ))
-					do
-					echo -ne "${args[${index}]}\t"
-				done)"
-		local IFS=$'\t\n'
-			#
-			#############
-			scelta=$( ${dialogo} --stdout --separator "\\n" --title "${supertitle:-EasyBashGUI}: data input" ${inputbox} "Please, write data ..." ${dimensione_finestra} ${parametri} 2> /dev/null | grep -v "${string_to_clean}" )
-			echo -e "${scelta}" 1> "${dir_tmp}/${file_tmp}"
-			#############
-			#
-		local IFS=$' \t\n'
-		#
-		if [ $(grep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -gt 0 ]
+		if [ $(grep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -eq 0 ]
 			then
-			:
-		else
 			question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\n Continue ?" ; conferma="${?}"
 			if [ "${conferma}" -eq 0 ] #"Confermato"
 				then
@@ -6278,34 +6132,22 @@ elif [ "${mode}" = "dialog" ]
 				done) )
 		local IFS=$' \t\n'
 		#
-		if [ ${quanti_campi} -eq 1 ]
-			then
+		for (( volta=1 ; volta <= $(( ${quanti_campi} * 2 )) ; volta++,volta++ ))
+			do
 			#
-			# Questo "if" qui sotto e' per standardizzare col comportamento di Xdialog...
-			if [ ${#args[@]} -eq 1 ]
-				then
-				#Cioe' c'e' al massimo ${quanti_campi} e L'UNICO ARGOMENTO, quindi va bene ...
-				:
-			elif [ ${#args[@]} -gt 1 ] #Quando il campo e' unico, Xdialog NON METTE IL TITOLO sul campo (quindi ci devi mettere SOLO 1 argomento aggiuntivo, NON due o comunque piu' di uno )...
-				then
-				alert_message "Warning, problems in \"${0}\" source :\nwhen you use \"input 1 [args]\", args must be UNIQUE...\nE.g.: input \"1\" \"ciccio\" (NOT: input \"1\" \"ciccio\" \"franco\" )"
-				exit
-			fi
-			#
-			#
-			#
-			testo="" #Perche' il campo e' UNO, e Xdialog con un solo arg NON ha il testo... sai, per standardizzare con Xdialog...
-			parametro="${args[0]}"
+			testo="${args[$(( ${volta} - 1 ))]}"
+			parametro="${args[${volta}]}" ; [ ${#parametro} -eq 0 -a ${quanti_campi} -eq 1 ] && testo="" && parametro="${args[$(( ${volta} - 1 ))]}"			
 			#
 			#############
 			if [ "${dialogo}" = "whiptail --fb" ]
 				then
 				#
-				${dialogo} ${separator} --title "${supertitle:-EasyBashGUI}: data input" --inputbox "${testo}" ${dimensione_finestra} "${parametro}" 2>> "${dir_tmp}/${file_tmp}"; echo "" 1>> "${dir_tmp}/${file_tmp}"
+				${dialogo} ${separator} --title "${supertitle:-EasyBashGUI}: data input" --inputbox "${testo}" ${dimensione_finestra} "${parametro}" 2>> "${dir_tmp}/${file_tmp}" ; echo "" 1>> "${dir_tmp}/${file_tmp}"
 				#
 				scelta="$(0< "${dir_tmp}/${file_tmp}" )"
 				#
 			else
+				#
 				scelta="$(eval $(local IFS=$'\t' && echo -e "${dialogo}\t--stdout\t${separator}\t\"\\n\"\t--title\t\"${supertitle:-EasyBashGUI}: data input\"\t--inputbox\t\"${testo}\"\t${dimensione_finestra}\t\"${parametro}\"\t2>\t/dev/null" ) )"
 				#
 				echo -e "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
@@ -6314,11 +6156,9 @@ elif [ "${mode}" = "dialog" ]
 			#
 			#############
 			#
-			if [ $(grep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -gt 0 ]
+			if [ $(grep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -eq 0 ]
 				then
-				:
-			else
-				question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\n Continue ?" ; conferma="${?}"
+				question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?" ; conferma="${?}"
 				if [ "${conferma}" -eq 0 ] #"Confermato"
 					then
 					:
@@ -6330,50 +6170,7 @@ elif [ "${mode}" = "dialog" ]
 			#
 			exit_if_user_closes_window
 			#
-		else
-			for (( volta=1 ; volta <= $(( ${quanti_campi} * 2 )) ; volta++,volta++ ))
-				do
-				#
-				testo="${args[$(( ${volta} - 1 ))]}"
-				parametro="${args[${volta}]}"				
-				#
-				#############
-				if [ "${dialogo}" = "whiptail --fb" ]
-					then
-					#
-					${dialogo} ${separator} --title "${supertitle:-EasyBashGUI}: data input" --inputbox "${testo}" ${dimensione_finestra} "${parametro}" 2>> "${dir_tmp}/${file_tmp}" ; echo "" 1>> "${dir_tmp}/${file_tmp}"
-					#
-					scelta="$(0< "${dir_tmp}/${file_tmp}" )"
-					#
-				else
-					#
-					scelta="$(eval $(local IFS=$'\t' && echo -e "${dialogo}\t--stdout\t${separator}\t\"\\n\"\t--title\t\"${supertitle:-EasyBashGUI}: data input\"\t--inputbox\t\"${testo}\"\t${dimensione_finestra}\t\"${parametro}\"\t2>\t/dev/null" ) )"
-					#
-					echo -e "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
-					#
-				fi
-				#
-				#############
-				#
-				if [ $(grep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -gt 0 ]
-					then
-					:
-				else
-					question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?" ; conferma="${?}"
-					if [ "${conferma}" -eq 0 ] #"Confermato"
-						then
-						:
-					elif [ "${conferma}" -eq 1 ] #"Non confermato"
-						then
-						exit
-					fi
-				fi
-				#
-				exit_if_user_closes_window
-				#
-			done
-			#
-		fi #if [ ${quanti_campi} -eq 1 ]
+		done
 		#
 		OUT_STDERR="$(0< "${dir_tmp}/${file_tmp}" )"
 		echo "${OUT_STDERR}" 1>&2
