@@ -8,7 +8,7 @@
 #
 #########################
 #
-# Copyright (C) 2013 Vittorio Cagnetta
+# Copyright (C) 2017 Vittorio Cagnetta
 #
 # Author: Vittorio Cagnetta <vaisarger@gmail.com>
 #
@@ -35,7 +35,7 @@
 #####################################
 #####################################
 #
-LIB_VERSION="10.0.0"
+LIB_VERSION="10.0.1"
 LIB_NAME="easybashgui.lib"
 LIB_URL="https://github.com/BashGui/easybashgui"
 LIB_AUTHOR="Vittorio Cagnetta"
@@ -3789,13 +3789,13 @@ if [ "${mode}" = "yad" ]
 						arg="${arg_pre}"
 					fi
 					#
-					echo -ne "\"${arg}\"\t"
+					echo -ne "\"${arg}\"\t" | gsed s\#'<'#'{--|'#g | gsed s\#'>'#'|--}'#g
 				done )"
 		local IFS=$' \t\n'
 		#
 		#
 		local IFS=$'\t\n'
-			scelta="$(eval $(local IFS=$'\t' ; echo -e "${dialogo}\t${stdout}\t${no_tags}\t--title\t\"${supertitle:-EasyBashGUI}: menu\"\t${menubox}\t${text}\t\"Select option...\"\t${dimensione_finestra}\t${dimensione_menu}\t--separator=''\t${column}\t${parametri}\t2>\t/dev/null" ; local IFS=$'\t\n') )"
+			scelta="$(eval $(local IFS=$'\t' ; echo -e "${dialogo}\t${stdout}\t${no_tags}\t--title\t\"${supertitle:-EasyBashGUI}: menu\"\t${menubox}\t--no-headers\t${text}\t\"Select option...\"\t${dimensione_finestra}\t${dimensione_menu}\t--separator=''\t${column}\t${parametri}\t2>\t/dev/null" ; local IFS=$'\t\n') )"
 			if [ "${dialogo}" = "dialog" ]
 				then
 				if [ $(echo -n "${scelta}" | wc -c) -gt 0 ]
@@ -3807,6 +3807,7 @@ if [ "${mode}" = "yad" ]
 			#
 			####
 			#######
+			scelta="$(echo "${scelta}" | gsed s\#'{--|'#'<'#g | gsed s\#'|--}'#'>'#g )"
 			echo "${scelta}" | grep -v "${string_to_clean}" 1> "${dir_tmp}/${file_tmp}"
 			#######
 			####
@@ -4435,13 +4436,13 @@ if [ "${mode}" = "yad" ]
 							arg="${arg_pre}"
 						fi
 						#
-						echo -ne "\"${arg}\"\t"
+						echo -ne "\"${arg}\"\t" | gsed s\#'<'#'{--|'#g | gsed s\#'>'#'|--}'#g
 					done )"
 		local IFS=$' \t\n'
 		#
 		#
 		local IFS=$'\t\n'
-			scelta="$(eval $(local IFS=$'\t' ; echo -e "${dialogo}\t${stdout}\t${no_tags}\t--title\t\"${supertitle:-EasyBashGUI}: menu\"\t${menubox}\t${text}\t\"Select option...\"\t${dimensione_finestra}\t${dimensione_menu}\t--separator=''\t${column}\t${column}\t${tagged_mode_options}\t${tagged_parametri}\t2>\t/dev/null" ; local IFS=$'\t\n') )"
+			scelta="$(eval $(local IFS=$'\t' ; echo -e "${dialogo}\t${stdout}\t${no_tags}\t--title\t\"${supertitle:-EasyBashGUI}: menu\"\t${menubox}\t--no-headers\t${text}\t\"Select option...\"\t${dimensione_finestra}\t${dimensione_menu}\t--separator=''\t${column}\t${column}\t${tagged_mode_options}\t${tagged_parametri}\t2>\t/dev/null" ; local IFS=$'\t\n') )"
 			if [ "${dialogo}" = "dialog" ]
 				then
 				if [ $(echo -n "${scelta}" | wc -c) -gt 0 ]
@@ -4453,6 +4454,7 @@ if [ "${mode}" = "yad" ]
 			#
 			####
 			#######
+			scelta="$(echo "${scelta}" | gsed s\#'{--|'#'<'#g | gsed s\#'|--}'#'>'#g )"
 			echo "${scelta}" | grep -v "${string_to_clean}" 1> "${dir_tmp}/${file_tmp}"
 			#######
 			####
@@ -5112,7 +5114,7 @@ if [ "${mode}" = "yad" ]
 						then
 						arg="${arg_prog:1}"
 						#
-						echo -ne "\"TRUE\" \"${arg}\" "
+						echo -ne "\"TRUE\" \"${arg}\" " | gsed s\#'<'#'{--|'#g | gsed s\#'>'#'|--}'#g
 						#
 					else
 						#
@@ -5123,7 +5125,7 @@ if [ "${mode}" = "yad" ]
 							arg="${arg_prog}"
 						fi
 						#
-						echo -ne "\"FALSE\" \"${arg}\" "
+						echo -ne "\"FALSE\" \"${arg}\" " | gsed s\#'<'#'{--|'#g | gsed s\#'>'#'|--}'#g
 						#
 					fi #if [ "${first_char}" = "+" ]
 					#
@@ -5136,6 +5138,7 @@ if [ "${mode}" = "yad" ]
 		scelte="$(eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: list\" --separator \"\\n\" --list --checklist --column \" \" --column \" \" --text \"Select multiple options...\" ${dimensione_finestra_1} ${dimensione_finestra_2} ${parametri} 2> /dev/null )"
 		exit_code="${?}"
 		#
+		scelte="$(echo "${scelte}" | gsed s\#'{--|'#'<'#g | gsed s\#'|--}'#'>'#g )"
 		echo -e "${scelte}" | gsed s\#'^TRUE$'#''# | gsed '/^$/d' 1> "${dir_tmp}/${file_tmp}"
 		#
 		#

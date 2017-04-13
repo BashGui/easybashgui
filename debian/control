@@ -9,7 +9,7 @@ Homepage: https://github.com/BashGui/easybashgui
 Package: easybashgui
 Architecture: any
 Depends: ${misc:Depends}
-Description: functions libraries that aims to give simple GUI functions
+Description: functions library that aims to give simple GUI functions
  EasyBashGUI is a Bash functions library for *BSD and GNU/Linux that aims to 
  give simple GUI functions using yad, gtkdialog, kdialog, zenity, Xdialog, 
  (c)dialog, whiptail or bash builtins depending on KDE or GNOME running or not,

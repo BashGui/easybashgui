@@ -2,7 +2,7 @@ Format: http://dep.debian.net/deps/dep5
 Upstream-Name: easybashgui
 
 Files: *
-Copyright: 2013 Lucio Messina <lucio.messina@mensa.it>
+Copyright: 2017 Lucio Messina <lucio.messina@mensa.it>
 License: GPL-2+
  This package is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by

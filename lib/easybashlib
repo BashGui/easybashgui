@@ -41,9 +41,12 @@ eb_incl_easybashlib__imported=please_prevent_next_time
 
 # Bash debugging:
 : we_are_here
-declare BASH_SOURCE ; [ "${BASH_SOURCE:-unset}" = "unset" ] && declare -r BASH_SOURCE="${eb_runtime_invoke_name}"
-declare LINENO ; [ "${LINENO:-unset}" = "unset" ] && declare -ir LINENO="0"
-declare FUNCNAME ; [ "${FUNCNAME:-unset}" = "unset" ] && declare -r FUNCNAME="unknown_function"
+[ $(declare | grep "BASH_SOURCE=" | wc -c ) -eq 0 ] && declare BASH_SOURCE ; \
+		[ "${BASH_SOURCE:-unset}" = "unset" ] && declare -r BASH_SOURCE="${eb_runtime_invoke_name}"
+[ $(declare | grep "LINENO=" | wc -c ) -eq 0 ] && declare LINENO ; \
+		[ "${LINENO:-unset}" = "unset" ] && declare -ir LINENO="0"
+[ $(declare | grep "FUNCNAME=" | wc -c ) -eq 0 ] && declare FUNCNAME ; \
+		[ "${FUNCNAME:-unset}" = "unset" ] && declare -r FUNCNAME="unknown_function"
 export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 
 #set -o verbose -o xtrace

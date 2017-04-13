@@ -203,7 +203,7 @@ Since 5.0.0 version you can use EasyBashGUI even if NO WIDGET is installed (that
 
 Note on gtkdialog mode.
 
-EasyBashGUI sets gtkdialog output statements as variables through "eval". This way, in theory, could be possibly dangerous; nevertheless, so far, I don't know about an alternative way...
+EasyBashGUI sets gtkdialog output statements as variables through "eval". This way, in theory, could be possibly dangerous; nevertheless, so far, I don't know about any alternative way...
 
 
 
