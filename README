@@ -3,8 +3,8 @@ Project EasyBashGUI.
 
 Intro.
 
-EasyBashGUI is a bash function library that aims to give simple GUI functions using yad, gtkdialog, kdialog, zenity, Xdialog, dialog, or whiptail depending on KDE or GNOME running or not, Yad, Gtkdialog or Xdialog installed or not and X server running or not ( (c)dialog or whiptail is the minimum ). So, if bash programmer writes: "message 'Thanks for using this program' ", he has not to worry in which environment his program runs: it is enough there is at least (c)dialog or whiptail installed, and program will work as expected. Obviously, if user has KDE, GNOME, or gtkdialog/Xdialog also installed ( and he's in a X session ), program will have "an other look", but logical flow is exactly the same.
-You can force widget usage through "supermode" variable ( possible values: "gtkdialog", "kdialog", "zenity", "Xdialog", "dialog", "none" ; 
+EasyBashGUI is a bash function library that aims to give simple GUI functions using yad, gtkdialog, kdialog, zenity, Xdialog, dialog, or whiptail depending on KDE or GNOME running or not, Yad, Gtkdialog or Xdialog installed or not and X server running or not ( (c)dialog or whiptail is the minimum ). So, if bash programmer writes: "message 'Thanks for using this program' ", he has not to worry in which environment his program runs: it's enough there is at least (c)dialog or whiptail installed, and program will work as expected. Obviously, if user has KDE, GNOME, or gtkdialog/Xdialog also installed ( and he's in a X session ), program will have "an other look", but logical flow is exactly the same.
+You can force widget usage through "supermode" variable ( possible values: "yad", "gtkdialog", "kdialog", "zenity", "Xdialog", "dialog", "none" ; 
 e.g.: >export supermode="kdialog" && source easybashgui && message Hello ).
 NOTE on "none" mode: you have to make sure STDERR *is not* redirected, in order to see shell boxes in your terminal.
 
@@ -105,7 +105,7 @@ input -> 1 "<label 1>" "[init 1]"    =>       ( 2-3 arguments, box output to "${
 input -> 2 "[label 1]" "[init 1]" "[label 2]" "[init 2]"                     => ( 5 arguments, box output to "${dir_tmp}/${file_tmp}" and STDERR )
 input -> 3 "[label 1]" "[init 1]" "[label 2]" "[init 2]" "[label 3]" "[init 3]" => ( 7 arguments, box output to "${dir_tmp}/${file_tmp}" and STDERR )
 menu -> "[item 1]" ... "[item n]"    =>       ( [n] arguments, box output to "${dir_tmp}/${file_tmp}" and STDERR ) (%)
-tagged_menu -> "[tag 1]" "[item 1]" ... "[tag n]" "[item n]"    =>       ( [n*2] arguments, box output to "${dir_tmp}/${file_tmp}" and STDERR ) (%)
+tagged_menu -> "[item 1]" "[tag 1]" ... "[item n]" "[tag n]"    =>       ( [n*2] arguments, box output to "${dir_tmp}/${file_tmp}" and STDERR ) (%)
 list -> <+|->"[item 1]" ... <+|->"[item n]"    =>       ( [n] arguments, optionally prefixed by "+"(plus) or "-"(minus), box output to "${dir_tmp}/${file_tmp}" and STDERR ) (%)
 progress -> "[text]"                         =>       ( percent with or without '%' in STDIN, 1 argument )
 progress -> "[text]" "[elements number]"     =>       ( "PROGRESS" string in STDIN, 2 arguments )
@@ -116,7 +116,7 @@ adjust -> "[text]" "[min]" "[init]" "[max]" => ( 4 arguments, box output to "${d
 (^) = text function write text in STDIN to file "${dir_tmp}/${file_tmp}" and (only) for kdialog, zenity, and Xdialog you can also edit text to write ;
 (@) = "wait_for" function create a window with a text and returns control to main program... after a job, you can close the window throught function "terminate_wait_for" ( needs no argument ) ;
 (#) = take care that if you are in "console mode" or without X, throught cdialog, selection is done by SPACE key, and NOT by enter key : remember it ;
-(%) = "menu" and "list" functions differ about choices: menu allows single choice, list allows multiple choice ; since 7.1.0 version you can use tagged_menu(): it outputs tags (e.g.: "tagged_menu 1 A 2 B" -> if user selects "A" then function outputs "1" );
+(%) = "menu" and "list" functions differ about choices: menu allows single choice, list allows multiple choice ; since 7.1.0 version you can use tagged_menu(): it outputs tags (e.g.: "tagged_menu 1 A 2 B" -> if user selects tag "A" then function outputs item "1" );
 
 Since EasyBashGUI v.1.2.4, all windows functions support options "<-w|-width> [integer]", and "<-h|-height> [integer]" for custom window size:
 E.g.: >alert_message -w 400 -h 340 "Error!"
@@ -210,13 +210,14 @@ EasyBashGUI sets gtkdialog output statements as variables through "eval". This w
 
 
 Note on Git.
-Since 8.0.0 version, project is housed at github ( https://github.com/BashGui )
+Since 8.0.0 version, project is housed at github ( https://github.com/BashGui ). Thanks, Github people! :)
 
 
 
 Credits.
 
 Thanks to Bash, Yad, Gtkdialog, Xdialog, Kdialog, Zenity, Cdialog, and Whiptail authors, this library was nothing without their work. Many thanks.
+Thanks to Frank Dietermann for suggestion though to make EBG "posix compliant" (vers. 11.X.X )
 Thanks to Jose Joao Dias de Almeida for the makefile tip.
 Thanks to Chris "cgat" for his many ideas and suggestions that lead to version's "5.X.X" EasyBashGUI "revolution".
 Thanks to Davide Depau for his tests and support, and his effort to make EasyBashGUI Debian policy compliant, and finally for his man page.

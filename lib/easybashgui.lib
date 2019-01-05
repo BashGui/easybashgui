@@ -8,7 +8,7 @@
 #
 #########################
 #
-# Copyright (C) 2017 Vittorio Cagnetta
+# Copyright (C) 2018 Vittorio Cagnetta
 #
 # Author: Vittorio Cagnetta <vaisarger@gmail.com>
 #
@@ -35,7 +35,7 @@
 #####################################
 #####################################
 #
-LIB_VERSION="10.0.1"
+LIB_VERSION="11.0.0"
 LIB_NAME="easybashgui.lib"
 LIB_URL="https://github.com/BashGui/easybashgui"
 LIB_AUTHOR="Vittorio Cagnetta"
@@ -908,8 +908,8 @@ if [ "${mode}" = "yad" ]
 		#
 		testo="${@}"
 		testo_yad="$(echo "${testo}" | tr -d '<>' )"
-		( ${dialogo} --ok-label "Ok" --cancel-label "Cancel" --image="dialog-question" --title "${supertitle:-EasyBashGUI}: please confirm" --question \
-			--text "$(echo -e "${testo_yad}" )" ${dimensione_finestra_1} ${dimensione_finestra_2} 2> /dev/null )
+		${dialogo} --ok-label "Ok" --cancel-label "Cancel" --image="dialog-question" --title "${supertitle:-EasyBashGUI}: please confirm" --question \
+			--text "$(echo -e "${testo_yad}" )" ${dimensione_finestra_1} ${dimensione_finestra_2} 2> /dev/null
 		exit_code="${?}"
 		#
 		#exit_if_user_closes_window #(l'ho commentato altrimenti lo cattura lui, il "Cancel" ... )
@@ -1040,10 +1040,10 @@ elif [ "${mode}" = "kdialog" ]
 		#
 		testo="${@}"
 		testo_kdialog="\n${testo}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n..................................................................................................."
-		( ${dialogo} --title "${supertitle:-EasyBashGUI}: please confirm" --yesno "$(echo -e "${testo_kdialog}" )" 2> /dev/null )
+		${dialogo} --title "${supertitle:-EasyBashGUI}: please confirm" --yesno "$(echo -e "${testo_kdialog}" )" 2> /dev/null
 		exit_code="${?}"
 		#
-		#exit_if_user_closes_window #(l'ho commentato altrimenti lo cattura lui, il "Cancel" ... )
+		#exit_if_user_closes_window # (l'ho commentato altrimenti lo cattura lui, il "Cancel" ... )
 		#
 		OUT_STDERR="${exit_code}"
 		echo "${OUT_STDERR}" 1>&2
@@ -1089,8 +1089,8 @@ elif [ "${mode}" = "zenity" ]
 		#
 		testo="${@}"
 		testo_zenity="$(echo "${testo}" | tr -d '<>' )"
-		( ${dialogo} --ok-label "Ok" --cancel-label "Cancel" --title "${supertitle:-EasyBashGUI}: please confirm" --question \
-			--text "$(echo -e "${testo_zenity}" )" ${dimensione_finestra_1} ${dimensione_finestra_2} 2> /dev/null )
+		${dialogo} --ok-label "Ok" --cancel-label "Cancel" --title "${supertitle:-EasyBashGUI}: please confirm" --question \
+			--text "$(echo -e "${testo_zenity}" )" ${dimensione_finestra_1} ${dimensione_finestra_2} 2> /dev/null
 		exit_code="${?}"
 		#
 		#exit_if_user_closes_window #(l'ho commentato altrimenti lo cattura lui, il "Cancel" ... )
@@ -1143,12 +1143,12 @@ else
 		testo="${@}"
 		if [ "${dialogo}" = "whiptail --fb" ]
 			then
-			( ${dialogo} --title "${supertitle:-EasyBashGUI}: please confirm" ${icona_Attenzione} --yesno \
-			"$(echo -e "${testo}" )" "${dimensione_finestra_1}" "${dimensione_finestra_2}" 2> /dev/null )
+			${dialogo} --title "${supertitle:-EasyBashGUI}: please confirm" ${icona_Attenzione} --yesno \
+			"$(echo -e "${testo}" )" "${dimensione_finestra_1}" "${dimensione_finestra_2}" 2> /dev/null
 			exit_code="${?}"
 		else
-			( ${dialogo} --stdout --ok-label "Ok" --cancel-label "Cancel" --title "${supertitle:-EasyBashGUI}: please confirm" ${icona_Attenzione} --yesno \
-			"$(echo -e "${testo}" )" "${dimensione_finestra_1}" "${dimensione_finestra_2}" 2> /dev/null )
+			${dialogo} --stdout --ok-label "Ok" --cancel-label "Cancel" --title "${supertitle:-EasyBashGUI}: please confirm" ${icona_Attenzione} --yesno \
+			"$(echo -e "${testo}" )" "${dimensione_finestra_1}" "${dimensione_finestra_2}" 2> /dev/null
 			exit_code="${?}"
 		fi
 		#
@@ -1202,7 +1202,7 @@ if [ "${mode}" = "yad" ]
 		testo="${@}"
 		testo_yad_pre="$(echo "${testo}" | tr -d '<>' )"
 		testo_yad="$(echo "${testo_yad_pre}" | gsed s\#'&'#'&amp;'#g )"
-		( ${dialogo} --title "${supertitle:-EasyBashGUI}: message" --info --text "$(echo -e "${testo_yad}" )" ${dimensione_finestra_1} ${dimensione_finestra_2} )
+		${dialogo} --title "${supertitle:-EasyBashGUI}: message" --info --text "$(echo -e "${testo_yad}" )" ${dimensione_finestra_1} ${dimensione_finestra_2}
 		exit_if_user_closes_window
 		#
 		}
@@ -1311,7 +1311,7 @@ elif [ "${mode}" = "kdialog" ]
 		testo="${@}"
 		#
 		[ "${reset_geometry}" = "NO" ] && testo_kdialog="\n${testo}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n..................................................................................................." || testo_kdialog="${testo}"
-		( ${dialogo} --title "${supertitle:-EasyBashGUI}: message" --msgbox "$(echo -e "${testo_kdialog}" )" )
+		${dialogo} --title "${supertitle:-EasyBashGUI}: message" --msgbox "$(echo -e "${testo_kdialog}" )"
 		exit_if_user_closes_window
 		#
 		}
@@ -1350,7 +1350,7 @@ elif [ "${mode}" = "zenity" ]
 		testo="${@}"
 		testo_zenity_pre="$(echo "${testo}" | tr -d '<>' )"
 		testo_zenity="$(echo "${testo_zenity_pre}" | gsed s\#'&'#'&amp;'#g )"
-		( ${dialogo} --title "${supertitle:-EasyBashGUI}: message" --info --text "$(echo -e "${testo_zenity}" )" ${dimensione_finestra_1} ${dimensione_finestra_2} )
+		${dialogo} --title "${supertitle:-EasyBashGUI}: message" --info --text "$(echo -e "${testo_zenity}" )" ${dimensione_finestra_1} ${dimensione_finestra_2}
 		exit_if_user_closes_window
 		#
 		}
@@ -1387,7 +1387,8 @@ elif [ "${mode}" = "Xdialog" ]
 		#########################################
 		#
 		testo="${@}"
-		( ${dialogo} --title "${supertitle:-EasyBashGUI}: message" --msgbox "$(echo -e "${testo}" )" "${dimensione_finestra_1}" "${dimensione_finestra_2}" 1> >( clean ) )
+		#${dialogo} --title "${supertitle:-EasyBashGUI}: message" --msgbox "$(echo -e "${testo}" )" "${dimensione_finestra_1}" "${dimensione_finestra_2}" 1> >( clean )
+		${dialogo} --title "${supertitle:-EasyBashGUI}: message" --msgbox "$(echo -e "${testo}" )" "${dimensione_finestra_1}" "${dimensione_finestra_2}" | clean
 		exit_if_user_closes_window
 		#
 		}
@@ -1418,7 +1419,7 @@ elif [ "${mode}" = "dialog" ]
 		#########################################
 		#
 		testo="${@}"
-		( ${dialogo} --title "${supertitle:-EasyBashGUI}: message" --msgbox "$(echo -e "${testo}" )" "${dimensione_finestra_1}" "${dimensione_finestra_2}" )
+		${dialogo} --title "${supertitle:-EasyBashGUI}: message" --msgbox "$(echo -e "${testo}" )" "${dimensione_finestra_1}" "${dimensione_finestra_2}"
 		exit_if_user_closes_window
 		#
 		}
@@ -1463,7 +1464,7 @@ if [ "${mode}" = "yad" ]
 		testo="${@}"
 		testo_yad_pre="$(echo "${testo}" | tr -d '<>' )"
 		testo_yad="$(echo "${testo_yad_pre}" | gsed s\#'&'#'&amp;'#g )"
-		( ${dialogo} --title "${supertitle:-EasyBashGUI}: alert message" --warning --image="dialog-warning" --text "$(echo -e "${testo_yad}" )" ${dimensione_finestra_1} ${dimensione_finestra_2} )
+		${dialogo} --title "${supertitle:-EasyBashGUI}: alert message" --warning --image="dialog-warning" --text "$(echo -e "${testo_yad}" )" ${dimensione_finestra_1} ${dimensione_finestra_2}
 		exit_if_user_closes_window
 		#
 		}
@@ -1575,7 +1576,7 @@ elif [ "${mode}" = "kdialog" ]
 		#
 		testo="${@}"
 		[ "${reset_geometry}" = "NO" ] && testo_kdialog="\n${testo}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n..................................................................................................." || testo_kdialog="${testo}"
-		( ${dialogo} --title "${supertitle:-EasyBashGUI}: alert message" --error "$(echo -e "${testo_kdialog}" )" )
+		${dialogo} --title "${supertitle:-EasyBashGUI}: alert message" --error "$(echo -e "${testo_kdialog}" )"
 		exit_if_user_closes_window
 		#
 		}
@@ -1614,7 +1615,7 @@ elif [ "${mode}" = "zenity" ]
 		testo="${@}"
 		testo_zenity_pre="$(echo "${testo}" | tr -d '<>' )"
 		testo_zenity="$(echo "${testo_zenity_pre}" | gsed s\#'&'#'&amp;'#g )"
-		( ${dialogo} --title "${supertitle:-EasyBashGUI}: alert message" --warning --text "$(echo -e "${testo_zenity}" )" ${dimensione_finestra_1} ${dimensione_finestra_2} )
+		${dialogo} --title "${supertitle:-EasyBashGUI}: alert message" --warning --text "$(echo -e "${testo_zenity}" )" ${dimensione_finestra_1} ${dimensione_finestra_2}
 		exit_if_user_closes_window
 		#
 		}
@@ -1652,7 +1653,8 @@ elif [ "${mode}" = "Xdialog" ]
 		#
 		testo="${@}"
 		#
-		( ${dialogo} --title "${supertitle:-EasyBashGUI}: alert message" ${icona_Attenzione} --msgbox "$(echo -e "${testo}" )" "${dimensione_finestra_1}" "${dimensione_finestra_2}" 1> >( clean ) )
+		#${dialogo} --title "${supertitle:-EasyBashGUI}: alert message" ${icona_Attenzione} --msgbox "$(echo -e "${testo}" )" "${dimensione_finestra_1}" "${dimensione_finestra_2}" 1> >( clean )
+		${dialogo} --title "${supertitle:-EasyBashGUI}: alert message" ${icona_Attenzione} --msgbox "$(echo -e "${testo}" )" "${dimensione_finestra_1}" "${dimensione_finestra_2}" | clean
 		exit_if_user_closes_window
 		#
 		}
@@ -1684,7 +1686,7 @@ elif [ "${mode}" = "dialog" ]
 		#
 		testo="${@}"
 		#
-		( ${dialogo} --title "${supertitle:-EasyBashGUI}: alert message" ${icona_Attenzione} --msgbox "$(echo -e "${testo}" )" "${dimensione_finestra_1}" "${dimensione_finestra_2}" )
+		${dialogo} --title "${supertitle:-EasyBashGUI}: alert message" ${icona_Attenzione} --msgbox "$(echo -e "${testo}" )" "${dimensione_finestra_1}" "${dimensione_finestra_2}"
 		exit_if_user_closes_window
 		#
 		}
@@ -1730,7 +1732,7 @@ if [ "${mode}" = "yad" ]
 		#
 		testo_yad_pre="$(echo "${testo}" | tr -d '<>' )"
 		testo_yad="$(echo "${testo_yad_pre}" | gsed s\#'&'#'&amp;'#g )"
-		( ${dialogo} --title "${supertitle:-EasyBashGUI}: ok message" --info --image="info" --text "$(echo -e "${testo_yad}" )" ${dimensione_finestra_1} ${dimensione_finestra_2} )
+		${dialogo} --title "${supertitle:-EasyBashGUI}: ok message" --info --image="info" --text "$(echo -e "${testo_yad}" )" ${dimensione_finestra_1} ${dimensione_finestra_2}
 		exit_if_user_closes_window
 		#
 		}
@@ -1842,7 +1844,7 @@ elif [ "${mode}" = "kdialog" ]
 		#
 		testo="${@}"
 		[ "${reset_geometry}" = "NO" ] && testo_kdialog="\n${testo}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n..................................................................................................." || testo_kdialog="${testo}"
-		( ${dialogo} --title "${supertitle:-EasyBashGUI}: ok message" --msgbox "$(echo -e "${testo_kdialog}" )" )
+		${dialogo} --title "${supertitle:-EasyBashGUI}: ok message" --msgbox "$(echo -e "${testo_kdialog}" )"
 		exit_if_user_closes_window
 		#
 		}
@@ -1882,7 +1884,7 @@ elif [ "${mode}" = "zenity" ]
 		#
 		testo_zenity_pre="$(echo "${testo}" | tr -d '<>' )"
 		testo_zenity="$(echo "${testo_zenity_pre}" | gsed s\#'&'#'&amp;'#g )"
-		( ${dialogo} --title "${supertitle:-EasyBashGUI}: ok message" --info --text "$(echo -e "${testo_zenity}" )" ${dimensione_finestra_1} ${dimensione_finestra_2} )
+		${dialogo} --title "${supertitle:-EasyBashGUI}: ok message" --info --text "$(echo -e "${testo_zenity}" )" ${dimensione_finestra_1} ${dimensione_finestra_2}
 		exit_if_user_closes_window
 		#
 		}
@@ -1920,7 +1922,8 @@ elif [ "${mode}" = "Xdialog" ]
 		#
 		testo="${@}"
 		#
-		( ${dialogo} --title "${supertitle:-EasyBashGUI}: ok message" ${icona_Ok} --msgbox "$(echo -e "${testo}" )" "${dimensione_finestra_1}" "${dimensione_finestra_2}" 1> >( clean ) )
+		#${dialogo} --title "${supertitle:-EasyBashGUI}: ok message" ${icona_Ok} --msgbox "$(echo -e "${testo}" )" "${dimensione_finestra_1}" "${dimensione_finestra_2}" 1> >( clean )
+		${dialogo} --title "${supertitle:-EasyBashGUI}: ok message" ${icona_Ok} --msgbox "$(echo -e "${testo}" )" "${dimensione_finestra_1}" "${dimensione_finestra_2}" | clean
 		exit_if_user_closes_window
 		#
 		}
@@ -1953,7 +1956,7 @@ elif [ "${mode}" = "dialog" ]
 		#
 		testo="${@}"
 		#
-		( ${dialogo} --title "${supertitle:-EasyBashGUI}: ok message" ${icona_Ok} --msgbox "$(echo -e "${testo}" )" "${dimensione_finestra_1}" "${dimensione_finestra_2}" )
+		${dialogo} --title "${supertitle:-EasyBashGUI}: ok message" ${icona_Ok} --msgbox "$(echo -e "${testo}" )" "${dimensione_finestra_1}" "${dimensione_finestra_2}"
 		exit_if_user_closes_window
 		#
 		}
@@ -2019,8 +2022,9 @@ if [ "${mode}" = "yad" ]
 		#########################################
 		#
 		file="${dir_tmp}/${file_tmp}"
-		( ${dialogo} --title "${supertitle:-EasyBashGUI}: ${window_title}" --text-info ${editable} --filename <(cat - ) ${dimensione_finestra_1} ${dimensione_finestra_2} \
-			1> "${file}" 2> /dev/null )
+		#${dialogo} --title "${supertitle:-EasyBashGUI}: ${window_title}" --text-info ${editable} --filename <(cat - ) ${dimensione_finestra_1} ${dimensione_finestra_2} 1> "${file}" 2> /dev/null
+		${dialogo} --title "${supertitle:-EasyBashGUI}: ${window_title}" --text-info ${editable} --listen ${dimensione_finestra_1} ${dimensione_finestra_2} \
+			1> "${file}" 2> /dev/null
 		exit_if_user_closes_window
 		#
 		OUT_STDERR="$(0< "${file}" )"
@@ -2186,19 +2190,27 @@ elif [ "${mode}" = "kdialog" ]
 		file="${dir_tmp}/${file_tmp}"
 		if [ "${editable}" = "YES" ]
 			then
-			( ${dialogo} --title "${supertitle:-EasyBashGUI}: editing text" --textinputbox " " "$(cat - )" \
-			1> "${file}" 2> /dev/null )
+			${dialogo} --title "${supertitle:-EasyBashGUI}: editing text" --textinputbox " " "$(cat - )" \
+			1> "${file}" 2> /dev/null
 			exit_if_user_closes_window
+			#
+			OUT_STDERR="$(0< "${file}" )"
+			echo "${OUT_STDERR}" 1>&2
+			#
 		elif [ "${editable}" = "NO" ]
 			then
 			cat - 1> "${file}"
-			( ${dialogo} --title "${supertitle:-EasyBashGUI}: text" --textbox "${file}" \
-			2> /dev/null )
+			${dialogo} --title "${supertitle:-EasyBashGUI}: text" --textbox "${file}" \
+			2> /dev/null
 			exit_if_user_closes_window
+			#
+			echo 1>&2
+			#
 		fi
 		#
-		OUT_STDERR="$(0< "${file}" )"
-		echo "${OUT_STDERR}" 1>&2
+		#OUT_STDERR="$(0< "${file}" )"
+		#echo "${OUT_STDERR}" 1>&2
+		#
 		}
 elif [ "${mode}" = "zenity" ]
 	then
@@ -2256,8 +2268,9 @@ elif [ "${mode}" = "zenity" ]
 		#########################################
 		#
 		file="${dir_tmp}/${file_tmp}"
-		( ${dialogo} --title "${supertitle:-EasyBashGUI}: ${window_title}" --text-info ${editable} --filename <(cat - ) ${dimensione_finestra_1} ${dimensione_finestra_2} \
-			1> "${file}" 2> /dev/null )
+		#${dialogo} --title "${supertitle:-EasyBashGUI}: ${window_title}" --text-info ${editable} --filename <(cat - ) ${dimensione_finestra_1} ${dimensione_finestra_2} 1> "${file}" 2> /dev/null
+		${dialogo} --title "${supertitle:-EasyBashGUI}: ${window_title}" --text-info ${editable} ${dimensione_finestra_1} ${dimensione_finestra_2} \
+			1> "${file}" 2> /dev/null
 		exit_if_user_closes_window
 		#
 		OUT_STDERR="$(0< "${file}" )"
@@ -2320,8 +2333,8 @@ elif [ "${mode}" = "Xdialog" ]
 		#
 		file="${dir_tmp}/${file_tmp}"
 		#
-		( ${dialogo} --stdout --title "${supertitle:-EasyBashGUI}: ${window_title}" ${icona_Ok} ${widget_type} "-" "${dimensione_finestra_1}" "${dimensione_finestra_2}" \
-		1> "${file}" 2> /dev/null )
+		${dialogo} --stdout --title "${supertitle:-EasyBashGUI}: ${window_title}" ${icona_Ok} ${widget_type} "-" "${dimensione_finestra_1}" "${dimensione_finestra_2}" \
+		1> "${file}" 2> /dev/null
 		exit_if_user_closes_window
 		#
 		OUT_STDERR="$(0< "${file}" )"
@@ -2382,15 +2395,21 @@ elif [ "${mode}" = "dialog" ]
 		cat - 1> "${dir_tmp}/${file_tmp}"
 		if [ "${dialogo}" = "whiptail --fb" ]
 			then
-			( ${dialogo} --title "${supertitle:-EasyBashGUI}: ${window_title}" ${icona_Ok} --textbox "${file}" --scrolltext "${dimensione_finestra_1}" "${dimensione_finestra_2}" 2> /dev/null )
+			${dialogo} --title "${supertitle:-EasyBashGUI}: ${window_title}" ${icona_Ok} --textbox "${file}" --scrolltext "${dimensione_finestra_1}" "${dimensione_finestra_2}" 2> /dev/null
 		else
-			( ${dialogo} --title "${supertitle:-EasyBashGUI}: ${window_title}" ${icona_Ok} --textbox "${file}" "${dimensione_finestra_1}" "${dimensione_finestra_2}" 2> /dev/null )
+			${dialogo} --title "${supertitle:-EasyBashGUI}: ${window_title}" ${icona_Ok} --textbox "${file}" "${dimensione_finestra_1}" "${dimensione_finestra_2}" 2> /dev/null
 		fi
-		# 1> "${file}"
+		#
 		exit_if_user_closes_window
 		#
-		OUT_STDERR="$(0< "${file}" )"
-		echo "${OUT_STDERR}" 1>&2
+		if [ "${editable}" = "--editable" ]
+			then
+			OUT_STDERR="$(0< "${file}" )"
+			echo "${OUT_STDERR}" 1>&2
+		else
+			echo 1>&2
+		fi
+		#
 		}
 fi
 # text()
@@ -2432,7 +2451,7 @@ if [ "${mode}" = "yad" ]
 		#
 		num_secondi=${1}
 		#
-		( ${dialogo} --title "$(basename "${0}" ): please wait" --info --text "Please wait..." ${dimensione_finestra} --timeout ${num_secondi} --timeout-indicator="right" ; [ ${?} -eq 70 ] && : )
+		${dialogo} --title "$(basename "${0}" ): please wait" --info --text "Please wait..." ${dimensione_finestra} --timeout ${num_secondi} --timeout-indicator="right" ; [ ${?} -eq 70 ] && :
 		#
 		exit_if_user_closes_window
 		#
@@ -2546,10 +2565,11 @@ elif [ "${mode}" = "kdialog" ]
 		#
 		num_secondi=${1}
 		#
-		( kdialog --title "${supertitle:-EasyBashGUI}: please wait" --passivepopup "Please wait..." \
-			${num_secondi} )
+		local dialogo="kdialog"
+		${dialogo} --title "${supertitle:-EasyBashGUI}: please wait" --passivepopup "  Please wait..." \
+			${num_secondi}
 		#exit_if_user_closes_window
-		sleep $(( ${num_secondi} - 1 ))
+		[ $(( ${num_secondi} - 2 )) -gt 0 ] && sleep $(( ${num_secondi} - 2 ))
 		#
 		}
 elif [ "${mode}" = "zenity" ]
@@ -2586,8 +2606,8 @@ elif [ "${mode}" = "zenity" ]
 		#
 		num_secondi=${1}
 		#
-		yes | ( ${dialogo} --title "${supertitle:-EasyBashGUI}: please wait" --progress --pulsate --auto-kill --text "Please wait..." ${dimensione_finestra} \
-			--timeout ${num_secondi} )
+		yes | ${dialogo} --title "${supertitle:-EasyBashGUI}: please wait" --progress --pulsate --auto-kill --text "Please wait..." ${dimensione_finestra} \
+			--timeout ${num_secondi}
 		#
 		exit_if_user_closes_window
 		#
@@ -2628,8 +2648,9 @@ elif [ "${mode}" = "Xdialog" ]
 		#
 		num_milli_secondi=$(( ${num_secondi} * 1000 ))
 		#
-		( ${dialogo} ${no_buttons} --title "${supertitle:-EasyBashGUI}: please wait" ${icona_Attenzione} --infobox "Please wait..." ${dimensione_finestra} \
-			${num_milli_secondi} 1> >( clean ) )
+		#${dialogo} ${no_buttons} --title "${supertitle:-EasyBashGUI}: please wait" ${icona_Attenzione} --infobox "Please wait..." ${dimensione_finestra} ${num_milli_secondi} 1> >( clean )
+		${dialogo} ${no_buttons} --title "${supertitle:-EasyBashGUI}: please wait" ${icona_Attenzione} --infobox "Please wait..." ${dimensione_finestra} \
+			${num_milli_secondi} | clean
 		exit_if_user_closes_window
 		#
 		}
@@ -2666,7 +2687,7 @@ elif [ "${mode}" = "dialog" ]
 			clear
 			echo -e "\n\n################################################\n################################################\n\n\tPlease wait...\n\n################################################\n################################################\n"
 		fi
-		( ${dialogo} ${no_buttons} --title "${supertitle:-EasyBashGUI}: please wait" ${icona_Attenzione} --infobox "Please wait..." "${dimensione_finestra_1}" "${dimensione_finestra_2}" )
+		${dialogo} ${no_buttons} --title "${supertitle:-EasyBashGUI}: please wait" ${icona_Attenzione} --infobox "Please wait..." "${dimensione_finestra_1}" "${dimensione_finestra_2}"
 		exit_if_user_closes_window
 		sleep ${num_secondi}
 		#
@@ -2835,7 +2856,8 @@ elif [ "${mode}" = "kdialog" ]
 			{ 
 			while read dummy_var
 				do
-				kdialog --title "${supertitle:-EasyBashGUI}: please wait" --passivepopup "$(echo -e "${testo_kdialog}" )" "${num_secondi}"
+				local dialogo="kdialog"
+				${dialogo} --title "${supertitle:-EasyBashGUI}: please wait" --passivepopup "$(echo -e " ${testo_kdialog}" )" "${num_secondi}"
 				sleep 15
 			done
 			sleep 1
@@ -3036,7 +3058,7 @@ if [ "${mode}" = "yad" ]
 		#
 		fselect="--file-selection"
 		dim_finestra="${dimensione_finestra}"
-		( eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: file select\" ${fselect} --filename \"${dir}\" ${dim_finestra} 2> /dev/null ) 1> "${dir_tmp}/${file_tmp}"
+		eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: file select\" ${fselect} --filename \"${dir}\" ${dim_finestra} 2> /dev/null 1> "${dir_tmp}/${file_tmp}"
 		#
 		OUT_STDERR="$(0< "${dir_tmp}/${file_tmp}" )"
 		echo "${OUT_STDERR}" 1>&2
@@ -3155,7 +3177,7 @@ elif [ "${mode}" = "kdialog" ]
 		#
 		fselect="--getopenfilename"
 		:
-		( eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: file select\" ${fselect} \"${dir}\" 2> /dev/null ) 1> "${dir_tmp}/${file_tmp}"
+		eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: file select\" ${fselect} \"${dir}\" 2> /dev/null 1> "${dir_tmp}/${file_tmp}"
 		#
 		OUT_STDERR="$(0< "${dir_tmp}/${file_tmp}" )"
 		echo "${OUT_STDERR}" 1>&2
@@ -3202,7 +3224,7 @@ elif [ "${mode}" = "zenity" ]
 		#
 		fselect="--file-selection"
 		dim_finestra="${dimensione_finestra}"
-		( eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: file select\" ${fselect} --filename \"${dir}\" ${dim_finestra} 2> /dev/null ) 1> "${dir_tmp}/${file_tmp}"
+		eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: file select\" ${fselect} --filename \"${dir}\" ${dim_finestra} 2> /dev/null 1> "${dir_tmp}/${file_tmp}"
 		#
 		OUT_STDERR="$(0< "${dir_tmp}/${file_tmp}" )"
 		echo "${OUT_STDERR}" 1>&2
@@ -3249,7 +3271,7 @@ elif [ "${mode}" = "Xdialog" ]
 		#
 		fselect="--fselect"
 		dim_finestra="${dimensione_finestra}"
-		( eval ${dialogo} --stdout --title \"${supertitle:-EasyBashGUI}: file select\" ${fselect} \"${dir}\" ${dim_finestra} 2> /dev/null ) 1> "${dir_tmp}/${file_tmp}"
+		eval ${dialogo} --stdout --title \"${supertitle:-EasyBashGUI}: file select\" ${fselect} \"${dir}\" ${dim_finestra} 2> /dev/null 1> "${dir_tmp}/${file_tmp}"
 		exit_if_user_closes_window
 		#
 		OUT_STDERR="$(0< "${dir_tmp}/${file_tmp}" )"
@@ -3327,7 +3349,7 @@ elif [ "${mode}" = "dialog" ]
 				##
 				#
 				fselect="--menu"
-				( eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: file select\" ${fselect} \"file select\" ${dim_finestra} ${dimensione_menu} ${parametri} 2> "${dir_tmp}/${file_tmp}" )
+				eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: file select\" ${fselect} \"file select\" ${dim_finestra} ${dimensione_menu} ${parametri} 2> "${dir_tmp}/${file_tmp}"
 				exit_if_user_closes_window
 				######################################
 				#
@@ -3347,7 +3369,7 @@ elif [ "${mode}" = "dialog" ]
 		else
 			#
 			fselect="--fselect"
-			( eval ${dialogo} --stdout --title \"${supertitle:-EasyBashGUI}: file select\" ${fselect} \"${dir}\" ${dim_finestra} 2> /dev/null ) 1> "${dir_tmp}/${file_tmp}"
+			eval ${dialogo} --stdout --title \"${supertitle:-EasyBashGUI}: file select\" ${fselect} \"${dir}\" ${dim_finestra} 2> /dev/null 1> "${dir_tmp}/${file_tmp}"
 			exit_if_user_closes_window
 			#
 		fi
@@ -3403,7 +3425,7 @@ if [ "${mode}" = "yad" ]
 		#
 		dselect="--file-selection --directory"
 		dim_finestra="${dimensione_finestra}"
-		( eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: dir. select\" ${dselect} --filename \"${dir}\" ${dim_finestra} 2> /dev/null ) 1> "${dir_tmp}/${file_tmp}"
+		eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: dir. select\" ${dselect} --filename \"${dir}\" ${dim_finestra} 2> /dev/null 1> "${dir_tmp}/${file_tmp}"
 		#exit_if_user_closes_window
 		#
 		OUT_STDERR="$(0< "${dir_tmp}/${file_tmp}" )"
@@ -3523,7 +3545,7 @@ elif [ "${mode}" = "kdialog" ]
 		#
 		dselect="--getexistingdirectory"
 		:
-		( eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: dir. select\" ${dselect} \"${dir}\" 2> /dev/null ) 1> "${dir_tmp}/${file_tmp}"
+		eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: dir. select\" ${dselect} \"${dir}\" 2> /dev/null 1> "${dir_tmp}/${file_tmp}"
 		#exit_if_user_closes_window
 		#
 		OUT_STDERR="$(0< "${dir_tmp}/${file_tmp}" )"
@@ -3571,7 +3593,7 @@ elif [ "${mode}" = "zenity" ]
 		#
 		dselect="--file-selection --directory"
 		dim_finestra="${dimensione_finestra}"
-		( eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: dir. select\" ${dselect} --filename \"${dir}\" ${dim_finestra} 2> /dev/null ) 1> "${dir_tmp}/${file_tmp}"
+		eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: dir. select\" ${dselect} --filename \"${dir}\" ${dim_finestra} 2> /dev/null 1> "${dir_tmp}/${file_tmp}"
 		#exit_if_user_closes_window
 		#
 		OUT_STDERR="$(0< "${dir_tmp}/${file_tmp}" )"
@@ -3619,7 +3641,7 @@ elif [ "${mode}" = "Xdialog" ]
 		#
 		dselect="--dselect"
 		dim_finestra="${dimensione_finestra}"
-		( eval ${dialogo} --stdout --title \"${supertitle:-EasyBashGUI}: dir. select\" ${dselect} \"${dir}\" ${dim_finestra} 2> /dev/null ) 1> "${dir_tmp}/${file_tmp}"
+		eval ${dialogo} --stdout --title \"${supertitle:-EasyBashGUI}: dir. select\" ${dselect} \"${dir}\" ${dim_finestra} 2> /dev/null 1> "${dir_tmp}/${file_tmp}"
 		exit_if_user_closes_window
 		#
 		OUT_STDERR="$(0< "${dir_tmp}/${file_tmp}" )"
@@ -3693,7 +3715,7 @@ elif [ "${mode}" = "dialog" ]
 				##
 				#
 				dselect="--menu"
-				( eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: dir. select\" ${dselect} \"dir. select\" ${dim_finestra} ${dimensione_menu} ${parametri} 2> "${dir_tmp}/${file_tmp}" )
+				eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: dir. select\" ${dselect} \"dir. select\" ${dim_finestra} ${dimensione_menu} ${parametri} 2> "${dir_tmp}/${file_tmp}"
 				exit_if_user_closes_window
 				######################################
 				#
@@ -3713,7 +3735,7 @@ elif [ "${mode}" = "dialog" ]
 		else
 			#
 			dselect="--fselect"
-			( eval ${dialogo} --stdout --title \"${supertitle:-EasyBashGUI}: dir. select\" ${dselect} \"${dir}\" ${dim_finestra} 2> /dev/null ) 1> "${dir_tmp}/${file_tmp}"
+			eval ${dialogo} --stdout --title \"${supertitle:-EasyBashGUI}: dir. select\" ${dselect} \"${dir}\" ${dim_finestra} 2> /dev/null 1> "${dir_tmp}/${file_tmp}"
 			exit_if_user_closes_window
 			#
 		fi
@@ -4308,7 +4330,7 @@ elif [ "${mode}" = "dialog" ]
 				done )"
 			#echo "eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: menu\" --menu \"Select option...\" ${dim_finestra} ${dimensione_menu} ${parametri}"
 			[ ${dimensione_menu} -eq 6 ] && dimensione_menu=5
-			( eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: menu\" --menu \"Select option...\" ${dim_finestra} ${dimensione_menu} ${parametri} 2> "${dir_tmp}/${file_tmp}" )
+			eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: menu\" --menu \"Select option...\" ${dim_finestra} ${dimensione_menu} ${parametri} 2> "${dir_tmp}/${file_tmp}"
 			exit_if_user_closes_window
 			#
 			scelta="$(0< "${dir_tmp}/${file_tmp}" )"
@@ -4990,7 +5012,7 @@ elif [ "${mode}" = "dialog" ]
 # 				done )"
 			#echo "eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: menu\" --menu \"Select option...\" ${dim_finestra} ${dimensione_menu} ${parametri}"
 			[ ${dimensione_menu} -eq 6 ] && dimensione_menu=5
-			( eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: menu\" --menu \"Select option...\" ${dim_finestra} ${dimensione_menu} ${tagged_parametri} 2> "${dir_tmp}/${file_tmp}" )
+			eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: menu\" --menu \"Select option...\" ${dim_finestra} ${dimensione_menu} ${tagged_parametri} 2> "${dir_tmp}/${file_tmp}"
 			exit_if_user_closes_window
 			scelta="$(0< "${dir_tmp}/${file_tmp}" )"
 			#echo -e "\n\nparametri: ${parametri}\n\nscelta: ${scelta} ...capito?\n\n"
@@ -5624,7 +5646,7 @@ elif [ "${mode}" = "dialog" ]
 			dim_finestra="\"${dim}\" \"${dimensione_finestra_2}\""
 			#
 			[ ${dimensione_menu} -eq 6 ] && dimensione_menu=5
-			( eval ${dialogo} ${separator} --title \"${supertitle:-EasyBashGUI}: list\" --checklist \"Select options...\" ${dim_finestra} ${dimensione_menu} ${parametri} 2> "${dir_tmp}/${file_tmp}" )
+			eval ${dialogo} ${separator} --title \"${supertitle:-EasyBashGUI}: list\" --checklist \"Select options...\" ${dim_finestra} ${dimensione_menu} ${parametri} 2> "${dir_tmp}/${file_tmp}"
 			exit_if_user_closes_window
 			#
 			scelta="$(0< "${dir_tmp}/${file_tmp}" )"
@@ -6897,8 +6919,8 @@ if [ "${mode}" = "yad" ]
 		init_value_percent=$(arrotonda "${init_value_percent_float}" )
 		#
 		#
-		( ${dialogo} --title "${supertitle:-EasyBashGUI}: adjust" --scale --text "${testo_yad}" --value ${init_value_percent} --min-value ${start_value_percent} --max-value ${end_value_percent} ${dimensione_finestra_1} ${dimensione_finestra_2} \
-		2> /dev/null 1> "${dir_tmp}/${file_tmp}" )
+		${dialogo} --title "${supertitle:-EasyBashGUI}: adjust" --scale --text "${testo_yad}" --value ${init_value_percent} --min-value ${start_value_percent} --max-value ${end_value_percent} ${dimensione_finestra_1} ${dimensione_finestra_2} \
+		2> /dev/null 1> "${dir_tmp}/${file_tmp}"
 		#exit_if_user_closes_window
 		exit_code="${?}"
 		#
@@ -7198,8 +7220,8 @@ elif [ "${mode}" = "kdialog" ]
 		#
 		pre_values="$(for ((int1=${start_value_percent} ; int1 < ${init_value_percent} ; int1++ )); do echo -n "${int1}% " ; done )"
 		post_values="$(for ((int2=${init_value_percent} ; int2 <= ${end_value_percent} ; int2++ )); do echo -n "${int2}% " ; done )"
-		( ${dialogo} --title "${supertitle:-EasyBashGUI}: adjust" --default "${init_value_percent}%" --combobox "${testo}" ${pre_values} ${post_values} \
-			2> /dev/null 1> "${dir_tmp}/${file_tmp}" )
+		${dialogo} --title "${supertitle:-EasyBashGUI}: adjust" --default "${init_value_percent}%" --combobox "${testo}" ${pre_values} ${post_values} \
+			2> /dev/null 1> "${dir_tmp}/${file_tmp}"
 		#exit_if_user_closes_window
 		exit_code="${?}"
 		#
@@ -7315,8 +7337,8 @@ elif [ "${mode}" = "zenity" ]
 		init_value_percent=$(arrotonda "${init_value_percent_float}" )
 		#
 		#
-		( ${dialogo} --title "${supertitle:-EasyBashGUI}: adjust" --scale --text "${testo_zenity}" --value ${init_value_percent} --min-value ${start_value_percent} --max-value ${end_value_percent} ${dimensione_finestra_1} ${dimensione_finestra_2} \
-		2> /dev/null 1> "${dir_tmp}/${file_tmp}" )
+		${dialogo} --title "${supertitle:-EasyBashGUI}: adjust" --scale --text "${testo_zenity}" --value ${init_value_percent} --min-value ${start_value_percent} --max-value ${end_value_percent} ${dimensione_finestra_1} ${dimensione_finestra_2} \
+		2> /dev/null 1> "${dir_tmp}/${file_tmp}"
 		#exit_if_user_closes_window
 		exit_code="${?}"
 		#
@@ -7431,8 +7453,8 @@ elif [ "${mode}" = "Xdialog" ]
 		init_value_percent=$(arrotonda "${init_value_percent_float}" )
 		#
 		#
-		( ${dialogo} --title "${supertitle:-EasyBashGUI}: adjust" --stdout --separator "\\n" ${no_tags} ${icona_Ok} --rangebox "${testo}" ${dimensione_finestra_1} ${dimensione_finestra_2} ${start_value_percent} ${end_value_percent} ${init_value_percent} \
-			2> /dev/null 1> "${dir_tmp}/${file_tmp}" )
+		${dialogo} --title "${supertitle:-EasyBashGUI}: adjust" --stdout --separator "\\n" ${no_tags} ${icona_Ok} --rangebox "${testo}" ${dimensione_finestra_1} ${dimensione_finestra_2} ${start_value_percent} ${end_value_percent} ${init_value_percent} \
+			2> /dev/null 1> "${dir_tmp}/${file_tmp}"
 		#exit_if_user_closes_window
 		exit_code="${?}"
 		#

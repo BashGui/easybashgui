@@ -24,15 +24,7 @@ fi
 #eb_incl_easybashlib__imported=1
 eb_incl_easybashlib__imported=please_prevent_next_time
 
-
-
-# TODO
 #
-# factorize sucsynct config parser and handling into easybashlib
-
-
-
-
 ###################
 # Debugging stuff #
 ###################
@@ -182,20 +174,6 @@ function eb_error_output()
 
 
 
-
-
-#The true << 'EOC' trick can be used to comment out everything up to the next line containing only EOC.
-true << 'EOC'
-
-if this would not be commented
-then
-	it would give many errors
-end done fi
-
-EOC
-
-
-
 #####################
 # Process managment #
 #####################
@@ -264,44 +242,50 @@ function eb_kill_process_tree_of_pid() {
 
 # Define a mechanism for automatic clean up on exit, based upon the idea
 # http://www.linuxjournal.com/content/use-bash-trap-statement-cleanup-temporary-files
-#declare -a eb_on_exit_items #UNUSEFUL since causes "unbound variable" because array is set ONLY if at least element exists...
-eb_on_exit_items=( "echo" )
-#echo "1) How many elements in array \${eb_on_exit_items[*]}: ${#eb_on_exit_items[*]-} .........DEBUG" 1>&2
+#declare -a eb_on_exit_commands #UNUSEFUL since causes "unbound variable" because array is set ONLY if at least element exists...
+ebg_on_exit_commands=( "echo \"EBG exiting...\"" )
+#echo "1) How many elements in array \${ebg_on_exit_commands[*]}: ${#ebg_on_exit_commands[*]} .........DEBUG" 1>&2
 
-eb_on_exit()
+ebg_on_exit()
 {
-	# evaluate eb_on_exit_items in reverse order of registration
-	#echo "3) How many elements in array \${eb_on_exit_items[*]}: ${#eb_on_exit_items[*]-} .........DEBUG" 1>&2
-	for (( i = $(( ${#eb_on_exit_items[*]-} - 1 )) ; i > -1; i-- ))
+	# evaluate ebg_on_exit_commands() in reverse order of registration ...
+	#
+	#echo "3) How many elements in array \${ebg_on_exit_commands[@]}: ${#ebg_on_exit_commands[*]} .........DEBUG" 1>&2
+	for (( i = $(( ${#ebg_on_exit_commands[@]} - 1 )) ; i > -1; i-- ))
 	do
-		#echo "eb_on_exit $i: ${eb_on_exit_items[$i]-} .........DEBUG" 1>&2
-		eb_debug_output "eb_on_exit $i: ${eb_on_exit_items[$i]-}"
-		eval ${eb_on_exit_items[$i]-}
+		#echo "ebg_on_exit $i: ${ebg_on_exit_commands[${i}]} .........DEBUG" 1>&2
+		eb_debug_output "ebg_on_exit ${i}: ${ebg_on_exit_commands[${i}]}"
+		eval "${ebg_on_exit_commands[${i}]}"
 	done
-
-	# Hint: Scripts that fork should start with "eb_on_exit $0 killtree $BASHPID", to clean up child
+	#
+	# Hint: Scripts that fork should start with "ebg_on_exit $0 killtree $BASHPID", to clean up child
 	# processes. (Also remember to kill all disowned proceses if appropriate.)
-
+	#
 	#echo "Exiting. .........DEBUG" 1>&2
 	eb_debug_output "Exiting."
+	#
 	exit
 }
 
-eb_add_on_exit()
+ebg_add_on_exit()
 {
 	#
-	#echo "2) How many elements in array \${eb_on_exit_items[*]}: ${#eb_on_exit_items[@]-} .........DEBUG" 1>&2
+	#echo "2) How many elements in array \${ebg_on_exit_commands[@]}: ${#ebg_on_exit_commands[@]} .........DEBUG" 1>&2
 	#
-	local n=${#eb_on_exit_items[*]-}
-	eb_on_exit_items[$n]="$*"
-	#echo "eb_on_exit: ${eb_on_exit_items[$n]-} .........DEBUG" 1>&2
-	eb_debug_output "eb_on_exit: ${eb_on_exit_items[$n]-}"
-	#if [[ $n -eq 0 ]]
-	#then
-		#echo "Setting eb_on_exit trap. .........DEBUG" 1>&2
-		eb_debug_output "Setting eb_on_exit trap."
-		trap eb_on_exit EXIT
-	#fi
+	local n=${#ebg_on_exit_commands[@]}
+	#
+	#echo "ebg_on_exit: ${ebg_on_exit_commands[$n]} .........DEBUG" 1>&2
+	eb_debug_output "ebg_on_exit: ${ebg_on_exit_commands[${n}]}"
+	#
+	if [[ ${n} -eq 1 ]]
+	then
+		#echo "Setting ebg_on_exit trap. .........DEBUG" 1>&2
+		eb_debug_output "Setting ebg_on_exit trap."
+		trap ebg_on_exit EXIT
+	fi
+	#
+	ebg_on_exit_commands[${n}]="$*"
+	#
 }
 
 
@@ -395,10 +379,12 @@ function eb_get_state_dir()
 	
 	# enumerate all directories with the right name and permissions in $files array
 	old_IFS=$IFS
-	while IFS= read -r -d '' candidate_file
-	do
-		files[file_count++]="$candidate_file"
-	done < <(find ${eb_state_basedir}/${process_name}-${USER}.* -maxdepth 0 -perm 0700 -user $USER -type d -print0 2>/dev/null ) 
+	#
+	find ${eb_state_basedir}/${process_name}-${USER}.* -maxdepth 0 -perm 0700 -user $USER -type d -print0 2>/dev/null \
+	| while IFS= read -r -d '' candidate_file
+			do
+			files[file_count++]="$candidate_file"
+		done 
 	IFS=$old_IFS
 	
 	# if we found matching directories, use the first one
@@ -572,6 +558,6 @@ eb_map() {
 
 
 return
-EOC
+
 
 

@@ -12,7 +12,7 @@
 #
 #########################
 #
-# Copyright (C) 2013 Vittorio Cagnetta
+# Copyright (C) 2018 Vittorio Cagnetta
 # Copyright (C) 2013 Christian ?
 #
 # Author: Vittorio Cagnetta <vaisarger@gmail.com>
@@ -80,10 +80,27 @@
 #	something like if [ -e $(eb_incl__absolute_path)/$module_*.*.* ] ?
 #
 ###################################################################
+MODULE_VERSION="11.0.0"
 MODULE_NAME="easybashgui-debug"
 ###################################################################
-
-
+#
+clean_temp()
+	{
+	local FUNCT_NAME="clean_temp"
+	local IFS=$' \t\n'
+	#
+	if [ -f "${dir_tmp}/${file_tmp}" ] 2> /dev/null
+		then
+		rm -f "${dir_tmp}/${file_tmp}" 2> /dev/null
+	fi
+	#
+	if [ -f "${dir_tmp}/${file_ignore}" ] 2> /dev/null
+		then
+		rm -f "${dir_tmp}/${file_ignore}" 2> /dev/null
+	fi
+	#
+	}
+#
 ###################################################################
 # Every easybash module should prevent repeated inclusion by
 # starting with an if-clause similar to the following:

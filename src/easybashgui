@@ -12,7 +12,7 @@
 #
 #########################
 #
-# Copyright (C) 2013 Vittorio Cagnetta
+# Copyright (C) 2018 Vittorio Cagnetta
 # Copyright (C) 2013 Christian ?
 #
 # Author: Vittorio Cagnetta <vaisarger@gmail.com>
@@ -80,12 +80,28 @@
 #	something like if [ -e $(eb_incl__absolute_path)/$module_*.*.* ] ?
 #
 ###################################################################
-MODULE_VERSION="10.0.0"
+MODULE_VERSION="11.0.0"
 MODULE_NAME="easybashgui"
 libexec_dir="/usr/lib/easybashgui"
 ###################################################################
-
-
+#
+clean_temp()
+	{
+	local FUNCT_NAME="clean_temp"
+	local IFS=$' \t\n'
+	#
+	if [ -f "${dir_tmp}/${file_tmp}" ] 2> /dev/null
+		then
+		rm -f "${dir_tmp}/${file_tmp}" 2> /dev/null
+	fi
+	#
+	if [ -f "${dir_tmp}/${file_ignore}" ] 2> /dev/null
+		then
+		rm -f "${dir_tmp}/${file_ignore}" 2> /dev/null
+	fi
+	#
+	}
+#
 ###################################################################
 # Every easybash module should prevent repeated inclusion by
 # starting with an if-clause similar to the following:
@@ -306,7 +322,7 @@ function load_easybashgui_lib()
 			then
 			# register easybashgui cleanup
 			#
-			eb_add_on_exit clean_temp
+			ebg_add_on_exit clean_temp
 			return 0 # OK!
 		else
 			return 1
