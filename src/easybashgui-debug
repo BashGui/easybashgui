@@ -80,7 +80,7 @@
 #	something like if [ -e $(eb_incl__absolute_path)/$module_*.*.* ] ?
 #
 ###################################################################
-MODULE_VERSION="11.0.0"
+MODULE_VERSION="11.0.1"
 MODULE_NAME="easybashgui-debug"
 ###################################################################
 #

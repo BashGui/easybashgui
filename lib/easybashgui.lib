@@ -35,7 +35,7 @@
 #####################################
 #####################################
 #
-LIB_VERSION="11.0.0"
+LIB_VERSION="11.0.1"
 LIB_NAME="easybashgui.lib"
 LIB_URL="https://github.com/BashGui/easybashgui"
 LIB_AUTHOR="Vittorio Cagnetta"
@@ -204,7 +204,7 @@ if [ ${#esistenza_gtkdialog} -gt 0 ]
 	required_gtkdialog_second_field=7
 	required_gtkdialog_third_field=20
 	#
-	vers_gtkdialog="$(gtkdialog --version | cut -d ' ' -f 3 )"
+	vers_gtkdialog="$(gtkdialog --version | cut -d ' ' -f 3 | head -n 1 )"
 	if [ $(echo -n "${vers_gtkdialog}" | tr -dc '[[:digit:]]' | wc -c ) -gt 0 ]
 		then
 		vers_gtkdialog_primo_campo=$(echo "${vers_gtkdialog}" | cut -d '.' -f 1 )
@@ -2121,9 +2121,17 @@ elif [ "${mode}" = "gtkdialog" ]
 		#echo "${exit_code}" 1>&2
 		if [ "${exit_code}" = "0" ]
 			then
-			echo "${TEXT}" 1> "${dir_tmp}/${file_tmp}" && echo "${TEXT}" 1>&2
+			echo "${TEXT}" 1> "${dir_tmp}/${file_tmp}"
+			#
+			if [ "${window_title}" = "editing text" ]
+				then
+				echo "${TEXT}" 1>&2
+			else
+				echo 1>&2
+			fi
 			#
 		fi
+		#
 		return "${exit_code}"
 		#
 		}
@@ -2395,7 +2403,7 @@ elif [ "${mode}" = "dialog" ]
 		cat - 1> "${dir_tmp}/${file_tmp}"
 		if [ "${dialogo}" = "whiptail --fb" ]
 			then
-			${dialogo} --title "${supertitle:-EasyBashGUI}: ${window_title}" ${icona_Ok} --textbox "${file}" --scrolltext "${dimensione_finestra_1}" "${dimensione_finestra_2}" 2> /dev/null
+			${dialogo} --title "${supertitle:-EasyBashGUI}: ${window_title} (select OK by arrows)" ${icona_Ok} --textbox "${file}" --scrolltext "${dimensione_finestra_1}" "${dimensione_finestra_2}" 2> /dev/null
 		else
 			${dialogo} --title "${supertitle:-EasyBashGUI}: ${window_title}" ${icona_Ok} --textbox "${file}" "${dimensione_finestra_1}" "${dimensione_finestra_2}" 2> /dev/null
 		fi
@@ -7691,3 +7699,4 @@ fi
 ##
 #
 [ "${easybashgui_debug_mode}" = "YES" ] && echo "[lib SOURCED]"
+[ "${easybashgui_debug_mode}" = "NO" ] && : #This is user for getting exit code = 0 :-)
