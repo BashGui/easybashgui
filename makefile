@@ -10,7 +10,7 @@ MANDIR = $(DESTDIR)/usr/share/man/man1
 DOCDIR = $(DESTDIR)/usr/share/doc/easybashgui
 
 #file nella build directory
-BINARI = src/easybashgui src/easybashgui-debug src/easydialog
+BINARI = src/easybashgui src/easybashgui-debug src/easydialog-legacy
 ICONE = icons/Ok.xpm icons/Attenzione.xpm
 LIBRERIE = lib/easybashgui.lib lib/easybashlib
 MANUALE = easybashgui.1.gz
