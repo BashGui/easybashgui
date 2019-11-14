@@ -12,8 +12,7 @@
 #
 #########################
 #
-# Copyright (C) 2018 Vittorio Cagnetta
-# Copyright (C) 2013 Christian ?
+# Copyright (C) 2019 Vittorio Cagnetta
 #
 # Author: Vittorio Cagnetta <vaisarger@gmail.com>
 # Author: Christian ? <https://launchpad.net/~cgat-1>
@@ -80,7 +79,7 @@
 #	something like if [ -e $(eb_incl__absolute_path)/$module_*.*.* ] ?
 #
 ###################################################################
-MODULE_VERSION="12.0.0"
+MODULE_VERSION="12.0.2"
 MODULE_NAME="easybashgui-debug"
 ###################################################################
 #

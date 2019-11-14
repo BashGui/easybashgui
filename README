@@ -8,7 +8,7 @@ You can force widget usage through "supermode" variable ( possible values: "yad"
 e.g.: >export supermode="kdialog" && source easybashgui && message Hello ).
 NOTE on "none" mode: you have to make sure STDERR *is not* redirected, in order to see shell boxes in your terminal.
 
-In EasyBashGUI "suite" there are a launcher ( "easybashgui" ), a launcher that toggles some debug options ( "easybashgui-debug" ), a widget library ( "easybashgui_X.X.X.lib" ), and a stand-alone script (rather old nowadays) to create dialog boxes externally ( "easydialog.sh" ). Moreover there is an other library too ( "easybashlib" ) for optional ancillary functions ( thanks to it you don't need anymore to use "clean_temp()" function at the end of your EBG scripts ).
+In EasyBashGUI "suite" there are a launcher ( "easybashgui" ), a launcher that toggles some debug options ( "easybashgui-debug" ), a widget library ( "easybashgui_X.X.X.lib" ), and a stand-alone script (rather old nowadays) to create dialog boxes externally ( "easydialog-legacy" ). Moreover there is an other library too ( "easybashlib" ) for optional ancillary functions ( thanks to it you don't need anymore to use "clean_temp()" function at the end of your EBG scripts ).
 
 
 
@@ -215,7 +215,7 @@ done
 
 
 
-( For old easydialog.sh use and examples, you would launch it simply with "-h" option )
+( For the old "easydialog-legacy" examples, you would launch it simply with "-h" option )
 
 
 

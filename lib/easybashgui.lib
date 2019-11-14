@@ -35,7 +35,7 @@
 #####################################
 #####################################
 #
-LIB_VERSION="12.0.0"
+LIB_VERSION="12.0.2"
 LIB_NAME="easybashgui.lib"
 LIB_URL="https://github.com/BashGui/easybashgui"
 LIB_AUTHOR="Vittorio Cagnetta"

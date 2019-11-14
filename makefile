@@ -1,5 +1,5 @@
 #EBGlib=$(wildcard easybashgui_[0-9].[0-9].[0-9])
-VERSION=12.0.0
+VERSION=12.0.2
 
 #cartelle di destinazione
 DESTDIR ?= ""
@@ -30,12 +30,12 @@ install:
 	mkdir -p $(BINDIR)
 	
 	cp $(BINARI) $(BINDIR)
-	chmod 755 $(BINDIR)/easybashgui $(BINDIR)/easydialog
+	chmod 755 $(BINDIR)/easybashgui $(BINDIR)/easydialog-legacy
 	@echo
 
 	@echo Creating /usr/share/easybashgui directory...
 	mkdir -p $(SHAREDIR)
-	@echo Copying Xdialog icons ...
+	@echo Copying icons ...
 	cp $(ICONE) $(SHAREDIR)
 	@echo
 
@@ -65,7 +65,7 @@ uninstall:
 	@echo
 	
 	@echo Removing easybashgui ...
-	-rm $(BINDIR)/easybashgui $(BINDIR)/easybashgui-debug $(BINDIR)/easydialog
+	-rm $(BINDIR)/easybashgui $(BINDIR)/easybashgui-debug $(BINDIR)/easydialog-legacy
 	@echo
 
 	@echo Removing /usr/share/easybashgui directory...
