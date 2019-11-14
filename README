@@ -8,7 +8,7 @@ You can force widget usage through "supermode" variable ( possible values: "yad"
 e.g.: >export supermode="kdialog" && source easybashgui && message Hello ).
 NOTE on "none" mode: you have to make sure STDERR *is not* redirected, in order to see shell boxes in your terminal.
 
-In EasyBashGUI "suite" there are a launcher ( "easybashgui" ), a launcher that toggles some debug options ( "easybashgui-debug" ), a widget library ( "easybashgui_X.X.X.lib" ), and a stand-alone script to create dialog boxes externally ( "easydialog.sh" ). Moreover there is an other library too ( "easybashlib" ) for optional ancillary functions ( thanks to it you don't need anymore to use "clean_temp()" function at the end of your EBG scripts ).
+In EasyBashGUI "suite" there are a launcher ( "easybashgui" ), a launcher that toggles some debug options ( "easybashgui-debug" ), a widget library ( "easybashgui_X.X.X.lib" ), and a stand-alone script (rather old nowadays) to create dialog boxes externally ( "easydialog.sh" ). Moreover there is an other library too ( "easybashlib" ) for optional ancillary functions ( thanks to it you don't need anymore to use "clean_temp()" function at the end of your EBG scripts ).
 
 
 
@@ -21,6 +21,7 @@ Library functions.
 message
 ok_message
 alert_message
+notify_message
 text
 question
 input
@@ -34,9 +35,10 @@ wait_for
 terminate_wait_for
 progress
 adjust
+notify (*)
+notify_change (*)
 
-
-
+(* => only if you have "yad" installed)
 
 
 
@@ -95,6 +97,7 @@ question -> "[text]"                 =>       ( 1 argument, box output to exit c
 message -> "[text]"                  =>       ( 1 argument )
 alert_message -> "[text]"            =>       ( 1 argument )
 ok_message -> "[text]"               =>       ( 1 argument )
+notify_message -> "[text]"           =>       ( 1 argument )
 text                                 =>       ( STDIN, NO argument, box output to "${dir_tmp}/${file_tmp}" and STDERR ) (^)
 wait_seconds -> "[integer]"          =>       ( 1 argument )
 wait_for -> "[text]"                 =>       ( 1 argument, PID to kill to "wait_for__PID" variable and STDERR ) (@)
@@ -110,6 +113,8 @@ list -> <+|->"[item 1]" ... <+|->"[item n]"    =>       ( [n] arguments, optiona
 progress -> "[text]"                         =>       ( percent with or without '%' in STDIN, 1 argument )
 progress -> "[text]" "[elements number]"     =>       ( "PROGRESS" string in STDIN, 2 arguments )
 adjust -> "[text]" "[min]" "[init]" "[max]" => ( 4 arguments, box output to "${dir_tmp}/${file_tmp}" and STDERR )
+notify -> <-c "[click command (for mouse left button)]"> <-i "[icon_good]#[icon_bad]"> <-t "[tooltip_good]#[tooltip_bad]"> "[menu item 1]" "[menu command 1]" ... "[menu item n]" "[menu command n]" =>       ( [n*2] arguments )
+notify_change -> "[good|bad]" =>      ( 1 argument ) 
 
 
 (*) = "0" exit status is "YES", "1" exit status is "NOT", other exit codes you should make program exit : normally in a script you have just to check exit status to know user choice ;
@@ -118,7 +123,7 @@ adjust -> "[text]" "[min]" "[init]" "[max]" => ( 4 arguments, box output to "${d
 (#) = take care that if you are in "console mode" or without X, throught cdialog, selection is done by SPACE key, and NOT by enter key : remember it ;
 (%) = "menu" and "list" functions differ about choices: menu allows single choice, list allows multiple choice ; since 7.1.0 version you can use tagged_menu(): it outputs tags (e.g.: "tagged_menu 1 A 2 B" -> if user selects tag "A" then function outputs item "1" );
 
-Since EasyBashGUI v.1.2.4, all windows functions support options "<-w|-width> [integer]", and "<-h|-height> [integer]" for custom window size:
+Since EasyBashGUI v.1.2.4, all windows functions support options "<-w|-width> [integer]", and "<-h|-height> [integer]" for custom window size (note: not used for "notify_message"):
 E.g.: >alert_message -w 400 -h 340 "Error!"
 
 
@@ -184,7 +189,33 @@ for (( index=0 ; index < ${#women[@]} ; index++ }))
 done | progress "This is a _LOVE_ progress..." "${#women[@]}"
 # if you use "PROGRESS" string in STDIN do not forget second argument ( "[elements number]" )
 
-( For easydialog.sh use and examples, you would launch it simply with "-h" option )
+9)
+notify -t "Good tooltip:OK#Bad tooltip:BAD" -i "/usr/local/share/pixmaps/nm-signal-100.png#gtk-fullscreen" "Xclock" "xclock" "Xcalc" "xcalc"
+#
+while :
+	do
+	menu GOOD BAD
+	answer=$(0< "${dir_tmp}/${file_tmp}" )
+	#
+	if [ "${answer}" = "GOOD" ]
+		then
+		notify_message "Changed in \"good\" ..."
+		notify_change "good"
+	elif [ "${answer}" = "BAD" ]
+		then
+		notify_message "Changed in \"bad\" ..."
+		notify_change "bad"
+	else
+		exit
+	fi
+	#
+done
+
+
+
+
+
+( For old easydialog.sh use and examples, you would launch it simply with "-h" option )
 
 
 
@@ -231,7 +262,7 @@ Thanks to Lucio Messina for "Debian policy" tips and support.
 
 
 
-Please let me know if my work has been useful for you.
+Please, let me know if my work has been useful for you.
 Vittorio Cagnetta
 vaisarger@gmail.com
 https://github.com/BashGui/easybashgui

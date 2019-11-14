@@ -244,7 +244,8 @@ function eb_kill_process_tree_of_pid() {
 # http://www.linuxjournal.com/content/use-bash-trap-statement-cleanup-temporary-files
 #
 #declare -a eb_on_exit_commands #UNUSEFUL since causes "unbound variable" because array is set ONLY if at least element exists...
-ebg_on_exit_commands=( "echo -en \"\nEBG v.${MODULE_VERSION} exiting... \" 1>&2" )
+#ebg_on_exit_commands=( "echo -en \"\nEBG v.${MODULE_VERSION} exiting... \" 1>&2" )
+ebg_on_exit_commands=( ":" )
 #echo "1) How many elements in array \${ebg_on_exit_commands[@]}: ${#ebg_on_exit_commands[@]} .........DEBUG" 1>&2
 
 ebg_on_exit()
@@ -259,7 +260,7 @@ ebg_on_exit()
 		eval "${ebg_on_exit_commands[${i}]}"
 	done
 	#
-	echo -e "Bye!" 1>&2
+	#echo -e "Bye!" 1>&2
 	#
 	# Hint: Scripts that fork should start with "ebg_on_exit $0 killtree $BASHPID", to clean up child
 	# processes. (Also remember to kill all disowned proceses if appropriate.)

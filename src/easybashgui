@@ -80,7 +80,7 @@
 #	something like if [ -e $(eb_incl__absolute_path)/$module_*.*.* ] ?
 #
 ###################################################################
-MODULE_VERSION="11.0.1"
+MODULE_VERSION="12.0.0"
 MODULE_NAME="easybashgui"
 libexec_dir="/usr/lib/easybashgui"
 ###################################################################
@@ -664,6 +664,49 @@ elif [ "${eb_gui_fallback}" = "true" ]
 		#
 		}
 	# ok_message()
+	#
+	##
+	#
+	# notify_message()
+	notify_message()
+		{
+		local FUNCT_NAME="notify_message"
+		local IFS=$' \t\n'
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		num_secondi=4
+		testo="############################\n############################\n\n $(echo -e "${@}" )\n\n############################\n############################"
+		#
+		#########################################
+		echo -e "\n\n\n${frame}"
+		echo "$(basename "${eb_current_process_path}" ): notification"
+		echo "${frame}"
+		echo -e "\n${testo}\n"
+		#
+		sleep ${num_secondi}
+		#
+		echo -e "${frame}\n"
+		echo
+		#########################################
+		#
+		}
+	# notify_message()
 	#
 	##
 	#
