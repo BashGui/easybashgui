@@ -263,7 +263,7 @@ ebg_on_exit()
 	#echo -e "Bye!" 1>&2
 	#
 	# Hint: Scripts that fork should start with "ebg_on_exit $0 killtree $BASHPID", to clean up child
-	# processes. (Also remember to kill all disowned proceses if appropriate.)
+	# processes. (Also remember to kill all disowned processes if appropriate.)
 	#
 	#echo "Exiting. .........DEBUG" 1>&2
 	eb_debug_output "Exiting."

@@ -35,7 +35,7 @@
 #####################################
 #####################################
 #
-LIB_VERSION="12.0.2"
+LIB_VERSION="12.0.3"
 LIB_NAME="easybashgui.lib"
 LIB_URL="https://github.com/BashGui/easybashgui"
 LIB_AUTHOR="Vittorio Cagnetta"
@@ -495,15 +495,14 @@ fi
 ###############
 #
 export notify_send_seconds=4
-export notify_check_loop_seconds=5
 #
-export notify_icon_default="gtk-stop"
+export notify_icon_default="gtk-execute"
 export notify_icon_good="gtk-home"
 export notify_icon_bad="gtk-help"
 #
-export notify_tooltip_default="${0##*/}-> starting..."
-export notify_tooltip_good="${0##*/}-> ok"
-export notify_tooltip_bad="${0##*/}-> bad!"
+export notify_tooltip_default="${supertitle} -> starting..."
+export notify_tooltip_good="${supertitle} -> OK"
+export notify_tooltip_bad="${supertitle} -> BAD"
 #
 notify_send="NO"
 esistenza_notify_send="$(type 'notify-send' 2> /dev/null )"
@@ -900,9 +899,9 @@ if [ "${yad}" = "SI" ]
 		unset icons
 		unset tooltips
 		#
-		while getopts ":c:i:t:" function_options
+		while getopts ":c:i:t:" notify_function_options
 			do
-			case ${function_options} in
+			case ${notify_function_options} in
 				#
 				c	) export click_command="${OPTARG}" ;;
 				i	) export icons="${OPTARG}" ;;
@@ -959,7 +958,7 @@ if [ "${yad}" = "SI" ]
 								done )"
 		local IFS=$' \t\n'
 		#
-		notify_menu="  ${supertitle}${notify_items}|-> Quit!quit"
+		notify_menu="  ${supertitle}|${notify_items}|-> Quit!quit"
 		#
 		##
 		#
@@ -989,7 +988,7 @@ if [ "${yad}" = "SI" ]
 		# add handler for tray icon left click...
 		notify_on_click()
 			{
-			echo "tooltip:${0##*/}-> wait..." 1> "${ebg_PIPE}"
+			echo "tooltip:${0##*/} -> wait..." 1> "${ebg_PIPE}"
 			#
 			if [ ${#click_command} -eq 0 ]
 				then
@@ -1028,7 +1027,7 @@ if [ "${yad}" = "SI" ]
 	#
 	###
 	#
-	# notify_change "[good|bad]" 
+	# notify_change <-i "[new_icon]"> <-t "[new_tooltip]"> "[good|bad]" 
 	#
     notify_change()
 		{
@@ -1038,20 +1037,52 @@ if [ "${yad}" = "SI" ]
 		[ ${#ebg_PIPE} -eq 0 ] && break
 		[ ! -e "${ebg_PIPE}" ] && break
 		#
+		unset new_icon
+		unset new_tooltip
+		#
+		unset OPTIND
+		while getopts ":i:t:" notify_change_function_options
+			do
+			case ${notify_change_function_options} in
+				#
+				i	) export new_icon="${OPTARG}" ;;
+				t	) export new_tooltip="${OPTARG}" ;;
+				#
+			esac
+		done
+		shift $((OPTIND-1))
+		#
+		##############################
+		#
 		notify_change_how="${1}"
-		[ ${#notify_change_how} -eq 0 ] && notify_change_how="bad"
+		#
+		##############################
 		#
 		if [ "${notify_change_how}" = "good" -o "${notify_change_how}" = "GOOD" ]
 			then
 			#
-			echo "icon:${notify_icon_good}"
-			echo "tooltip:${notify_tooltip_good}"
+			###
+			[ ${#new_icon} -gt 0 ] && notify_change_icon="${new_icon}" || notify_change_icon="${notify_icon_good}"
+			echo "icon:${notify_change_icon}"
+			#
+			[ ${#new_tooltip} -gt 0 ] && notify_change_tooltip="${new_tooltip}" || notify_change_tooltip="${notify_tooltip_good}"
+			echo "tooltip:${notify_change_tooltip}"
+			###
 			#
 		elif [ "${notify_change_how}" = "bad" -o "${notify_change_how}" = "BAD" ]
 			then
 			#
-			echo "icon:${notify_icon_bad}"
-			echo "tooltip:${notify_tooltip_bad}"
+			###
+			[ ${#new_icon} -gt 0 ] && notify_change_icon="${new_icon}" || notify_change_icon="${notify_icon_bad}"
+			echo "icon:${notify_change_icon}"
+			#
+			[ ${#new_tooltip} -gt 0 ] && notify_change_tooltip="${new_tooltip}" || notify_change_tooltip="${notify_tooltip_bad}"
+			echo "tooltip:${notify_change_tooltip}"
+			###
+			#
+		else
+			#
+			return 1
 			#
 		fi 1> "${ebg_PIPE}"
 		#
@@ -1357,9 +1388,9 @@ fi
 # question()
 #
 ##
-#
 # notify_message()
-[ "${mode}" = "dialog" ] && notify_send="NO"
+[ "${mode}" = "dialog" ] && export notify_send="NO"
+# notify_message <-i [icon]> "text"
 if [ "${notify_send}" = "SI" ]
 	then
 	notify_message()
@@ -1367,44 +1398,89 @@ if [ "${notify_send}" = "SI" ]
 		local FUNCT_NAME="notify_message"
 		local IFS=$' \t\n'
 		#
-		notify_message_text="${@}"
+		unset notify_message_icon
+		#
+		unset OPTIND
+		while getopts ":i:" notify_change_function_options
+			do
+			case ${notify_change_function_options} in
+				#
+				i	) export notify_message_icon="${OPTARG}" ;;
+				#
+			esac
+		done
+		shift $((OPTIND-1))
+		#
+		##############################
+		#
+		export notify_message_text="${@}"
+		#
+		##############################
 		#
 		notify_send_milliseconds=$(( ${notify_send_seconds} * 1000 ))
-		notify-send -t ${notify_send_milliseconds} -a "${0##*/}" -i "${notification_icon_default}" "${notify_message_text}"
+		[ ${#notify_message_icon} -gt 0 ] && : || notify_message_icon="${notify_icon_default}"
+		#
+		notify-send -t ${notify_send_milliseconds} -a "${supertitle:-EasyBashGUI}:" -i "${notify_message_icon}" "${notify_message_text}"
 		#
 		}
 elif [ "${notify_send}" = "NO" ]
 	then
+	#
+	notify_message_alt()
+		{
+		wait_for "\n\n${notify_message_text}\n\n\n\n(Please, install \"kdialog\" or \"notify-send\" for a nicer notification)\n\n."
+		sleep ${notify_send_seconds}
+		terminate_wait_for
+		}
+	#
 	notify_message()
 		{
 		local FUNCT_NAME="notify_message"
 		local IFS=$' \t\n'
 		#
+		unset notify_message_icon
+		#
+		unset OPTIND
+		while getopts ":i:" notify_change_function_options
+			do
+			case ${notify_change_function_options} in
+				#
+				i	) export notify_message_icon="${OPTARG}" ;;
+				#
+			esac
+		done
+		shift $((OPTIND-1))
+		#
+		##############################
+		#
 		export notify_message_text="${@}"
+		#
+		##############################
+		#
+		[ ${#notify_message_icon} -gt 0 ] && : || notify_message_icon="${notify_icon_default}"
 		#
 		if [ "${mode}" = "dialog" ]
 			then
 			#
-			wait_for "${notify_message_text}"
+			wait_for "\n${notify_message_text}"
 			sleep ${notify_send_seconds}
 			terminate_wait_for
 			#
 		elif [ "${mode}" != "dialog" ]
 			then
-			notify_dummy_var="$(
-							if [ "${kdialog}" = "SI" ]
-								then
-								export supermode=kdialog
-							fi
-							#
-							source easybashgui
-							#
-							wait_for "${notify_message_text}\n\n\n\n(Please install \"notify-send\" for a nicer notification)"
-							sleep ${notify_send_seconds}
-							terminate_wait_for
-							#
-							clean_temp
-							)" &>/dev/null &
+			if [ "${kdialog}" = 'SI' ]
+				then
+				#
+				:
+				kdialog --icon "${notify_message_icon}" --passivepopup "${supertitle:-EasyBashGUI}:\n\n${notify_message_text}" ${notify_send_seconds}
+				#
+			else
+				#
+				:
+				notify_message_alt &
+				#
+			fi
+			#
 		fi
 		#
 		}

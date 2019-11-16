@@ -97,7 +97,7 @@ question -> "[text]"                 =>       ( 1 argument, box output to exit c
 message -> "[text]"                  =>       ( 1 argument )
 alert_message -> "[text]"            =>       ( 1 argument )
 ok_message -> "[text]"               =>       ( 1 argument )
-notify_message -> "[text]"           =>       ( 1 argument )
+notify_message -> <-i "[icon]"> "[text]" =>   ( 1 option, 1 argument )
 text                                 =>       ( STDIN, NO argument, box output to "${dir_tmp}/${file_tmp}" and STDERR ) (^)
 wait_seconds -> "[integer]"          =>       ( 1 argument )
 wait_for -> "[text]"                 =>       ( 1 argument, PID to kill to "wait_for__PID" variable and STDERR ) (@)
@@ -113,8 +113,8 @@ list -> <+|->"[item 1]" ... <+|->"[item n]"    =>       ( [n] arguments, optiona
 progress -> "[text]"                         =>       ( percent with or without '%' in STDIN, 1 argument )
 progress -> "[text]" "[elements number]"     =>       ( "PROGRESS" string in STDIN, 2 arguments )
 adjust -> "[text]" "[min]" "[init]" "[max]" => ( 4 arguments, box output to "${dir_tmp}/${file_tmp}" and STDERR )
-notify -> <-c "[click command (for mouse left button)]"> <-i "[icon_good]#[icon_bad]"> <-t "[tooltip_good]#[tooltip_bad]"> "[menu item 1]" "[menu command 1]" ... "[menu item n]" "[menu command n]" =>       ( [n*2] arguments )
-notify_change -> "[good|bad]" =>      ( 1 argument ) 
+notify -> <-c "[click command (for mouse left button)]"> <-i "[icon_good]#[icon_bad]"> <-t "[tooltip_good]#[tooltip_bad]"> "[menu item 1]" "[menu command 1]" ... "[menu item n]" "[menu command n]"		=>       ( 3 options, [n*2] mandatory arguments )
+notify_change -> <-i "[new icon]"> <-t "[new tooltip]"> "[good|bad]"		=>      ( 2 options, 1 mandatory argument ) 
 
 
 (*) = "0" exit status is "YES", "1" exit status is "NOT", other exit codes you should make program exit : normally in a script you have just to check exit status to know user choice ;
@@ -204,7 +204,7 @@ while :
 	elif [ "${answer}" = "BAD" ]
 		then
 		notify_message "Changed in \"bad\" ..."
-		notify_change "bad"
+		notify_change -i "gtk-help" -t "This tooltip is bad" "bad"
 	else
 		exit
 	fi
