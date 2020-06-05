@@ -1,7 +1,5 @@
 # easybashlib - EasyBash Library...
 #
-# Hint: If you are just using a random editor, try Geany.
-#
 # For more lib modules and improvement ideas see:
 # http://dberkholz.com/2011/04/07/bash-shell-scripting-libraries/
 
@@ -179,8 +177,6 @@ function eb_error_output()
 #####################
 
 
-
-
 function eb_kill_process_tree_of_pid() {
 # Grows a process tree that can kill an existing process tree beginning with
 # the given PID as parent.
@@ -231,11 +227,7 @@ function eb_kill_process_tree_of_pid() {
 		fi
 	done
 	
-
 }
-
-
-
 
 
 
@@ -297,13 +289,9 @@ ebg_add_on_exit()
 
 
 
-
-
-
 ###############
 # Directories #
 ###############
-
 
 
 # determine eb_conf_dir
@@ -347,7 +335,6 @@ else
 fi
 eb_log_dir="${eb_log_basedir}/${eb_runtime_invoke_name}"
 eb_debug_output "eb_log_dir is set to $eb_log_dir"
-
 
 
 
@@ -440,12 +427,9 @@ fi
 
 
 
-
-
 ##########
 # Checks #
 ##########
-
 
 
 function eb_gen_check_code()
@@ -533,29 +517,28 @@ function eb_check_local()
 eb_map() {
 #parameters: action, storage_type, key, value, process_name
 
-	[ "$#" -lt 2 ] && exit 1
-	local action="$1"
-	local storage_type="$2"
-	local mapname="$3"
-	local key="$4"
-	local value="$5"
+	[ "${#}" -lt 2 ] && exit 1
+	local action="${1}"
+	local storage_type="${2}"
+	local mapname="${3}"
+	local key="${4}"
+	local value="${5}"
 	local process_name="${6:-${eb_runtime_invoke_name}}"
 	local mapdir
 	
-	if [ "$storage_type" = "persistent" ]
-	then
+	if [ "${storage_type}" = "persistent" ]
+		then
 		mapdir="${eb_persistence_basedir}/${process_name}/eb_key-value-maps"
 	else
 		mapdir="$(eb_get_state_dir ${process_name})/eb_key-value-maps"
 	fi
 	
-	if [ "$action" = "put" ]
-	then
+	if [ "${action}" = "put" ]
+		then
 		[ -d "${mapdir}/${mapname}" ] || mkdir -p "${mapdir}/${mapname}"
 		echo $value >"${mapdir}/${mapname}/${key}"
-	
-	elif [ "$action" = "get" ]
-	then
+	elif [ "${action}" = "get" ]
+		then
 		cat "${mapdir}/${mapname}/${key}"
 	fi
 }

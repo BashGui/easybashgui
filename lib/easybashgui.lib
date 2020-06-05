@@ -8,7 +8,7 @@
 #
 #########################
 #
-# Copyright (C) 2019 Vittorio Cagnetta
+# Copyright (C) 2020 Vittorio Cagnetta
 #
 # Author: Vittorio Cagnetta <vaisarger@gmail.com>
 #
@@ -35,7 +35,7 @@
 #####################################
 #####################################
 #
-LIB_VERSION="12.0.3"
+LIB_VERSION="12.0.4"
 LIB_NAME="easybashgui.lib"
 LIB_URL="https://github.com/BashGui/easybashgui"
 LIB_AUTHOR="Vittorio Cagnetta"
@@ -85,6 +85,15 @@ height=378
 #
 ##
 #
+typing_tac="$(type 'tac' 2> /dev/null )"
+[ ${#typing_tac} -eq 0 ] && shopt -s expand_aliases && alias tac="sed '1'\!'G;h;$'\!'d'"
+: tac
+#
+typing_seq="$(type 'seq' 2> /dev/null )"
+[ ${#typing_seq} -eq 0 ] && seq() { for ((index=${1}; index<=${2}; index++)); do echo "${index}"; done; } && export -f seq
+#
+##
+#
 # gsed...
 for word in sed gsed
 	do
@@ -93,7 +102,7 @@ for word in sed gsed
 done 
 [ "${mascotte}" = "Beastie" ] && : #later we'll check for gsed binary...
 [ "${mascotte}" = "Tux" ] && shopt -s expand_aliases && alias gsed=sed #gsed is no more a function...
-typing_gsed="$(type "gsed" 2> /dev/null )"
+typing_gsed="$(type 'gsed' 2> /dev/null )"
 if [ ${#typing_gsed} -eq 0 ]
 	then
 	[ "${mascotte}" = "Beastie" ] && echo -e "\n\n\n\nYou need to install \"gsed\" ( GNU Sed ) port/package to use ${LIB_NAME}...\nSorry :(\n\n\n\n" 1>&2
@@ -3064,7 +3073,10 @@ if [ "${mode}" = "yad" ]
 		testo="${@}"
 		#
 		testo_yad="$(echo "${testo}" | tr -d '<>' )"
-		yes | \
+		#
+		yess() { while : ; do echo 'y' ; sleep 0.1 ; done ; }
+		#yes | \
+		yess | \
 			${dialogo} --title "${supertitle:-EasyBashGUI}: please wait" --progress --pulsate --auto-kill --text "$(echo -e "${testo_yad}" )" ${dimensione_finestra} &>/dev/null &
 		#
 		export wait_for__PID="${!}"
@@ -3387,7 +3399,8 @@ if [ "${mode}" = "yad" ]
 			dir="${HOME}/"
 		fi
 		#
-		fselect="--file-selection"
+		[ $(yad --help | grep "\-\-file\-selection" | wc -c ) -gt 0 ] && fselect="--file-selection" || fselect="--file"
+		#
 		dim_finestra="${dimensione_finestra}"
 		eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: file select\" ${fselect} --filename \"${dir}\" ${dim_finestra} 2> /dev/null 1> "${dir_tmp}/${file_tmp}"
 		#
@@ -3754,7 +3767,8 @@ if [ "${mode}" = "yad" ]
 			dir="${HOME}/"
 		fi
 		#
-		dselect="--file-selection --directory"
+		[ $(yad --help | grep "\-\-file\-selection" | wc -c ) -gt 0 ] && dselect="--file-selection --directory" || dselect="--file --directory"
+		#
 		dim_finestra="${dimensione_finestra}"
 		eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: dir. select\" ${dselect} --filename \"${dir}\" ${dim_finestra} 2> /dev/null 1> "${dir_tmp}/${file_tmp}"
 		#exit_if_user_closes_window

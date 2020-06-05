@@ -248,7 +248,7 @@ Since 8.0.0 version, project is housed at github ( https://github.com/BashGui ).
 Credits.
 
 Thanks to Bash, Yad, Gtkdialog, Xdialog, Kdialog, Zenity, Cdialog, and Whiptail authors, this library was nothing without their work. Many thanks.
-Thanks to Frank Dietermann for suggestion though to make EBG "posix compliant" (vers. 11.X.X )
+Thanks to Frank Dietermann for suggestion though to make EBG "posix compliant" (since vers. 11.X.X )
 Thanks to Jose Joao Dias de Almeida for the makefile tip.
 Thanks to Chris "cgat" for his many ideas and suggestions that lead to version's "5.X.X" EasyBashGUI "revolution".
 Thanks to Davide Depau for his tests and support, and his effort to make EasyBashGUI Debian policy compliant, and finally for his man page.

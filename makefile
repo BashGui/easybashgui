@@ -1,5 +1,5 @@
 #EBGlib=$(wildcard easybashgui_[0-9].[0-9].[0-9])
-VERSION=12.0.3
+VERSION=12.0.4
 
 #cartelle di destinazione
 DESTDIR ?= ""
