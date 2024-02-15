@@ -16,12 +16,9 @@ library that aims to give unified GUI functions using frontends for dialogs boxe
 
 #### Backends environments GUI
 
-EBG implements differents dialogs boxeds that for the user side are frontends 
-but from the EGB side are backends!
-
-You don't have to worry about what environment you are running the script in, 
-as **EasyBashGUI** will handle this transparently, based on the availability of 
-the backends.
+EBG implements differents dialogs boxes! You don't have to worry about what 
+environment you are running the script in, as **EasyBashGUI** will handle this 
+transparently, based on the availability of the backends (frontends).
 
 * Console mode:
   * dialog
@@ -38,9 +35,7 @@ the backends.
 #### Compatibilty and runtime
 
 EBG is coded in `bash`, and uses most of `coreutils` commands, but it may work in
-any other env, `bash` is just used internally. But `coreutils` is mandatory, users
-from alpine linux will be forced to install `coreutils` cos `busybox` or sucktools
-does not have the required funtionality to work!
+any other env, becouse those are just used internally.
 
 ## Components
 
