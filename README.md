@@ -1,7 +1,7 @@
 EasyBashGUI
 ===========
 
-Simplified way to code bash made GUI frontend dialogs!
+Simplified way to code bash made GUI frontend dialogs! Check the youtube video:
 
 [![](https://img.youtube.com/vi/FEn4doXmiX0/0.jpg)](https://www.youtube.com/watch?v=FEn4doXmiX0)
 
@@ -12,7 +12,7 @@ itselft, well so then for the GUIs there are **EasyBashGUI** then!
 
 **E**asy **B**ash **G**ui shortened as EBG, is a Posix compliant Bash functions 
 library that aims to give unified GUI functions using frontends for dialogs boxeds 
-(to the user side are frontends but from the EGB side are backends)
+(from the user's point of view are frontends but from the EGB side are backends)
 
 #### Backends environments GUI
 
@@ -42,16 +42,6 @@ any other env, `bash` is just used internally. But `coreutils` is mandatory, use
 from alpine linux will be forced to install `coreutils` cos `busybox` or sucktools
 does not have the required funtionality to work!
 
-#### Backend boxes priority
-
-EBG suppport for backend dialog boxeds depends on the runing programs, this
-will be improved in future releases:
-
-1. If all the required backends are available or at least kdialog are.. the EBG
-   will try to check if kdebin is running and only will use kdialog.
-2. If only GTK based are running, the EBG will just use zenity, event if xdialog
-   is available and there is no desktop runing (window managers or similar.. )
-
 ## Components
 
 EBG is fully modular:
@@ -64,8 +54,14 @@ EBG is fully modular:
 
 ## Quick start
 
-You can try the "use in place" method at the [docs/install.md](docs/install.md#quick-start-usage)
-file.
+``` bash
+source easybashgui
+
+message "hola"
+```
+
+Pretty easy!? right? Read the "Quick start usage" section at the [docs/install.md](docs/install.md#quick-start-usage)
+file!
 
 ### INSTALLATION
 

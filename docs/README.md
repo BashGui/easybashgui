@@ -5,19 +5,49 @@ Simplified way to code bash made GUI frontend dialogs! - Documentation
 
 ## Installation
 
-Please check [docs/install.md](docs/install.md) document file!
+Please check [install.md](install.md) document file!
 
-If you are in a hurry check [docs/install.md#quick-start-usage](docs/install.md#quick-start-usage)
+If you are in a hurry check [install.md#quick-start-usage](install.md#quick-start-usage)
 section.
 
 ## EBG library
+
+EBG is fully modular, you create a new script and just sourcered the endpoint:
+
+* `easybashgui` a launcher that will be the endpoint sourcered in your scripts
+* `easybashgui-debug` that toggles some debug options managed by the previus component
+* `easybashgui.lib` that managed the backends, called as widget library
+* `easydialog-legacy` stand-alone to create dialog boxes externally (as old nowadays)
+* `easybashlib` used for for optional functions like cleaning temporally working dir
+
+Depending of the installation you will sourcered the endpoint as:
+
+* If you installed system wide: `source easybashgui`
+* If you are using from path: ``source ./easybashgui`
+
+If EBG is not installed you should have at least all the files in the same path 
+as your main script, if you install it on the system you don't have to worry 
+about this!
+
+**IMPORTANT**: If easybashlib is present and successfully loaded, you can avoid 
+to launch "clean_temp" to remove temporary files; otherwise DO NOT forget to 
+write "clean_temp" at the end of all your scripts... ;-)
+
+#### Backend boxes priority
+
+EBG suppport for backend dialog boxeds depends on the runing programs:
+
+1. If all the required backends are available or at least kdialog are.. the EBG
+   will try to check if kdebin is running and only will use kdialog.
+2. If only GTK based are running, the EBG will just use zenity, event if xdialog
+   is available and there is no desktop runing (window managers or similar.. )
 
 #### Box mode windows
 
 The backend window can be forced using the `supermode` environment variable to 
 the program backend of choice:
 
-```
+``` bash
 export supermode="kdialog"
 
 source easybashgui
@@ -47,7 +77,7 @@ EBG always use STDIN and STDOUT in conjuction with a temporally directory/filena
 
 The temporally names are managed throught the variables `${dir_tmp}` and `${file_tmp}`
 
-#### Functions
+#### Functions list features
 
 TODO: this section is WIP
 

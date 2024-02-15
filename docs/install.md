@@ -39,6 +39,8 @@ echo -e "source src/easybashgui\nmessage hola" > ~/Devel/easybashgui/newprogram
 bash ~/Devel/easybashgui/newprogram
 ```
 
+For more examples please read the full documentation [README.md](README.md)
+
 ![](easybasguidialogs.jpeg)
 
 
@@ -65,12 +67,8 @@ That's it !!!!! No matter, will install files as:
 
 ### System wide usage
 
-If you want use it in your scripts, simply source "easybashgui" before use...
-(e.g.: "source easybashgui" ) if you installed system wide!
-
-**IMPORTANT**: If easybashlib is present and successfully loaded, you can avoid 
-to launch "clean_temp" to remove temporary files; otherwise DO NOT forget to 
-write "clean_temp" at the end of all your scripts... ;-)
+Just after install read full documentation [README.md](README.md), this is a 
+brief starting point to check if EBG its property installed:
 
 Firs create a file with following content:
 
@@ -89,4 +87,27 @@ Later just lauch it! Just remmembered that this example assumes you have
 installed system-wide the EBG programs.
 
 And... enjoy !! :-)
+
+## Packaging
+
+For distro mantainers EBG are a simple and easy to mantain project, 
+but due it relies on backend and coreutils programs there are some 
+directions:
+
+* **Minimalist people should depends on coreutils!** we used some command 
+like `wc`, `type`, `cut` and `bash` and we reliles on their important features 
+that `busybox` neither `dash`/`sh` can provide it!
+* **backends (frontends) are not dependencies, but dialog it is!**, we are 
+aware that we need a backend, but dialog is the backend that must be placed as 
+a dependency, but since not only does whiptail depend on a library separate 
+from its own but it has fewer functionalities in itself, dialog is by far 
+compatible with everything created since the beginning of times.
+* **dont recommends any backend (frontend), its not necesary!**, no so much 
+package managers have the suggestion part like debian, but please dont recommends 
+any backend, the EBG must use the already provided and present in your env! 
+your project that will inplement EBG will manage those depends and recommends!
+* **follows installation paths** the EBG does not put any file outside of the 
+right place, so please dont change anything!
+* **none of the requirements are build requirements!** yeah, EBG its fully 
+runtime script!
 
