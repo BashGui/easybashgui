@@ -13,7 +13,7 @@ DOCDIR = $(DESTDIR)/usr/share/doc/easybashgui
 BINARI = src/easybashgui src/easybashgui-debug src/easydialog-legacy
 ICONE = icons/Ok.xpm icons/Attenzione.xpm
 LIBRERIE = lib/easybashgui.lib lib/easybashlib
-MANUALE = easybashgui.1.gz
+MANUALE = docs/easybashgui.1.gz
 DOCUMENTAZIONE = EasyBashGUI-license README
 
 build:
