@@ -50,13 +50,13 @@ E.g.: >alert_message -w 400 -h 340 "Error!"
 
 ## Examples
 
-You can made any script in any languaje, not only bash, in this document we 
-will use bash to ilustrate example usages:
+You must made the scripts in `bash` languaje, EBG is coded in `bash`, in this document 
+we will use bash to ilustrate example usages:
 
 1. install EBS or sourcered the minimun 3 files
 2. crate the new program script from you
 3. source the main endpoint of EBG (check following examples)
-4. saves and lauch the new script program
+4. saves and launch the new script program
 
 #### questions
 
