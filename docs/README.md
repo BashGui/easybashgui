@@ -10,7 +10,44 @@ Please check [docs/install.md](docs/install.md) document file!
 If you are in a hurry check [docs/install.md#quick-start-usage](docs/install.md#quick-start-usage)
 section.
 
-## EBG functions
+## EBG library
+
+#### Box mode windows
+
+The backend window can be forced using the `supermode` environment variable to 
+the program backend of choice:
+
+```
+export supermode="kdialog"
+
+source easybashgui
+
+message "hola"
+```
+
+![](easybasguidialogs.jpeg)
+
+#### Size box windows
+
+All windows functions support options `<-w|-width> [integer]` and `<-h|-height> [integer]` 
+for custom window size with exception of "notify_message" and earlier versions 
+of kdedialog!
+
+``` bash
+source easybashgui
+
+message -w 800 -h 100 "Hello World!"
+```
+
+![](easybashgui-example0.jpeg)
+
+#### Input and output
+
+EBG always use STDIN and STDOUT in conjuction with a temporally directory/filename.
+
+The temporally names are managed throught the variables `${dir_tmp}` and `${file_tmp}`
+
+#### Functions
 
 TODO: this section is WIP
 
@@ -45,9 +82,6 @@ notify_change -> <-i "[new icon]"> <-t "[new tooltip]"> "[good|bad]"		=>      ( 
 (%) = "menu" and "list" functions differ about choices: menu allows single choice, list allows multiple choice ; since 7.1.0 version you can use tagged_menu(): it outputs tags (e.g.: "tagged_menu 1 A 2 B" -> if user selects tag "A" then function outputs item "1" );
 ```
 
-Since EasyBashGUI v.1.2.4, all windows functions support options "<-w|-width> [integer]", and "<-h|-height> [integer]" for custom window size (note: not used for "notify_message"):
-E.g.: >alert_message -w 400 -h 340 "Error!"
-
 ## Examples
 
 You must made the scripts in `bash` languaje, EBG is coded in `bash`, in this document 
@@ -79,7 +113,18 @@ exit 0
 fi
 ```
 
-#### waiting for response and text box
+#### Simple text box from standar input
+
+This piece of code will lauch a text box inside a window but using pipes 
+to parsed to stdin and the `text` function:
+
+``` bash
+echo -e "What's your name?\n\nMy name's:\nVittorio" | text
+```
+
+![](easybashgui-example1.jpeg)
+
+#### waiting for response
 
 This piece of code will lauch 2 dialogs, the first is text box with a 
 default "ok" button for positive answer, in limited backend boxes wil only show 
@@ -88,8 +133,6 @@ a unique "ok" button and for cancel you just press "ESC" key..
 Second box is a wait reponse with default progress bar, after 4 seconds will quit
 
 ``` bash
-echo -e "What's your name?\n\nMy name's:\nVittorio" | text
-
 wait_for "I'm sleeping 4 seconds... good night..."
 sleep 4
 terminate_wait_for
