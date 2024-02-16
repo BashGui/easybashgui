@@ -22,7 +22,8 @@ You can use as system-wide module lib or as quick start module embebed!
 * Interpreter
   * `coreutils` 8.0+ https://www.gnu.org/software/coreutils/
   * `bash` 3.0+ https://tiswww.case.edu/php/chet/bash/bashtop.html
-
+  * `bc` 6.1+ https://www.gnu.org/software/bc/
+  
 ## Quick start usage
 
 Install `git` and then clone the repo, later echoes the required minimal example:
@@ -83,7 +84,7 @@ list +"you" -"me" +"her"
 clean_temp
 ```
 
-Later just lauch it! Just remmembered that this example assumes you have 
+Later just lauch it! Just remember that this example assumes you have 
 installed system-wide the EBG programs.
 
 And... enjoy !! :-)
@@ -95,19 +96,19 @@ but due it relies on backend and coreutils programs there are some
 directions:
 
 * **Minimalist people should depends on coreutils!** we used some command 
-like `wc`, `type`, `cut` and `bash` and we reliles on their important features 
+like `wc`, `type`, `cut` and `bash` and we relies on their important features 
 that `busybox` neither `dash`/`sh` can provide it!
-* **backends (frontends) are not dependencies, but dialog it is!**, we are 
-aware that we need a backend, but dialog is the backend that must be placed as 
-a dependency, but since not only does whiptail depend on a library separate 
-from its own but it has fewer functionalities in itself, dialog is by far 
+* **backends (frontends) are not dependencies, but (c)dialog it is!**, we are 
+aware that we need a backend, but "dialog" is the backend that must be placed as 
+a dependency, but since not only does "whiptail" depend on a library separate 
+from its own but it has fewer functionalities in itself, "dialog" is by far 
 compatible with everything created since the beginning of times.
-* **dont recommends any backend (frontend), its not necesary!**, no so much 
-package managers have the suggestion part like debian, but please dont recommends 
-any backend, the EBG must use the already provided and present in your env! 
+* **don't recommend any backend (frontend), it's not necessary!**, not so much 
+package managers have the suggestion part like Debian, but please don't recommend 
+any backend, the EBG must use the already provided one and present in your env ! 
 your project that will inplement EBG will manage those depends and recommends!
 * **follows installation paths** the EBG does not put any file outside of the 
 right place, so please dont change anything!
-* **none of the requirements are build requirements!** yeah, EBG its fully 
+* **none of the requirements are build requirements!** yeah, EBG it's fully 
 runtime script!
 

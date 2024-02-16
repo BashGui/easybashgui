@@ -35,12 +35,12 @@ write "clean_temp" at the end of all your scripts... ;-)
 
 #### Backend boxes priority
 
-EBG suppport for backend dialog boxeds depends on the runing programs:
+EBG support for backend boxed dialogs depends on the running programs:
 
 1. If all the required backends are available or at least kdialog are.. the EBG
    will try to check if kdebin is running and only will use kdialog.
-2. If only GTK based are running, the EBG will just use zenity, event if xdialog
-   is available and there is no desktop runing (window managers or similar.. )
+2. If only GTK based are running, the EBG will just use yad (or zenity ), even if xdialog
+   is available and there is no desktop managers running (only window managers or similar.. )
 
 #### Box mode windows
 
@@ -61,7 +61,7 @@ message "hola"
 
 All windows functions support options `<-w|-width> [integer]` and `<-h|-height> [integer]` 
 for custom window size with exception of "notify_message" and earlier versions 
-of kdedialog!
+of kdialog !
 
 ``` bash
 source easybashgui
@@ -73,9 +73,9 @@ message -w 800 -h 100 "Hello World!"
 
 #### Input and output
 
-EBG always use STDIN and STDOUT in conjuction with a temporally directory/filename.
+EBG always use STDIN and STDOUT in conjuction with a temporary directory/filename.
 
-The temporally names are managed throught the variables `${dir_tmp}` and `${file_tmp}`
+The temporary names are managed throught the variables `${dir_tmp}` and `${file_tmp}`
 
 #### Functions list features
 
@@ -114,11 +114,11 @@ notify_change -> <-i "[new icon]"> <-t "[new tooltip]"> "[good|bad]"		=>      ( 
 
 ## Examples
 
-You must made the scripts in `bash` languaje, EBG is coded in `bash`, in this document 
+You must made the scripts in `bash` language, EBG is coded in `bash`, in this document 
 we will use bash to ilustrate example usages:
 
-1. install EBS or sourcered the minimun 3 files
-2. crate the new program script from you
+1. install EBG or source the minimum 3 files
+2. crate your new program script 
 3. source the main endpoint of EBG (check following examples)
 4. saves and launch the new script program
 
@@ -197,7 +197,7 @@ dir="${choices[2]}"
 
 [![](https://img.youtube.com/vi/FEn4doXmiX0/0.jpg)](https://www.youtube.com/watch?v=FEn4doXmiX0)
 
-#### progress bar
+#### progress bar (by percent)
 
 ``` bash
 for i in 10 20 30 40 50 60 70 80 90 100
@@ -213,7 +213,21 @@ done | progress "This is a test progress..."
 adjust "Please, set Volume level" 15 40 75
 ```
 
-#### choose items
+#### choose items (only one)
+``` bash
+menu "Red" "Yellow" "Green"
+choice="$(0< "${dir_tmp}/${file_tmp}" )"
+```
+
+#### choose items (one or more)
+``` bash
+list "+Red" "-Yellow" "+Green"
+choice_list="$(0< "${dir_tmp}/${file_tmp}" )"
+IFS=$'\n' ; choice_array=( $(0< "${dir_tmp}/${file_tmp}" ) ) ; IFS=$' \t\n'
+```
+
+
+#### progress bar (by elements)
 
 ``` bash
 women=( Angela Carla Michelle Noemi Urma Marisa Karina Anita Josephine Rachel )
@@ -223,16 +237,13 @@ today_prefered_woman="${women[${index}]}"
 kiss "${today_prefered_woman}"
 sleep 1
 #
-
 # Job done !!
-
 # then...
-
 echo "PROGRESS"
 #
 done | progress "This is a _LOVE_ progress..." "${#women[@]}"
 
-# if you use "PROGRESS" string in STDIN do not forget second argument ( "[elements number]" )
+# if you use "PROGRESS" string in STDIN do not forget *second* argument ( "[elements number]" )
 ```
 
 #### notify example with yad as backend

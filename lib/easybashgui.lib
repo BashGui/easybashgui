@@ -8,7 +8,7 @@
 #
 #########################
 #
-# Copyright (C) 2020 Vittorio Cagnetta
+# Copyright (C) 2024 Vittorio Cagnetta
 #
 # Author: Vittorio Cagnetta <vaisarger@gmail.com>
 #
@@ -35,7 +35,7 @@
 #####################################
 #####################################
 #
-LIB_VERSION="12.0.4"
+LIB_VERSION="12.0.5"
 LIB_NAME="easybashgui.lib"
 LIB_URL="https://github.com/BashGui/easybashgui"
 LIB_AUTHOR="Vittorio Cagnetta"
@@ -6074,10 +6074,11 @@ if [ "${mode}" = "yad" ]
 		#############
 		scelta="$(eval $(local IFS=$'\t' && echo -e "${dialogo}\t--title\t\"${supertitle:-EasyBashGUI}: data input\"\t--form\t${stringa_yad}\t--separator\t\"\\\n\"\t${dimensione_finestra}\t2>\t/dev/null" ) )"
 		unset stringa_yad
+		printf -v scelta "%q" "${scelta}"
 		echo -e "${scelta}" 1> "${dir_tmp}/${file_tmp}"
 		#############
 		#
-		if [ $(grep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -eq 0 ]
+		if [ $(fgrep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -eq 0 ]
 			then
 			question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?" ; conferma="${?}"
 			if [ "${conferma}" -eq 0 ] #"Confermato"
@@ -6265,10 +6266,11 @@ elif [ "${mode}" = "kdialog" ]
 			#
 			#############
 			scelta="$(eval $(local IFS=$'\t' && echo -e "${dialogo}\t--title\t\"${supertitle:-EasyBashGUI}: data input\"\t--inputbox\t\"${testo}\"\t\"${parametro}\"\t2>\t/dev/null" ) )"
+			printf -v scelta "%q" "${scelta}"
 			echo -e "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
 			#############
 			#
-			if [ $(grep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -eq 0 ]
+			if [ $(fgrep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -eq 0 ]
 				then
 				question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?" ; conferma="${?}"
 				if [ "${conferma}" -eq 0 ] #"Confermato"
@@ -6342,10 +6344,11 @@ elif [ "${mode}" = "zenity" ]
 			#
 			#############
 			scelta="$(eval $(local IFS=$'\t' && echo -e "${dialogo}\t--title\t\"${supertitle:-EasyBashGUI}: data input\"\t--entry\t--text\t\"${testo}\"\t${dimensione_finestra}\t--entry-text\t\"${parametro}\"\t2>\t/dev/null" ) )"
+			printf -v scelta "%q" "${scelta}"
 			echo -e "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
 			#############
 			#
-			if [ $(grep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -eq 0 ]
+			if [ $(fgrep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -eq 0 ]
 				then
 				question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?" ; conferma="${?}"
 				if [ "${conferma}" -eq 0 ] #"Confermato"
@@ -6425,6 +6428,7 @@ elif [ "${mode}" = "Xdialog" ]
 				#
 				#############
 				scelta=$( ${dialogo} --stdout --separator "\\n" --title "${supertitle:-EasyBashGUI}: data input" ${inputbox} "${testo}" ${dimensione_finestra} ${parametro} 2> /dev/null | grep -v "${string_to_clean}" )
+				printf -v scelta "%q" "${scelta}"
 				echo -e "${scelta}" 1> "${dir_tmp}/${file_tmp}"
 				#############
 				#
@@ -6438,6 +6442,7 @@ elif [ "${mode}" = "Xdialog" ]
 				#
 				#############
 				scelta=$( ${dialogo} --stdout --separator "\\n" --title "${supertitle:-EasyBashGUI}: data input" ${inputbox} "Please, write data ..." ${dimensione_finestra} ${parametri} 2> /dev/null | grep -v "${string_to_clean}" )
+				printf -v scelta "%q" "${scelta}"
 				echo -e "${scelta}" 1> "${dir_tmp}/${file_tmp}"
 				#############
 				#
@@ -6445,7 +6450,7 @@ elif [ "${mode}" = "Xdialog" ]
 			#
 		fi #if [ ${quanti_campi} -eq 1 ]
 		#
-		if [ $(grep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -eq 0 ]
+		if [ $(fgrep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -eq 0 ]
 			then
 			question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\n Continue ?" ; conferma="${?}"
 			if [ "${conferma}" -eq 0 ] #"Confermato"
@@ -6515,18 +6520,20 @@ elif [ "${mode}" = "dialog" ]
 				${dialogo} ${separator} --title "${supertitle:-EasyBashGUI}: data input" --inputbox "${testo}" ${dimensione_finestra} "${parametro}" 2>> "${dir_tmp}/${file_tmp}" ; echo "" 1>> "${dir_tmp}/${file_tmp}"
 				#
 				scelta="$(0< "${dir_tmp}/${file_tmp}" )"
+				printf -v scelta "%q" "${scelta}"
+				echo -e "${scelta}" 1> "${dir_tmp}/${file_tmp}"
 				#
 			else
 				#
 				scelta="$(eval $(local IFS=$'\t' && echo -e "${dialogo}\t--stdout\t${separator}\t\"\\n\"\t--title\t\"${supertitle:-EasyBashGUI}: data input\"\t--inputbox\t\"${testo}\"\t${dimensione_finestra}\t\"${parametro}\"\t2>\t/dev/null" ) )"
-				#
+				printf -v scelta "%q" "${scelta}"
 				echo -e "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
 				#
 			fi
 			#
 			#############
 			#
-			if [ $(grep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -eq 0 ]
+			if [ $(fgrep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -eq 0 ]
 				then
 				question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?" ; conferma="${?}"
 				if [ "${conferma}" -eq 0 ] #"Confermato"
@@ -7268,28 +7275,30 @@ if [ "${mode}" = "yad" ]
 		2> /dev/null 1> "${dir_tmp}/${file_tmp}"
 		#exit_if_user_closes_window
 		exit_code="${?}"
-		#
-		#
-		value_percent=$(tr -dc '[[:digit:]]' 0< "${dir_tmp}/${file_tmp}" )
-		: value_percent
-		#
-		final_value_temp=$(echo "scale=2; ${value_percent} * ${step}" | bc -l )
-		final_value_float=$(echo "scale=2; ${start_value} + ${final_value_temp}" | bc -l )
-		: final_value_float
-		#
-		final_value=$(arrotonda "${final_value_float}" )
-		: final_value
-		#
-		echo "${final_value}" 1> "${dir_tmp}/${file_tmp}" 
-		#
-		#####################################################
-		# Exit code check... 
-		# ( Note:  for this function is better _do not_ use:
-		#          "exit_if_user_closes_window" )
 		uscita="${exit_code}"
-		if [ ${uscita} -ne 0 ]
+		#
+		if [ ${uscita} -eq 0 ]
 			then
-			#clean_temp
+			#
+			value_percent=$(tr -dc '[[:digit:]]' 0< "${dir_tmp}/${file_tmp}" )
+			: value_percent
+			#
+			final_value_temp=$(echo "scale=2; ${value_percent} * ${step}" | bc -l )
+			final_value_float=$(echo "scale=2; ${start_value} + ${final_value_temp}" | bc -l )
+			: final_value_float
+			#
+			final_value=$(arrotonda "${final_value_float}" )
+			: final_value
+			#
+			echo "${final_value}" 1> "${dir_tmp}/${file_tmp}" 
+			#
+		elif [ ${uscita} -ne 0 ]
+			then
+			#####################################################
+			# Exit code check... 
+			# ( Note:  for this function is better _do not_ use:
+			#          "exit_if_user_closes_window" )
+			#
 			if [ ${uscita} -eq 1 ]
 				then
 				#
@@ -7307,7 +7316,7 @@ if [ "${mode}" = "yad" ]
 			else
 				if [ "${dialogo}" = "yad" -a ${uscita} -eq 70 ]
 					then
-					# Non far niente: sembra un codice di uscita di zenity legato al timeout?...
+					# Non far niente: sembra un codice di uscita di yad legato al timeout?...
 					:
 					#
 				else
@@ -7569,28 +7578,30 @@ elif [ "${mode}" = "kdialog" ]
 			2> /dev/null 1> "${dir_tmp}/${file_tmp}"
 		#exit_if_user_closes_window
 		exit_code="${?}"
-		#
-		#
-		value_percent=$(tr -dc '[[:digit:]]' 0< "${dir_tmp}/${file_tmp}" )
-		: value_percent
-		#
-		final_value_temp=$(echo "scale=2; ${value_percent} * ${step}" | bc -l )
-		final_value_float=$(echo "scale=2; ${start_value} + ${final_value_temp}" | bc -l )
-		: final_value_float
-		#
-		final_value=$(arrotonda "${final_value_float}" )
-		: final_value
-		#
-		echo "${final_value}" 1> "${dir_tmp}/${file_tmp}" 
-		#
-		#####################################################
-		# Exit code check... 
-		# ( Note:  for this function it's better _do not_ use:
-		#          "exit_if_user_closes_window" )
 		uscita="${exit_code}"
-		if [ ${uscita} -ne 0 ]
+		#
+		if [ ${uscita} -eq 0 ]
 			then
-			#clean_temp
+			#
+			value_percent=$(tr -dc '[[:digit:]]' 0< "${dir_tmp}/${file_tmp}" )
+			: value_percent
+			#
+			final_value_temp=$(echo "scale=2; ${value_percent} * ${step}" | bc -l )
+			final_value_float=$(echo "scale=2; ${start_value} + ${final_value_temp}" | bc -l )
+			: final_value_float
+			#
+			final_value=$(arrotonda "${final_value_float}" )
+			: final_value
+			#
+			echo "${final_value}" 1> "${dir_tmp}/${file_tmp}" 
+			#
+		elif [ ${uscita} -ne 0 ]
+			then
+			#####################################################
+			# Exit code check... 
+			# ( Note:  for this function it's better _do not_ use:
+			#          "exit_if_user_closes_window" )
+			#
 			if [ ${uscita} -eq 1 ]
 				then
 				#
@@ -7686,28 +7697,30 @@ elif [ "${mode}" = "zenity" ]
 		2> /dev/null 1> "${dir_tmp}/${file_tmp}"
 		#exit_if_user_closes_window
 		exit_code="${?}"
-		#
-		#
-		value_percent=$(tr -dc '[[:digit:]]' 0< "${dir_tmp}/${file_tmp}" )
-		: value_percent
-		#
-		final_value_temp=$(echo "scale=2; ${value_percent} * ${step}" | bc -l )
-		final_value_float=$(echo "scale=2; ${start_value} + ${final_value_temp}" | bc -l )
-		: final_value_float
-		#
-		final_value=$(arrotonda "${final_value_float}" )
-		: final_value
-		#
-		echo "${final_value}" 1> "${dir_tmp}/${file_tmp}" 
-		#
-		#####################################################
-		# Exit code check... 
-		# ( Note:  for this function is better _do not_ use:
-		#          "exit_if_user_closes_window" )
 		uscita="${exit_code}"
-		if [ ${uscita} -ne 0 ]
+		#
+		if [ ${uscita} -eq 0 ]
 			then
-			#clean_temp
+			#
+			value_percent=$(tr -dc '[[:digit:]]' 0< "${dir_tmp}/${file_tmp}" )
+			: value_percent
+			#
+			final_value_temp=$(echo "scale=2; ${value_percent} * ${step}" | bc -l )
+			final_value_float=$(echo "scale=2; ${start_value} + ${final_value_temp}" | bc -l )
+			: final_value_float
+			#
+			final_value=$(arrotonda "${final_value_float}" )
+			: final_value
+			#
+			echo "${final_value}" 1> "${dir_tmp}/${file_tmp}" 
+			#
+		elif [ ${uscita} -ne 0 ]
+			then
+			#####################################################
+			# Exit code check... 
+			# ( Note:  for this function is better _do not_ use:
+			#          "exit_if_user_closes_window" )
+			#
 			if [ ${uscita} -eq 1 ]
 				then
 				#
@@ -7802,28 +7815,30 @@ elif [ "${mode}" = "Xdialog" ]
 			2> /dev/null 1> "${dir_tmp}/${file_tmp}"
 		#exit_if_user_closes_window
 		exit_code="${?}"
-		#
-		#
-		value_percent=$(tr -dc '[[:digit:]]' 0< "${dir_tmp}/${file_tmp}" )
-		: value_percent
-		#
-		final_value_temp=$(echo "scale=2; ${value_percent} * ${step}" | bc -l )
-		final_value_float=$(echo "scale=2; ${start_value} + ${final_value_temp}" | bc -l )
-		: final_value_float
-		#
-		final_value=$(arrotonda "${final_value_float}" )
-		: final_value
-		#
-		echo "${final_value}" 1> "${dir_tmp}/${file_tmp}" 
-		#
-		#####################################################
-		# Exit code check... 
-		# ( Note:  for this function is better _do not_ use:
-		#          "exit_if_user_closes_window" )
 		uscita="${exit_code}"
-		if [ ${uscita} -ne 0 ]
+		#
+		if [ ${uscita} -eq 0 ]
 			then
-			#clean_temp
+			#
+			value_percent=$(tr -dc '[[:digit:]]' 0< "${dir_tmp}/${file_tmp}" )
+			: value_percent
+			#
+			final_value_temp=$(echo "scale=2; ${value_percent} * ${step}" | bc -l )
+			final_value_float=$(echo "scale=2; ${start_value} + ${final_value_temp}" | bc -l )
+			: final_value_float
+			#
+			final_value=$(arrotonda "${final_value_float}" )
+			: final_value
+			#
+			echo "${final_value}" 1> "${dir_tmp}/${file_tmp}" 
+			#
+		elif [ ${uscita} -ne 0 ]
+			then
+			#####################################################
+			# Exit code check... 
+			# ( Note:  for this function is better _do not_ use:
+			#          "exit_if_user_closes_window" )
+			#
 			if [ ${uscita} -eq 1 ]
 				then
 				#
@@ -7967,30 +7982,32 @@ elif [ "${mode}" = "dialog" ]
 		${dialogo} --title "${supertitle:-EasyBashGUI}: adjust (use arrow keys)" ${progress} "${testo}" "${dim}" "${dimensione_finestra_2}" $(if [ "${dialogo}" = "whiptail --fb" ] ; then echo "${init_value_percent}"; fi )
 		#exit_if_user_closes_window
 		exit_code="${?}"
+		uscita="${exit_code}"
 		#
 		reset
 		#
-		#
-		value_percent=$(tr -dc '[[:digit:]]' 0< "${dir_tmp}/${file_tmp}" )
-		: value_percent
-		#
-		final_value_temp=$(echo "scale=2; ${value_percent} * ${step}" | bc -l )
-		final_value_float=$(echo "scale=2; ${start_value} + ${final_value_temp}" | bc -l )
-		: final_value_float
-		#
-		final_value=$(arrotonda "${final_value_float}" )
-		: final_value
-		#
-		echo "${final_value}" 1> "${dir_tmp}/${file_tmp}" 
-		#
-		#####################################################
-		# Exit code check... 
-		# ( Note:  for this function is better _do not_ use:
-		#          "exit_if_user_closes_window" )
-		uscita="${exit_code}"
-		if [ ${uscita} -ne 0 ]
+		if [ ${uscita} -eq 0 ]
 			then
-			#clean_temp
+			#
+			value_percent=$(tr -dc '[[:digit:]]' 0< "${dir_tmp}/${file_tmp}" )
+			: value_percent
+			#
+			final_value_temp=$(echo "scale=2; ${value_percent} * ${step}" | bc -l )
+			final_value_float=$(echo "scale=2; ${start_value} + ${final_value_temp}" | bc -l )
+			: final_value_float
+			#
+			final_value=$(arrotonda "${final_value_float}" )
+			: final_value
+			#
+			echo "${final_value}" 1> "${dir_tmp}/${file_tmp}" 
+			#
+		elif [ ${uscita} -ne 0 ]
+			then
+			#####################################################
+			# Exit code check... 
+			# ( Note:  for this function is better _do not_ use:
+			#          "exit_if_user_closes_window" )
+			#
 			if [ ${uscita} -eq 1 ]
 				then
 				#
