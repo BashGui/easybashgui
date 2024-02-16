@@ -1,14 +1,79 @@
 EasyBashGUI - documentation
-==========================
+===========================
 
 Simplified way to code bash made GUI frontend dialogs! - Documentation
 
+## Modes of use
+
+You can use as system-wide module lib or as built-in quick start module embedded!
+
 ## Installation
 
-Please check [install.md](install.md) document file!
+Please check [install.md](install.md) document file for any way of installation,
+or just check next section for a more easy and modular way of usage:
 
-If you are in a hurry check [install.md#quick-start-usage](install.md#quick-start-usage)
-section.
+## Quick start usage
+
+Let's assume you have the EBG installed on system-wide, then there 
+are only few steps :
+
+```bash
+mkdir ~/Devel/newprj && cd ~/Devel/newprj
+
+echo -e "source easybashgui\nmessage hola" > ~/Devel/easybashgui/newprogram
+
+bash ~/Devel/easybashgui/newprogram
+```
+
+That's it !!!!! Easyle! But what if you wants all build-in!? Without install?, 
+of course you can! Check next section:
+
+## Quick developer usage
+
+But what if we want everything to be within our project, as developers or 
+embedding the EBG?, to make our program independent of the installation:
+
+```bash
+mkdir ~/Devel && cd ~/Devel && git clone https://github.com/BashGui/easybashgui
+
+cd ~/Devel/easybashgui
+
+ln -s lib/easybashlib easybashlib && ln -s lib/easybashgui.lib easybashgui.lib
+
+echo -e "source src/easybashgui\nmessage hola" > ~/Devel/easybashgui/newprogram
+
+bash ~/Devel/easybashgui/newprogram
+```
+
+That's it !!!!! You develop your first GUI script!
+
+## The EBG script
+
+The script that will implement the EBG is always structured in three main parts:
+
+1. The optional `supermode` varialbe and the mandatory sourced endpoint
+2. The source code made by yourselft that must be `bash` language
+3. The optional `clean_temp` sentence for user mode only
+
+```bash
+#!/bin/bash
+# part 1 environment variables and endpoint
+export supermode="zenity"
+source /path/easybashgui
+# part 2 .. code here
+message "hola"
+# part 3 the finally sentences or output manipulation
+echo $?
+clean_temp
+```
+
+The most simple example of a EBG script is:
+
+```bash
+source ./easybashgui
+
+message "hola"
+```
 
 ## EBG library
 
@@ -20,18 +85,42 @@ EBG is fully modular, you create a new script and just sourcered the endpoint:
 * `easydialog-legacy` stand-alone to create dialog boxes externally (as old nowadays)
 * `easybashlib` used for for optional functions like cleaning temporally working dir
 
-Depending of the installation you will sourcered the endpoint as:
+### System wide usage vs module user usage
 
-* If you installed system wide: `source easybashgui`
-* If you are using from path: ``source ./easybashgui`
-
-If EBG is not installed you should have at least all the files in the same path 
-as your main script, if you install it on the system you don't have to worry 
+If EBG is not installed you should have at least all the files in the same path
+as your main script, if you install it on the system you don't have to worry
 about this!
 
-**IMPORTANT**: If easybashlib is present and successfully loaded, you can avoid 
-to launch "clean_temp" to remove temporary files; otherwise DO NOT forget to 
-write "clean_temp" at the end of all your scripts... ;-)
+A program/project that implements EBG and does not use same path from main script, 
+can put the EBG script and files in another path, but structure must be in the same 
+[hierarchy indicated in the installation guide "Install path" section.](install.md#install-paths) 
+
+The USER way must have full path to the endpoint or the files must be in the
+same path of the script you made:
+
+```bash
+#!/bin/bash
+source ./easybashgui
+# .. code here
+clean_temp
+```
+
+The SYSTEM way just need endpoint without path and the files must be in system
+paths, the script you made should look like:
+
+```bash
+#!/bin/bash
+source easybashgui
+# .. code here
+```
+
+The difference in modes is just two: first you noted that source endpoint does 
+not have a path (in the USER mode is "`./`") and second the SYSTEM mode does not 
+need to clean temporally files (in the USER mode is `clean_temp`).
+
+If easybashlib is present and successfully loaded, you can avoid last sentence 
+of `clean_temp` to remove temporary files; otherwise DO NOT forget to
+write `clean_temp` at the end of all your scripts... ;-)
 
 #### Backend boxes priority
 
@@ -42,9 +131,11 @@ EBG support for backend boxed dialogs depends on the running programs:
 2. If only GTK based are running, the EBG will just use yad (or zenity ), even if xdialog
    is available and there is no desktop managers running (only window managers or similar.. )
 
+![](easybasguidialogs.jpeg)
+
 #### Box mode windows
 
-The backend window can be forced using the `supermode` environment variable to 
+The backend window can be forced using the `supermode` environment variable to
 the program backend of choice:
 
 ``` bash
@@ -60,7 +151,7 @@ message "hola"
 #### Size box windows
 
 All windows functions support options `<-w|-width> [integer]` and `<-h|-height> [integer]` 
-for custom window size with exception of "notify_message" and earlier versions 
+for custom window size with exception of `notify_message` and earlier versions 
 of kdialog !
 
 ``` bash

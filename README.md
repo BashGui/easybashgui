@@ -55,8 +55,7 @@ source easybashgui
 message "hola"
 ```
 
-Pretty easy!? right? Read the "Quick start usage" section at the [docs/install.md](docs/install.md#quick-start-usage)
-file!
+Pretty easy!? right? Read the "Quick start usage" section at the [docs/README.md](docs/README.md#quick-start-usage)
 
 ### INSTALLATION
 
