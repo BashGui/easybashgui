@@ -1,98 +1,87 @@
-Project EasyBashGUI.
+EasyBashGUI - documentation
+==========================
 
+Simplified way to code bash made GUI frontend dialogs! - Documentation
 
-Intro.
+## Installation
 
-EasyBashGUI is a Posix compliant Bash functions library that aims to give simple GUI functions using yad, gtkdialog, kdialog, zenity, Xdialog, dialog, or whiptail depending on KDE or GNOME running or not, Yad, Gtkdialog or Xdialog installed or not and X server running or not ( (c)dialog or whiptail is the minimum ). So, if bash programmer writes: "message 'Thanks for using this program' ", he has not to worry in which environment his program runs: it's enough there is at least (c)dialog or whiptail installed, and program will work as expected. Obviously, if user has KDE, GNOME, or gtkdialog/Xdialog also installed ( and he's in a X session ), program will have "an other look", but logical flow remains exactly the same.
-You can force widget usage through "supermode" variable ( possible values: "yad", "gtkdialog", "kdialog", "zenity", "Xdialog", "dialog", "none" ; 
-e.g.: >export supermode="kdialog" && source easybashgui && message Hello ).
-NOTE on "none" mode: you have to make sure STDERR *is not* redirected, in order to see shell boxes in your terminal.
+Please check [install.md](install.md) document file!
 
-In EasyBashGUI "suite" there are a launcher ( "easybashgui" ), a launcher that toggles some debug options ( "easybashgui-debug" ), a widget library ( "easybashgui_X.X.X.lib" ), and a stand-alone script (rather old nowadays) to create dialog boxes externally ( "easydialog-legacy" ). Moreover there is an other library too ( "easybashlib" ) for optional ancillary functions ( thanks to it you don't need anymore to use "clean_temp()" function at the end of your EBG scripts ).
+If you are in a hurry check [install.md#quick-start-usage](install.md#quick-start-usage)
+section.
 
+## EBG library
 
+EBG is fully modular, you create a new script and just sourcered the endpoint:
 
+* `easybashgui` a launcher that will be the endpoint sourcered in your scripts
+* `easybashgui-debug` that toggles some debug options managed by the previus component
+* `easybashgui.lib` that managed the backends, called as widget library
+* `easydialog-legacy` stand-alone to create dialog boxes externally (as old nowadays)
+* `easybashlib` used for for optional functions like cleaning temporally working dir
 
+Depending of the installation you will sourcered the endpoint as:
 
+* If you installed system wide: `source easybashgui`
+* If you are using from path: ``source ./easybashgui`
 
+If EBG is not installed you should have at least all the files in the same path 
+as your main script, if you install it on the system you don't have to worry 
+about this!
 
-Library functions.
+**IMPORTANT**: If easybashlib is present and successfully loaded, you can avoid 
+to launch "clean_temp" to remove temporary files; otherwise DO NOT forget to 
+write "clean_temp" at the end of all your scripts... ;-)
 
-message
-ok_message
-alert_message
-notify_message
-text
-question
-input
-menu
-tagged_menu
-list
-fselect (= "file select" )
-dselect (= "directory select" )
-wait_seconds
-wait_for
-terminate_wait_for
-progress
-adjust
-notify (*)
-notify_change (*)
+#### Backend boxes priority
 
-(* => only if you have "yad" installed)
+EBG suppport for backend dialog boxeds depends on the runing programs:
 
+1. If all the required backends are available or at least kdialog are.. the EBG
+   will try to check if kdebin is running and only will use kdialog.
+2. If only GTK based are running, the EBG will just use zenity, event if xdialog
+   is available and there is no desktop runing (window managers or similar.. )
 
+#### Box mode windows
 
-How to install and use.
+The backend window can be forced using the `supermode` environment variable to 
+the program backend of choice:
 
-Extract all files...
-(e.g.: >tar -xzvf EasyBashGUI_X.X.X )
+``` bash
+export supermode="kdialog"
 
-Cd in ./EasyBashGUI source dir...
-(e.g.: >cd ./EasyBashGUI_X.X.X )
-
-Install it (as root)...
-(e.g.: >sudo make install )
- 
-Uninstall it (as root)...
-(e.g.: >sudo make uninstall )
-
-That's it !!!!!
-
-
-
-If you want use it in your scripts, simply source "easybashgui" before use...
-(e.g.: "source easybashgui" )
-
-IMPORTANT: If easybashlib is present and successfully loaded, you can avoid to launch "clean_temp" to remove temporary files; 
-           otherwise DO NOT forget to write "clean_temp" at the end of all your scripts... ;-)
-
-E.g.:
--------------------
-#!/bin/bash
 source easybashgui
-#
-message "this"
-input 1 ( "that" )
-menu "this" "that"
-list +"you" -"me" +"her"
-...
-etc.etc.
-...
-clean_temp #(since v.6.X.X this function is no more required if easybashlib is present and then successfully loaded by easybashgui)
--------------------
 
-And... enjoy !! :-)
+message "hola"
+```
 
-NOTE: Since v.5.X.X is possible making easybashgui work even if it's not installed in your system, 
-      it's enough that your script and my libraries are all in the same directory.
-      (e.g.: >cd /my_script/and/libraries/dir ; ./my_script )
+![](easybasguidialogs.jpeg)
 
+#### Size box windows
 
+All windows functions support options `<-w|-width> [integer]` and `<-h|-height> [integer]` 
+for custom window size with exception of "notify_message" and earlier versions 
+of kdedialog!
 
+``` bash
+source easybashgui
 
+message -w 800 -h 100 "Hello World!"
+```
 
-Synopsis.
+![](easybashgui-example0.jpeg)
 
+#### Input and output
+
+EBG always use STDIN and STDOUT in conjuction with a temporally directory/filename.
+
+The temporally names are managed throught the variables `${dir_tmp}` and `${file_tmp}`
+
+#### Functions list features
+
+TODO: this section is WIP
+
+```
 question -> "[text]"                 =>       ( 1 argument, box output to exit code and STDERR ) (*)
 message -> "[text]"                  =>       ( 1 argument )
 alert_message -> "[text]"            =>       ( 1 argument )
@@ -114,48 +103,89 @@ progress -> "[text]"                         =>       ( percent with or without 
 progress -> "[text]" "[elements number]"     =>       ( "PROGRESS" string in STDIN, 2 arguments )
 adjust -> "[text]" "[min]" "[init]" "[max]" => ( 4 arguments, box output to "${dir_tmp}/${file_tmp}" and STDERR )
 notify -> <-c "[click command (for mouse left button)]"> <-i "[icon_good]#[icon_bad]"> <-t "[tooltip_good]#[tooltip_bad]"> "[menu item 1]" "[menu command 1]" ... "[menu item n]" "[menu command n]"		=>       ( 3 options, [n*2] mandatory arguments )
-notify_change -> <-i "[new icon]"> <-t "[new tooltip]"> "[good|bad]"		=>      ( 2 options, 1 mandatory argument ) 
-
+notify_change -> <-i "[new icon]"> <-t "[new tooltip]"> "[good|bad]"		=>      ( 2 options, 1 mandatory argument )
 
 (*) = "0" exit status is "YES", "1" exit status is "NOT", other exit codes you should make program exit : normally in a script you have just to check exit status to know user choice ;
 (^) = text function write text in STDIN to file "${dir_tmp}/${file_tmp}" and (only) for kdialog, zenity, and Xdialog you can also edit text to write ;
 (@) = "wait_for" function create a window with a text and returns control to main program... after a job, you can close the window throught function "terminate_wait_for" ( needs no argument ) ;
 (#) = take care that if you are in "console mode" or without X, throught cdialog, selection is done by SPACE key, and NOT by enter key : remember it ;
 (%) = "menu" and "list" functions differ about choices: menu allows single choice, list allows multiple choice ; since 7.1.0 version you can use tagged_menu(): it outputs tags (e.g.: "tagged_menu 1 A 2 B" -> if user selects tag "A" then function outputs item "1" );
+```
 
-Since EasyBashGUI v.1.2.4, all windows functions support options "<-w|-width> [integer]", and "<-h|-height> [integer]" for custom window size (note: not used for "notify_message"):
-E.g.: >alert_message -w 400 -h 340 "Error!"
+## Examples
 
+You must made the scripts in `bash` languaje, EBG is coded in `bash`, in this document 
+we will use bash to ilustrate example usages:
 
+1. install EBS or sourcered the minimun 3 files
+2. crate the new program script from you
+3. source the main endpoint of EBG (check following examples)
+4. saves and launch the new script program
 
-Library examples:
-1)
+#### questions
+
+This piece of code will lauch 3 dialogs, the first is the main question with a 
+default "ok" button for positive answer, in limited backend boxes wil only show 
+a unique "ok" button and for cancel you just press "ESC" key..
+
+``` bash
 question "Do you like Contry music ?"
 answer="${?}"
 if [ ${answer} -eq 0 ]
-	then
-	ok_message "You do like it :)"
+then
+ok_message "You do like it :)"
 elif [ ${answer} -eq 1 ]
-	then
-	alert_message "You don't like it :("
+then
+alert_message "You don't like it :("
 else
-	ok_message "See you"
-	exit 0
+ok_message "See you"
+exit 0
 fi
+```
 
-2)
+#### Simple text box from standar input
+
+This piece of code will lauch a text box inside a window but using pipes 
+to parsed to stdin and the `text` function:
+
+``` bash
 echo -e "What's your name?\n\nMy name's:\nVittorio" | text
+```
 
-3)
+![](easybashgui-example1.jpeg)
+
+#### waiting for response
+
+This piece of code will lauch 2 dialogs, the first is text box with a 
+default "ok" button for positive answer, in limited backend boxes wil only show 
+a unique "ok" button and for cancel you just press "ESC" key..
+
+Second box is a wait reponse with default progress bar, after 4 seconds will quit
+
+``` bash
 wait_for "I'm sleeping 4 seconds... good night..."
 sleep 4
 terminate_wait_for
+```
 
-4)
+#### input examples and directory selection
+
+This piece of code will lauch 4 dialogs, the first one will let user to choose 
+a full path file with directory choose dialog.
+
+The seconds ones are double check of same question, with default "ok" button 
+for positive answer, in limited backend boxes wil only show a unique "ok" button 
+and for cancel you just press "ESC" key.. but in any part of the execution 
+the cancel will end all the program.
+
+Last box is the extra second input, then the script will store all the variables 
+and will show in standar output!
+
+
+``` bash
 fselect
 file="$(0< "${dir_tmp}/${file_tmp}" )"
 
-5)
 input 1 "(write here IP address)"
 input 1 "Please, write IP address" "192.168.1.1"
 input 3 "Username" "root" "IP address" "192.168.0.1" "Destination directory" "/tmp"
@@ -163,106 +193,84 @@ IFS=$'\n' ; choices=( $(0< "${dir_tmp}/${file_tmp}" ) ) ; IFS=$' \t\n'
 user="${choices[0]}"
 ip="${choices[1]}"
 dir="${choices[2]}"
+```
 
-6)
+[![](https://img.youtube.com/vi/FEn4doXmiX0/0.jpg)](https://www.youtube.com/watch?v=FEn4doXmiX0)
+
+#### progress bar
+
+``` bash
 for i in 10 20 30 40 50 60 70 80 90 100
-	do
-	echo "${i}"
-	sleep 2
+do
+echo "${i}"
+sleep 2
 done | progress "This is a test progress..."
+```
 
-7)
+#### level meter
+
+``` bash
 adjust "Please, set Volume level" 15 40 75
+```
 
-8)
+#### choose items
+
+``` bash
 women=( Angela Carla Michelle Noemi Urma Marisa Karina Anita Josephine Rachel )
 for (( index=0 ; index < ${#women[@]} ; index++ })) 
-	do
-	today_prefered_woman="${women[${index}]}"
-	kiss "${today_prefered_woman}"
-	sleep 1
-	#
-	# Job done !!
-	# then...
-	echo "PROGRESS"
-	#
-done | progress "This is a _LOVE_ progress..." "${#women[@]}"
-# if you use "PROGRESS" string in STDIN do not forget second argument ( "[elements number]" )
+do
+today_prefered_woman="${women[${index}]}"
+kiss "${today_prefered_woman}"
+sleep 1
+#
 
-9)
+# Job done !!
+
+# then...
+
+echo "PROGRESS"
+#
+done | progress "This is a _LOVE_ progress..." "${#women[@]}"
+
+# if you use "PROGRESS" string in STDIN do not forget second argument ( "[elements number]" )
+```
+
+#### notify example with yad as backend
+
+``` bash
 notify -t "Good tooltip:OK#Bad tooltip:BAD" -i "/usr/local/share/pixmaps/nm-signal-100.png#gtk-fullscreen" "Xclock" "xclock" "Xcalc" "xcalc"
 #
 while :
-	do
-	menu GOOD BAD
-	answer=$(0< "${dir_tmp}/${file_tmp}" )
-	#
-	if [ "${answer}" = "GOOD" ]
-		then
-		notify_message "Changed in \"good\" ..."
-		notify_change "good"
-	elif [ "${answer}" = "BAD" ]
-		then
-		notify_message "Changed in \"bad\" ..."
-		notify_change -i "gtk-help" -t "This tooltip is bad" "bad"
-	else
-		exit
-	fi
-	#
+do
+menu GOOD BAD
+answer=$(0< "${dir_tmp}/${file_tmp}" )
+#
+if [ "${answer}" = "GOOD" ]
+then
+notify_message "Changed in \"good\" ..."
+notify_change "good"
+elif [ "${answer}" = "BAD" ]
+then
+notify_message "Changed in \"bad\" ..."
+notify_change -i "gtk-help" -t "This tooltip is bad" "bad"
+else
+exit
+fi
+#
 done
-
-
-
-
+```
 
 ( For the old "easydialog-legacy" examples, you would launch it simply with "-h" option )
-
-
-
-
-
-
 
 Note on console mode.
 
 EasyBashGUI doesn't work with original "dialog" ( old one ) that is very limited; if you have first version "dialog" in your box, install "cdialog" and alias or link "dialog" to cdialog. No problem in case you have at least "whiptail" installed: since version 4.0.0, EasyBashGUI is able to use it instead of (c)dialog.
 Since 5.0.0 version you can use EasyBashGUI even if NO WIDGET is installed (that is: no gtkdialog, no kdialog, no zenity, no Xdialog, no (c)dialog, no whiptail... doh!!!!! ). To use "super bare" EBG, simply remove the ".lib" library from your path, or set "supermode" var to "none" before easybashgui sourcing (e.g.: >export supermode="none" && source easybashgui && message "Hello world..." )
 
-
-
-
-
 Note on gtkdialog mode.
 
 EasyBashGUI sets gtkdialog output statements as variables through "eval". This way, in theory, could be possibly dangerous; nevertheless, so far, I don't know about any alternative way...
 
-
-
-
-
 Note on Git.
 Since 8.0.0 version, project is housed at github ( https://github.com/BashGui ). Thanks, Github people! :)
 
-
-
-Credits.
-
-Thanks to Bash, Yad, Gtkdialog, Xdialog, Kdialog, Zenity, Cdialog, and Whiptail authors, this library was nothing without their work. Many thanks.
-Thanks to Frank Dietermann for suggestion though to make EBG "posix compliant" (since vers. 11.X.X )
-Thanks to Jose Joao Dias de Almeida for the makefile tip.
-Thanks to Chris "cgat" for his many ideas and suggestions that lead to version's "5.X.X" EasyBashGUI "revolution".
-Thanks to Davide Depau for his tests and support, and his effort to make EasyBashGUI Debian policy compliant, and finally for his man page.
-Thanks to Christian Prause for his patience and Git support.
-Thanks to GitHub for housing our project.
-Thanks to Lucio Messina for "Debian policy" tips and support. 
-
-
-
-
-
-
-
-Please, let me know if my work has been useful for you.
-Vittorio Cagnetta
-vaisarger@gmail.com
-https://github.com/BashGui/easybashgui
