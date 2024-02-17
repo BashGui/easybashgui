@@ -3,7 +3,9 @@ EasyBashGUI
 
 Simplified way to code bash made GUI frontend dialogs! Check the youtube video:
 
-[![](https://img.youtube.com/vi/FEn4doXmiX0/0.jpg)](https://www.youtube.com/watch?v=FEn4doXmiX0)
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=FEn4doXmiX0" target="_blank">
+ <img src="http://img.youtube.com/vi/FEn4doXmiX0/mqdefault.jpg" alt="Watch the video" width="240" height="180" border="10" />
+</a>
 
 ## Introduction to EBG
 
