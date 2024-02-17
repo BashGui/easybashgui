@@ -138,7 +138,7 @@ EBG support for backend boxed dialogs depends on the running programs:
 The backend window can be forced using the `supermode` environment variable to
 the program backend of choice:
 
-``` bash
+```bash
 export supermode="kdialog"
 
 source easybashgui
@@ -154,7 +154,7 @@ All windows functions support options `<-w|-width> [integer]` and `<-h|-height> 
 for custom window size with exception of `notify_message` and earlier versions 
 of kdialog !
 
-``` bash
+```bash
 source easybashgui
 
 message -w 800 -h 100 "Hello World!"
@@ -219,7 +219,7 @@ This piece of code will lauch 3 dialogs, the first is the main question with a
 default "ok" button for positive answer, in limited backend boxes wil only show 
 a unique "ok" button and for cancel you just press "ESC" key..
 
-``` bash
+```bash
 question "Do you like Contry music ?"
 answer="${?}"
 if [ ${answer} -eq 0 ]
@@ -239,7 +239,7 @@ fi
 This piece of code will lauch a text box inside a window but using pipes 
 to parsed to stdin and the `text` function:
 
-``` bash
+```bash
 echo -e "What's your name?\n\nMy name's:\nVittorio" | text
 ```
 
@@ -253,7 +253,7 @@ a unique "ok" button and for cancel you just press "ESC" key..
 
 Second box is a wait reponse with default progress bar, after 4 seconds will quit
 
-``` bash
+```bash
 wait_for "I'm sleeping 4 seconds... good night..."
 sleep 4
 terminate_wait_for
@@ -273,7 +273,7 @@ Last box is the extra second input, then the script will store all the variables
 and will show in standar output!
 
 
-``` bash
+```bash
 fselect
 file="$(0< "${dir_tmp}/${file_tmp}" )"
 
@@ -290,7 +290,7 @@ dir="${choices[2]}"
 
 #### progress bar (by percent)
 
-``` bash
+```bash
 for i in 10 20 30 40 50 60 70 80 90 100
 do
 echo "${i}"
@@ -300,18 +300,20 @@ done | progress "This is a test progress..."
 
 #### level meter
 
-``` bash
+```bash
 adjust "Please, set Volume level" 15 40 75
 ```
 
 #### choose items (only one)
-``` bash
+
+```bash
 menu "Red" "Yellow" "Green"
 choice="$(0< "${dir_tmp}/${file_tmp}" )"
 ```
 
 #### choose items (one or more)
-``` bash
+
+```bash
 list "+Red" "-Yellow" "+Green"
 choice_list="$(0< "${dir_tmp}/${file_tmp}" )"
 IFS=$'\n' ; choice_array=( $(0< "${dir_tmp}/${file_tmp}" ) ) ; IFS=$' \t\n'
@@ -320,7 +322,7 @@ IFS=$'\n' ; choice_array=( $(0< "${dir_tmp}/${file_tmp}" ) ) ; IFS=$' \t\n'
 
 #### progress bar (by elements)
 
-``` bash
+```bash
 women=( Angela Carla Michelle Noemi Urma Marisa Karina Anita Josephine Rachel )
 for (( index=0 ; index < ${#women[@]} ; index++ })) 
 do
@@ -339,7 +341,7 @@ done | progress "This is a _LOVE_ progress..." "${#women[@]}"
 
 #### notify example with yad as backend
 
-``` bash
+```bash
 notify -t "Good tooltip:OK#Bad tooltip:BAD" -i "/usr/local/share/pixmaps/nm-signal-100.png#gtk-fullscreen" "Xclock" "xclock" "Xcalc" "xcalc"
 #
 while :
