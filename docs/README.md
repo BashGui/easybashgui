@@ -170,41 +170,6 @@ can only have one at a time, you can see this in the examples below
 
 ![](easybashgui-example4.jpeg)
 
-#### Functions list features
-
-TODO: this section is WIP
-
-```
-question -> "[text]"                 =>       ( 1 argument, box output to exit code and STDERR ) (*)
-message -> "[text]"                  =>       ( 1 argument )
-alert_message -> "[text]"            =>       ( 1 argument )
-ok_message -> "[text]"               =>       ( 1 argument )
-notify_message -> <-i "[icon]"> "[text]" =>   ( 1 option, 1 argument )
-text                                 =>       ( STDIN, NO argument, box output to "${dir_tmp}/${file_tmp}" and STDERR ) (^)
-wait_seconds -> "[integer]"          =>       ( 1 argument )
-wait_for -> "[text]"                 =>       ( 1 argument, PID to kill to "wait_for__PID" variable and STDERR ) (@)
-terminate_wait_for                   =>       ( 1 argument only in easydialog, otherwise, NO argument ) (@)
-fselect -> "<init. dir.>"            =>       ( 1 <optional> argument, box output to "${dir_tmp}/${file_tmp}" and STDERR ) (#)
-dselect -> "<init. dir.>"            =>       ( 1 <optional> argument, box output to "${dir_tmp}/${file_tmp}" and STDERR ) (#)
-input -> 1 "<label 1>" "[init 1]"    =>       ( 2-3 arguments, box output to "${dir_tmp}/${file_tmp}" and STDERR )
-input -> 2 "[label 1]" "[init 1]" "[label 2]" "[init 2]"                     => ( 5 arguments, box output to "${dir_tmp}/${file_tmp}" and STDERR )
-input -> 3 "[label 1]" "[init 1]" "[label 2]" "[init 2]" "[label 3]" "[init 3]" => ( 7 arguments, box output to "${dir_tmp}/${file_tmp}" and STDERR )
-menu -> "[item 1]" ... "[item n]"    =>       ( [n] arguments, box output to "${dir_tmp}/${file_tmp}" and STDERR ) (%)
-tagged_menu -> "[item 1]" "[tag 1]" ... "[item n]" "[tag n]"    =>       ( [n*2] arguments, box output to "${dir_tmp}/${file_tmp}" and STDERR ) (%)
-list -> <+|->"[item 1]" ... <+|->"[item n]"    =>       ( [n] arguments, optionally prefixed by "+"(plus) or "-"(minus), box output to "${dir_tmp}/${file_tmp}" and STDERR ) (%)
-progress -> "[text]"                         =>       ( percent with or without '%' in STDIN, 1 argument )
-progress -> "[text]" "[elements number]"     =>       ( "PROGRESS" string in STDIN, 2 arguments )
-adjust -> "[text]" "[min]" "[init]" "[max]" => ( 4 arguments, box output to "${dir_tmp}/${file_tmp}" and STDERR )
-notify -> <-c "[click command (for mouse left button)]"> <-i "[icon_good]#[icon_bad]"> <-t "[tooltip_good]#[tooltip_bad]"> "[menu item 1]" "[menu command 1]" ... "[menu item n]" "[menu command n]"		=>       ( 3 options, [n*2] mandatory arguments )
-notify_change -> <-i "[new icon]"> <-t "[new tooltip]"> "[good|bad]"		=>      ( 2 options, 1 mandatory argument )
-
-(*) = "0" exit status is "YES", "1" exit status is "NOT", other exit codes you should make program exit : normally in a script you have just to check exit status to know user choice ;
-(^) = text function write text in STDIN to file "${dir_tmp}/${file_tmp}" and (only) for kdialog, zenity, and Xdialog you can also edit text to write ;
-(@) = "wait_for" function create a window with a text and returns control to main program... after a job, you can close the window throught function "terminate_wait_for" ( needs no argument ) ;
-(#) = take care that if you are in "console mode" or without X, throught cdialog, selection is done by SPACE key, and NOT by enter key : remember it ;
-(%) = "menu" and "list" functions differ about choices: menu allows single choice, list allows multiple choice ; since 7.1.0 version you can use tagged_menu(): it outputs tags (e.g.: "tagged_menu 1 A 2 B" -> if user selects tag "A" then function outputs item "1" );
-```
-
 ## Examples
 
 You must make the scripts in `bash` language, EBG is coded in `bash`, in this document
@@ -240,6 +205,8 @@ else
 	exit 0
 fi
 ```
+
+![](easybashgui-dialogs1.jpeg)
 
 #### Simple text box from standar input
 
@@ -409,17 +376,464 @@ while :
 done
 ```
 
-( For the old "easydialog-legacy" examples, you would launch it simply with "-h" option )
+## EBG library reference
 
-Note on console mode.
+This is the reference list documentation for programming
+
+#### Flow
+
+EBG always use STDIN and STDOUT in conjuction with a temporally directory/filename.
+
+The temporally names are managed throught the variables `${dir_tmp}` and `${file_tmp}`
+
+#### message
+
+The most simple, its just a normal window
+
+* ARGUMENTS:
+    * text : optional, must be inside double quotes, only alphanumeric characters
+* STDIN: no
+* STDOUT: 
+    * exit code: 1 canceled with ESC, 0 the only button is presed
+* STDERR: no
+
+``` bash
+message "[text]"
+```
+
+#### ok_message
+
+Same as message but support response and reports question class to window manager
+
+* ARGUMENTS:
+    * text : optional, must be inside double quotes, only alphanumeric characters
+* STDIN: no
+* STDOUT: 
+    * exit code: 1 canceled with ESC, 0 the only button is presed
+* STDERR: no
+
+
+``` bash
+ok_message "[text]"
+```
+
+#### alert_message
+
+Same as message but support response and reports alert class to window manager
+
+* ARGUMENTS:
+    * text : optional, must be inside double quotes, only alphanumeric characters
+* STDIN: no
+* STDOUT: 
+    * exit code: 1 canceled with ESC, 0 the only button is presed
+* STDERR: no
+
+
+``` bash
+alert_message "[text]"
+```
+
+#### question
+
+Same as message but will offers extra button to user to cancel, the only difference 
+is that supports output to both SDTERR and exit code:
+
+* ARGUMENTS:
+    * text : optional, must be inside double quotes, only alphanumeric characters
+* STDIN: no
+* STDOUT: 
+    * exit code: 1 canceled with ESC, 0 the only button is presed
+* STDERR:
+    * exit code: 1 canceled with ESC, 0 the only button is presed
+
+``` bash
+question "[text]"
+```
+
+#### text
+
+It will offers a canvas layer to user to write, from the user input and 
+also can present a predefined text from STDIN, it supports output to 
+both SDTERR and STDOUT and exit code will present the contents:
+
+* ARGUMENTS: no
+* STDIN: can be piped/redirect for predefined content
+    * input: user can write
+* STDOUT: 
+    * (input): the content of box is write to "${dir_tmp}/${file_tmp}"
+* STDERR:
+    * (input): the content of the box input will be out
+
+``` bash
+text <<< "<text>"
+```
+
+* `${dir_tmp}` is a random path directory to place the file containing the next file
+* `${file_tmp}` random file name where is content has the values one line per input
+* Only for kdialog, zenity, and Xdialog you can also edit text inside the box
+
+#### wait_seconds (progress bar)
+
+This is an utility function, similar to `sleep`, but will display an automatic 
+progres bar with a duration of the number os seconds you parse it:
+
+* ARGUMENTS:
+    * seconds : mandatory, integer only
+* STDIN: no
+* STDOUT: 
+    * exit code: 0 unless its canceled externally, will be anyting
+* STDERR:
+    * exit code: 0 unless its canceled externally, will be anyting
+
+``` bash
+wait_seconds <integer>
+```
+
+#### progress (progresive way)
+
+This is an utility function, similar to `wait_seconds`, it will show a box with 
+a bar that will fill at the number percent position, the number to select the 
+percent position is read from STDIN, the number can be piped or parsed from:
+
+* ARGUMENTS:
+    * text : optional, must be inside double quotes, only alphanumeric characters
+* STDIN:
+    * integer: integer with or without "%" that indicates how much will fil the bar
+* STDOUT: 
+    * exit code: 0 unless its canceled externally, will be anyting
+* STDERR:
+    * exit code: 0 unless its canceled externally, will be anyting
+
+``` bash
+progress "[text]" <<< 20
+progress "[text]" <<< 60
+progress "[text]" <<< 90
+```
+
+* To create a progress sequence you must have several statements with different 
+numbers that indicate the progress
+
+#### progress (regresive way)
+
+Similar to `progress` but using element number indicator, it will show a box with 
+a bar that will fill at the number elements to left, the number to select the 
+percent position is read from argument, the word "PROGRESS" must be piped or parsed 
+from the STDIN to the function to indicate to fil the progress bar in the box:
+
+* ARGUMENTS:
+    * text : required, must be inside double quotes, only alphanumeric characters
+    * integer : required, must be inside double quotes, only alphanumeric characters
+* STDIN:
+    * PROGRESS: must be sent to indicate to fill the bar
+* STDOUT: 
+    * exit code: 0 unless its canceled externally, will be anyting
+* STDERR:
+    * exit code: 0 unless its canceled externally, will be anyting
+
+``` bash
+progress "<text>" n <<< PROGRESS
+progress "<text>" n-1 <<< PROGRESS
+...
+progress "<text>" 3 <<< PROGRESS
+progress "<text>" 2 <<< PROGRESS
+progress "<text>" 1 <<< PROGRESS
+```
+
+#### wait_for
+
+This is an utility function, similar to `progress`, it will show a box with 
+a dynamic progress bar and the text you parse it, the box never close either
+nevers ends, you should do something with their control variable`{wait_for__PID}`
+
+* ARGUMENTS:
+    * text : optional, must be inside double quotes, only alphanumeric characters
+* STDIN: no
+* STDOUT: 
+    * `wait_for__PID` : control variable used to kill the action/function
+    * exit code: 1 canceled with ESC, 0 the only button is presed
+* STDERR:
+    * `wait_for__PID` : control variable used to kill the action/function
+    * exit code: 1 canceled with ESC, 0 the only button is presed
+
+``` bash
+wait_for "[text]"
+sleep 3
+kill -9 ${wait_for__PID}
+```
+
+#### terminate_wait_for
+
+This is an utility function, usefully to terminate inherit process using the 
+last exit code or the variable`{wait_for__PID}` from the previous function:
+
+* ARGUMENTS:
+    * PID : optional, numeric PID of the process to terminate and capture the result
+* STDIN: no
+* STDOUT: 
+    * exit code: 1 if PID not found, 0 if process was terminated
+* STDERR:
+    * exit code: 1 if PID not found, 0 if process was terminated
+
+``` bash
+message "[text]" && terminate_wait_for
+```
+
+In this example the `terminate_wait_for` output "1" because PID of `message` was 
+terminated previously (ok button pushed), and PID is gone and not valid anymore!
+
+``` bash
+wait_for "[text]"
+sleep 3
+... more code
+terminate_wait_for
+```
+
+In this example the `terminate_wait_for` output "0" becouse PID of `wait_for` was 
+active, PID is still valid and ouput in STDOUT that is STDIN for `terminate_wait_for`
+
+#### fselect
+
+This function will permit to choose a file and will let to you to use into the 
+variables "${dir_tmp}/${file_tmp}" and STDERR to check the result of the input
+
+* ARGUMENTS:
+    * path : optional, string path of the default place to suggest for file
+* STDIN: no
+* STDOUT: 
+    * path+file selected: the path and name of the chosen selected file from box
+* STDERR:
+    * path+file selected: the path and name of the chosen selected file from box
+
+Those variables are filled when the action its completed:
+
+* `${dir_tmp}` is a random path directory to place the file containing the next file
+* `${file_tmp}` a random file name where is content has the path of the chosen file
+
+``` bash
+fselect "[/path/to/directory/[filesuggested]]"
+```
+
+#### dselect
+
+This function will permit to choose a directory and will let to you to use into the 
+variables "${dir_tmp}/${file_tmp}" and STDERR to check the result of the input
+
+* ARGUMENTS:
+    * path : optional, string path of the default place to suggest for path to choose
+* STDIN: no
+* STDOUT: 
+    * path choosen: the path and name of the chosen selected directory from the box
+* STDERR:
+    * path choosen: the path and name of the chosen selected directory from the box
+
+Those variables are filled when the action its completed:
+
+* `${dir_tmp}` is a random path directory to place the file containing the next file
+* `${file_tmp}` a random file name where is content has the path of the chosen dir
+
+``` bash
+fselect "[/path/to/directory/]"
+```
+
+#### input
+
+This function will display in same box one, two and/or three inputs, depending 
+of the parameters and can be initializated with default values as suggestions, 
+and will let to you to use into the variables "${dir_tmp}/${file_tmp}" and STDERR 
+to check the result of the input
+
+* ARGUMENTS:
+    * inputs : required, indicates the number of inputs, can be 1, 2, or 3
+    * label : required, it is repeated as many inputs as indicated
+    * init : required, follows the label and its optional only if one input case 
+* STDIN: no
+* STDOUT: 
+    * values: the input values of the labels in order, one line per value
+* STDERR:
+    * values: the input values of the labels in order, one line per value
+
+Those variables are filled when the action its completed:
+
+* `${dir_tmp}` is a random path directory to place the file containing the next file
+* `${file_tmp}` random file name where is content has the values one line per input
+
+``` bash
+input 1 "<label> [value]"
+```
+
+In this there is only one input and suggested value can be optional, but for:
+
+``` bash
+input 2 "<label>" "<value>" "<label2>" "<value2>"
+```
+
+And also for three inputs case:
+
+``` bash
+input 3 "<label>" "<value>" "<label2>" "<value2>" "<label3>" "<value3>"
+```
+
+#### menu
+
+This function will display in same box one and/or more elements in a list, 
+this list will act as selection menu and only one item can be selected, 
+and will let to you to use into the variables "${dir_tmp}/${file_tmp}" and STDERR 
+to check the result of the input
+
+* ARGUMENTS:
+    * item(s) : input items to show in list of menu, musty be double quoted
+* STDIN: no
+* STDOUT: 
+    * values: echoes the selected item
+* STDERR:
+    * values: echoes the selected item
+
+Those variables are filled when the action its completed:
+
+* `${dir_tmp}` is a random path directory to place the file containing the next file
+* `${file_tmp}` random file name where is content has the values selected in order
+
+``` bash
+menu "<item1>" "[item2]" .. "[itemN-1]" "[itemN]" 
+```
+
+#### tagged_menu
+
+Like menues will display in same box one and/or more elements in a list, 
+this list will act as selection menu and only one item can be selected, 
+but this item selection will have a tag that can be used inside script!
+and will let to you to use into the variables "${dir_tmp}/${file_tmp}" and STDERR 
+to check the result of the input
+
+* ARGUMENTS:
+    * item(s) : input items to show in list of menu, musty be double quoted
+    * label(s) : labels tags that will be displayed instead of the items
+* STDIN: no
+* STDOUT: 
+    * values: echoes the selected item, not the tag label
+* STDERR:
+    * values: echoes the selected item, not the tag label
+
+Those variables are filled when the action its completed:
+
+* `${dir_tmp}` is a random path directory to place the file containing the next file
+* `${file_tmp}` random file name where is content has the values selected in order
+
+``` bash
+tagged_menu "<item1>" "<label1>" "[item2]" "[label2]" .. "[itemN]" "[labelN]"
+```
+
+#### list
+
+Same as menues display in same box one and/or more elements in a list, 
+this list will act as selection menu and multiple items can be selected, 
+and will let to you to use into the variables "${dir_tmp}/${file_tmp}" and STDERR 
+to check the result of the selections one line per selected item in order:
+
+* ARGUMENTS:
+    * `<+|->` : presets, if "+" will be selected and if "-" will be deselected
+    * item(s) : input items to show in list of menu, musty be double quoted
+* STDIN: no
+* STDOUT: 
+    * values: echoes the selected items one line per selection
+* STDERR:
+    * values: echoes the selected items one line per selection
+
+Those variables are filled when the action its completed:
+
+* `${dir_tmp}` is a random path directory to place the file containing the next file
+* `${file_tmp}` random file name where is content has the values selected in order
+
+``` bash
+menu "< <+|->item1>" "[<+|->item2]" .. "[<+|->itemN-1]" "[<+|->itemN]"
+```
+
+#### adjust
+
+This function will show a slider bar with selector, the bar represents 1 to 100  
+and will let to you to use into the variables "${dir_tmp}/${file_tmp}" and STDERR 
+to check the result of the position of the slide bar:
+
+* ARGUMENTS:
+    * text : label to show at the slide
+    * min : minimun allowed value that slide will go at the left
+    * init : the value that will start the selector on the slide when display
+    * max : maximun allowed value that slide will go at the right
+* STDIN: no
+* STDOUT: 
+    * values: echoes the selected items one line per selection
+* STDERR:
+    * values: echoes the selected items one line per selection
+
+Those variables are filled when the action its completed:
+
+* `${dir_tmp}` is a random path directory to place the file containing the next file
+* `${file_tmp}` random file name where is content has the values selected in order
+
+``` bash
+ajust "[text]" "[min]" "[init]" "[max]"
+```
+
+There are some small issues with digalog and kdialog, values can go outside of limits
+
+#### notify_message
+
+Like "message" but in the form of notification, allows to choose the icon to display:
+
+* ARGUMENTS:
+    * icon : optional , picture to show in the box aside
+    * text : content to display inside the box
+* STDIN: no
+* STDOUT: 
+    * PID: echoes the PID of the current process
+* STDERR:
+    * PID: echoes the PID of the current process
+
+``` bash
+notify_message [-i "<icon>"] "[text]"
+```
+
+#### notify_change
+
+Like "message" but now as desktop systray notification to display:
+
+* ARGUMENTS:
+    * icon : optional , picture to show in the box aside
+    * text : content to display inside the box
+* STDIN: no
+* STDOUT: 
+    * PID: echoes the PID of the current process
+* STDERR:
+    * PID: echoes the PID of the current process
+
+``` bash
+notify_change [-i "<newicon>"] [-t "<newtiptext>"] "[good|bad]"
+```
+
+#### notify
+
+Like "message" but now as desktop systray notification to display:
+
+* ARGUMENTS:
+    * command left button : optional , program will lauch if right click
+    * icon : path to the icon to display if given, for good/bad types
+    * tooltip text : text to display on each case
+    * menu items : menu items to shows on selection
+* STDIN: no
+* STDOUT: 
+    * PID: echoes the PID of the current process
+* STDERR:
+    * PID: echoes the PID of the current process
+
+``` bash
+notify [-c "<command>"] [-i "<icongood|iconbad>"] [-t "<textgood|textbad>"] "[good|bad]" "<item1>" "<command1>" "[item2]" "[command2]" .. "[itemN]" "[commandN]"
+```
+
+## Notes
 
 EasyBashGUI doesn't work with original "dialog" ( old one ) that is very limited; if you have first version "dialog" in your box, install "cdialog" and alias or link "dialog" to cdialog. No problem in case you have at least "whiptail" installed: since version 4.0.0, EasyBashGUI is able to use it instead of (c)dialog.
+
 Since 5.0.0 version you can use EasyBashGUI even if NO WIDGET is installed (that is: no gtkdialog, no kdialog, no zenity, no Xdialog, no (c)dialog, no whiptail... doh!!!!! ). To use "super bare" EBG, simply remove the ".lib" library from your path, or set "supermode" var to "none" before easybashgui sourcing (e.g.: >export supermode="none" && source easybashgui && message "Hello world..." )
 
-Note on gtkdialog mode.
-
 EasyBashGUI sets gtkdialog output statements as variables through "eval". This way, in theory, could be possibly dangerous; nevertheless, so far, I don't know about any alternative way...
-
-Note on Git.
-Since 8.0.0 version, project is housed at github ( https://github.com/BashGui ). Thanks, Github people! :)
 
