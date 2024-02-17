@@ -79,7 +79,7 @@ Please check [docs/README.md](docs/README.md) document file!
 
 Please, let me know if my work has been useful for you.
 
-**Vittorio Cagnetta** <vaisarger at gmail dot com> 
+**Vittorio Cagnetta** `<vaisarger at gmail dot com>`
 
 https://github.com/BashGui/easybashgui
 
