@@ -55,8 +55,7 @@ source easybashgui
 message "hola"
 ```
 
-Pretty easy!? right? Read the "Quick start usage" section at the [docs/install.md](docs/install.md#quick-start-usage)
-file!
+Pretty easy!? right? Read the "Quick start usage" section at the [docs/README.md](docs/README.md#quick-start-usage)
 
 ### INSTALLATION
 
@@ -68,23 +67,23 @@ Please check [docs/README.md](docs/README.md) document file!
 
 ## Credits.
 
-Thanks to Bash, Yad, Gtkdialog, Xdialog, Kdialog, Zenity, Cdialog, and Whiptail authors, this library was nothing without their work. Many thanks.
-Thanks to PICCORO McKAY Lenz for his efforts and *excellent* work on README (and bug hunting too).
-Thanks to zen0bit for first try and README impulse revival.
-Thanks to Frank Dietermann for suggestion though to make EBG "posix compliant" (since vers. 11.X.X )
-Thanks to Jose Joao Dias de Almeida for the makefile tip.
-Thanks to Chris "cgat" for his many ideas and suggestions that lead to version's "5.X.X" EasyBashGUI "revolution".
-Thanks to Davide Depau for his tests and support, and his effort to make EasyBashGUI Debian policy compliant, and finally for his man page.
-Thanks to Christian Prause for his patience and Git support.
-Thanks to Lucio Messina for "Debian policy" tips and support.
-
-
+* Thanks to Bash, Yad, Gtkdialog, Xdialog, Kdialog, Zenity, Cdialog, and Whiptail authors, this library was nothing without their work. Many thanks.
+* Thanks to PICCORO McKAY Lenz for his efforts and *excellent* work on README (and bug hunting too).
+* Thanks to zen0bit for first try and README impulse revival.
+* Thanks to Frank Dietermann for suggestion though to make EBG "posix compliant" (since vers. 11.X.X )
+* Thanks to Jose Joao Dias de Almeida for the makefile tip.
+* Thanks to Chris "cgat" for his many ideas and suggestions that lead to version's "5.X.X" EasyBashGUI "revolution".
+* Thanks to Davide Depau for his tests and support, and his effort to make EasyBashGUI Debian policy compliant, and finally for his man page.
+* Thanks to Christian Prause for his patience and Git support.
+* Thanks to Lucio Messina for "Debian policy" tips and support.
 
 Please, let me know if my work has been useful for you.
-Vittorio Cagnetta
-vaisarger@gmail.com
+
+**Vittorio Cagnetta** `<vaisarger at gmail dot com>`
+
 https://github.com/BashGui/easybashgui
 
 ## LICENSE
 
-GPLv3+
+GPLv3+, check [LICENSE](LICENSE) file!
+

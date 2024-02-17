@@ -3,10 +3,6 @@ EasyBashGUI - installation
 
 Simplified way to code bash made GUI frontend dialogs! - Installation document!
 
-## Modes of use
-
-You can use as system-wide module lib or as quick start module embebed!
-
 ## Requirements
 
 * Dialog backend that will act as frontend gui:
@@ -19,73 +15,68 @@ You can use as system-wide module lib or as quick start module embebed!
     * `kdialog` 1.0+ https://invent.kde.org/utilities/kdialog (was part of kdebin)
     * `zenity` 2.30+ https://wiki.gnome.org/Projects/Zenity (may work with 2.X)
     * `xdialog` 1.0+ http://xdialog.free.fr/
-* Interpreter
+* Interpreter runtime programs:
   * `coreutils` 8.0+ https://www.gnu.org/software/coreutils/
   * `bash` 3.0+ https://tiswww.case.edu/php/chet/bash/bashtop.html
   * `bc` 6.1+ https://www.gnu.org/software/bc/
   
-## Quick start usage
+## User module install
 
-Install `git` and then clone the repo, later echoes the required minimal example:
+This way you will use it inside your new project "newprj" program, first download 
+and decompress, later echoes the required minimal files and start your code:
+
+This will download the EBG version 12.0.5 but you must check the last versions 
+at the release page: https://github.com/BashGui/easybashgui/releases
 
 ``` bash
-mkdir ~/Devel && cd ~/Devel
+wget https://github.com/BashGui/easybashgui/archive/refs/tags/12.0.5.tar.gz
 
-git clone https://github.com/BashGui/easybashgui ~/Devel/easybashgui
+mkdir -p ~/Devel/newprj && tar -zxvf 12.0.5.tar.gz -C ~/Devel/newprj
 
-ln -s lib/easybashlib easybashlib && ln -s lib/easybashgui.lib easybashgui.lib
+cd ~/Devel/newprj && ln -s lib/easybashlib easybashlib && ln -s lib/easybashgui.lib easybashgui.lib
 
-echo -e "source src/easybashgui\nmessage hola" > ~/Devel/easybashgui/newprogram
+echo -e "source src/easybashgui\nmessage hola" > ~/Devel/newprj/newprogram
 
-bash ~/Devel/easybashgui/newprogram
+bash ~/Devel/newprj/newprogram
 ```
 
-For more examples please read the full documentation [README.md](README.md)
-
-![](easybasguidialogs.jpeg)
-
-
 ## System wide install
+
+This way you will use it in any project by only sourcered one standar line, 
+becouse will be available for all the system:
 
 1. Install the requirements (check first part of this document)
 2. download EBG from https://github.com/BashGui/easybashgui/releases
 3. extract all files, you will have a directory with `lib` and `src` dirs!
 4. inside the new extracted dir `EasyBashGui` do `make install` as root!
 
-That's it !!!!! No matter, will install files as:
+But beware that if you assumed system wide install, the target system of your 
+new script will already have isntalled the EBG package/programs, check paths
+in next section.
 
 ### Install paths
 
-| Component           | Install path         |
-| ------------------- | --------------------- |
-| `easybashgui`       | `$(DESTDIR)/usr/bin` |
-| `easybashgui-debug` | `$(DESTDIR)/usr/bin` |
-| `easybashgui.lib`   | `$(DESTDIR)/usr/lib/easybashgui` |
-| `easydialog-legacy` | `$(DESTDIR)/usr/bin` |
-| `easybashlib`       | `$(DESTDIR)/usr/lib/easybashgui` |
-| `easybashgui.1.gz`  | `$(DESTDIR)/usr/share/man/man1` |
-| `icons/*xpm`        | `$(DESTDIR)/usr/share/easybashgui` |
+| Component           | System wide path            | User mode path        |
+| ------------------- | --------------------------- | --------------------- |
+| `easybashgui`       | `$(DESTDIR)/usr/bin`        | `$(USERDIR)/` or `./` |
+| `easybashgui-debug` | `$(DESTDIR)/usr/bin`        | `$(USERDIR)/` or `./` |
+| `easybashgui.lib`   | `$(DESTDIR)/usr/lib/easybashgui` | `$(USERDIR)/lib/` or `./lib` |
+| `easydialog-legacy` | `$(DESTDIR)/usr/bin`         |  `$(USERDIR)/`  or `./`  |
+| `easybashlib`       | `$(DESTDIR)/usr/lib/easybashgui` | `$(USERDIR)/lib/` or `./lib` |
+| `easybashgui.1.gz`  | `$(DESTDIR)/usr/share/man/man1` | Not necesary      |
+| `icons/*xpm`        | `$(DESTDIR)/usr/share/easybashgui` | `$(USERDIR)/icons/`     |
 
-### System wide usage
+### System wide usage vs module user usage
 
-Just after install read full documentation [README.md](README.md), this is a 
-brief starting point to check if EBG its property installed:
+Just after install read full documentation [README.md](README.md), the only 
+diference is the source endpoint line and the clean final line.
 
-Firs create a file with following content:
+Explanation is on [README.md System wide usage vs module user usage](README.md#system-wide-usage-vs-module-user-usage) section.
 
-``` bash
-#!/bin/bash
-source easybashgui
-#
-message "this"
-input 1 ( "that" )
-menu "this" "that"
-list +"you" -"me" +"her"
-clean_temp
-```
+In summary; you should get the endpoint like:
 
-Later just lauch it! Just remember that this example assumes you have 
-installed system-wide the EBG programs.
+* If you installed system wide: `source easybashgui` and EBG will clean automatically
+* If you are using from path: `source ./easybashgui` and last line must be `clean_temp`
 
 And... enjoy !! :-)
 
@@ -112,3 +103,6 @@ right place, so please dont change anything!
 * **none of the requirements are build requirements!** yeah, EBG it's fully 
 runtime script!
 
+Projects that already uses EBG must depends on it, and must not depends on 
+specific frontend GUI (by example, kdialog or zenity), unless will have a 
+detection way or specific feature.
