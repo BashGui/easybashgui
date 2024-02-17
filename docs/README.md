@@ -162,11 +162,13 @@ message -w 800 -h 100 "Hello World!"
 
 ![](easybashgui-example0.jpeg)
 
-#### Input and output
+#### Boxes behaviour compatibility
 
-EBG always use STDIN and STDOUT in conjuction with a temporary directory/filename.
+**IMPORTANT**: Each interface GUI has its own way of entering from the user,
+while Yad can have 3 text entry boxes at the same time, on the contrary, Zenity
+can only have one at a time, you can see this in the examples below
 
-The temporary names are managed throught the variables `${dir_tmp}` and `${file_tmp}`
+![](easybashgui-example4.jpeg)
 
 #### Functions list features
 
@@ -205,32 +207,37 @@ notify_change -> <-i "[new icon]"> <-t "[new tooltip]"> "[good|bad]"		=>      ( 
 
 ## Examples
 
-You must made the scripts in `bash` language, EBG is coded in `bash`, in this document 
-we will use bash to ilustrate example usages:
+You must make the scripts in `bash` language, EBG is coded in `bash`, in this document
+We'll use bash to illustrate example uses:
 
-1. install EBG or source the minimum 3 files
-2. crate your new program script 
-3. source the main endpoint of EBG (check following examples)
-4. saves and launch the new script program
+1. Install EBG or source the minimum 3 files
+2. Create your new program script 
+3. Source the main endpoint of EBG (check following examples)
+4. Put your sentences of code in bash
+5. Saves and launch the new script program
 
-#### questions
+#### Simple question boxes
 
-This piece of code will lauch 3 dialogs, the first is the main question with a 
-default "ok" button for positive answer, in limited backend boxes wil only show 
-a unique "ok" button and for cancel you just press "ESC" key..
+This piece of code will lauch 3 dialogs, the first is the main question with a
+default "ok" button for positive answer, in limited backend boxes wil only show
+a unique "ok" button and for cancel you just press "ESC" key.. If the negative 
+response (cancel) is detected will lauch an alert message box or then response 
+box with confirmation.
 
 ```bash
+source easybashgui
+
 question "Do you like Contry music ?"
 answer="${?}"
 if [ ${answer} -eq 0 ]
-then
-ok_message "You do like it :)"
+	then
+	ok_message "You do like it :)"
 elif [ ${answer} -eq 1 ]
-then
-alert_message "You don't like it :("
+	then
+	alert_message "You don't like it :("
 else
-ok_message "See you"
-exit 0
+	ok_message "See you"
+	exit 0
 fi
 ```
 
@@ -240,42 +247,60 @@ This piece of code will lauch a text box inside a window but using pipes
 to parsed to stdin and the `text` function:
 
 ```bash
+source easybashgui
+
 echo -e "What's your name?\n\nMy name's:\nVittorio" | text
 ```
 
 ![](easybashgui-example1.jpeg)
 
-#### waiting for response
+#### The waiting for response
 
-This piece of code will lauch 2 dialogs, the first is text box with a 
-default "ok" button for positive answer, in limited backend boxes wil only show 
-a unique "ok" button and for cancel you just press "ESC" key..
-
-Second box is a wait reponse with default progress bar, after 4 seconds will quit
+It create a box window with such text and returns control to main program... 
+during that you can made more commands, all of this time such box window with 
+progress bar will be present while your following commands will be executed, 
+after all of those job, you can close with an specific special function:
 
 ```bash
+source easybashgui
+
 wait_for "I'm sleeping 4 seconds... good night..."
 sleep 4
 terminate_wait_for
 ```
 
-#### input examples and directory selection
+Take into consideration that `terminate_wait_for` only will close (kill) the 
+last executed `wait_for` function lauched, otherwise you must parse as argument 
+the specific PID of the window box to close.
 
-This piece of code will lauch 4 dialogs, the first one will let user to choose 
-a full path file with directory choose dialog.
+![](easybashgui-example2.gif)
 
-The seconds ones are double check of same question, with default "ok" button 
-for positive answer, in limited backend boxes wil only show a unique "ok" button 
-and for cancel you just press "ESC" key.. but in any part of the execution 
-the cancel will end all the program.
+#### Simple directory selection
 
-Last box is the extra second input, then the script will store all the variables 
-and will show in standar output!
-
+This piece of code will let user to choose a full path file with directory
+choose dialog for file selection, standard output echoes the selection.
 
 ```bash
+source easybashgui
+
 fselect
 file="$(0< "${dir_tmp}/${file_tmp}" )"
+```
+
+![](easybashgui-example3.jpeg)
+
+#### Triplet input examples
+
+This double check of same question, with default "ok" button for positive
+answer, in limited backend boxes wil only show a unique "ok" button
+and for cancel you just press "ESC" key.. but in any part of the execution
+the cancel will end all the program.
+
+Last box is the extra second input, then the script will store all the variables
+and will show in standar output!
+
+```bash
+source easybashgui
 
 input 1 "(write here IP address)"
 input 1 "Please, write IP address" "192.168.1.1"
@@ -286,32 +311,48 @@ ip="${choices[1]}"
 dir="${choices[2]}"
 ```
 
-[![](https://img.youtube.com/vi/FEn4doXmiX0/0.jpg)](https://www.youtube.com/watch?v=FEn4doXmiX0)
+![](easybashgui-example4.jpeg)
 
-#### progress bar (by percent)
+#### Progress bar
+
+You can piped the progress count to a text of a box:
 
 ```bash
-for i in 10 20 30 40 50 60 70 80 90 100
-do
-echo "${i}"
-sleep 2
+source easybashgui
+
+for i in 10 20 30 40 50 60 70 80 90 100 do
+    echo "${i}"
+    sleep 1
 done | progress "This is a test progress..."
 ```
 
-#### level meter
+![](easybashgui-example5.gif)
+
+#### Level meter
+
+Level meters are easy to set, result of the choosed will be echoed to standard
+output:
 
 ```bash
+source easybashgui
+
 adjust "Please, set Volume level" 15 40 75
 ```
 
-#### choose items (only one)
+#### Menu selection
+
+The menues are complext process internally but easy to use for you, 
+it's just elements and the choosen one will be in the temporally file;
 
 ```bash
 menu "Red" "Yellow" "Green"
 choice="$(0< "${dir_tmp}/${file_tmp}" )"
 ```
 
-#### choose items (one or more)
+#### Choose items
+
+Same as menues but allows to choose more than one item to you, 
+it's just elements and the selections will be in the temporally file;
 
 ```bash
 list "+Red" "-Yellow" "+Green"
@@ -319,48 +360,52 @@ choice_list="$(0< "${dir_tmp}/${file_tmp}" )"
 IFS=$'\n' ; choice_array=( $(0< "${dir_tmp}/${file_tmp}" ) ) ; IFS=$' \t\n'
 ```
 
-
-#### progress bar (by elements)
+#### A more complex example
 
 ```bash
+source easybashgui
+
 women=( Angela Carla Michelle Noemi Urma Marisa Karina Anita Josephine Rachel )
 for (( index=0 ; index < ${#women[@]} ; index++ })) 
-do
-today_prefered_woman="${women[${index}]}"
-kiss "${today_prefered_woman}"
-sleep 1
-#
-# Job done !!
-# then...
-echo "PROGRESS"
-#
+	do
+	today_prefered_woman="${women[${index}]}"
+	kiss "${today_prefered_woman}"
+	sleep 1
+	#
+	# Job done !!
+	# then...
+	echo "PROGRESS"
+	#
 done | progress "This is a _LOVE_ progress..." "${#women[@]}"
-
-# if you use "PROGRESS" string in STDIN do not forget *second* argument ( "[elements number]" )
+# if you use "PROGRESS" string in STDIN do not forget second argument ( "[elements number]" )
 ```
 
-#### notify example with yad as backend
+#### A notification example
+
+This is only possible with Yad backend:
 
 ```bash
+source easybashgui
+
 notify -t "Good tooltip:OK#Bad tooltip:BAD" -i "/usr/local/share/pixmaps/nm-signal-100.png#gtk-fullscreen" "Xclock" "xclock" "Xcalc" "xcalc"
 #
 while :
-do
-menu GOOD BAD
-answer=$(0< "${dir_tmp}/${file_tmp}" )
-#
-if [ "${answer}" = "GOOD" ]
-then
-notify_message "Changed in \"good\" ..."
-notify_change "good"
-elif [ "${answer}" = "BAD" ]
-then
-notify_message "Changed in \"bad\" ..."
-notify_change -i "gtk-help" -t "This tooltip is bad" "bad"
-else
-exit
-fi
-#
+	do
+	menu GOOD BAD
+	answer=$(0< "${dir_tmp}/${file_tmp}" )
+	#
+	if [ "${answer}" = "GOOD" ]
+		then
+		notify_message "Changed in \"good\" ..."
+		notify_change "good"
+	elif [ "${answer}" = "BAD" ]
+		then
+		notify_message "Changed in \"bad\" ..."
+		notify_change -i "gtk-help" -t "This tooltip is bad" "bad"
+	else
+		exit
+	fi
+	#
 done
 ```
 
