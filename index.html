@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<!-- USER CONFIG -->
+<script>
+	const config = {
+		sitePath: "/easybashgui/",
+		browserRouter: false,
+		name: "easybashgui",
+		components: ["docs/navbar", "docs/github"],
+		footers: ["docs/footer"],
+	};
+</script>
+
+<style>
+	* {
+		scroll-margin-top: 5rem;
+	}
+
+	#docs-github p {
+		margin: 0;
+	}
+
+	#docs-navbar {
+		width: 100%;
+		background-color: var(--color-1);
+		color: white;
+		margin: 0;
+		position: fixed;
+		box-shadow: 0px 0px 16px #00000047;
+		padding-left: 2rem;
+		z-index: 5;
+	}
+
+	#docs-navbar>ul>li>a>img {
+		border-radius: var(--border-radius);
+		margin: -1em 0;
+		vertical-align: super;
+		margin-right: 0.5em;
+		max-height: 2em;
+		width: 2rem;
+	}
+
+	#docs-navbar ul {
+		display: flex;
+		gap: 1rem;
+		list-style: none;
+		margin: 0;
+		border-radius: inherit;
+		background: inherit;
+		border: none;
+	}
+
+	#docs-navbar li {
+		margin: 1.4rem 0rem;
+		padding: inherit;
+		border: none;
+	}
+
+	#docs-navbar li::before {
+		content: none;
+	}
+
+	#docs-navbar a {
+		text-decoration: none;
+		padding: 0.9em 1.1em;
+		color: white;
+		font-weight: bold;
+	}
+
+	#docs-navbar a:hover {
+		background-color: #ffffff14;
+		border-radius: var(--border-radius);
+	}
+
+	#docs-footer {
+		text-align: center;
+		background-color: var(--color-1);
+		color: white;
+		padding: 1rem;
+	}
+
+	#docs-footer a {
+		color: white;
+		text-decoration: underline;
+	}
+</style>
+
+<!-- Marked.js - Markdown renderer -->
+<script src="https://cdn.jsdelivr.net/npm/marked@5.1.1/marked.min.js"></script>
+
+<!-- OPTIONAL : Highlight.js - Syntax Highlighting -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/base16/base16-github.min.css">
+
+<style>
+	:root {
+		--text-color: #313f47;
+		--border-color: #dddddd;
+		--background-color: white;
+		--darker-background-color: #0000000a;
+		--lighter-background-color: #fcfcfc;
+		--color-1: #4285f4;
+		--color-2: #db4437;
+		--color-3: #f4b400;
+		--color-4: #0f9d58;
+		--border-radius: 7px;
+	}
+
+	[data-theme="dark"] {
+		--text-color: #adbac7;
+		--border-color: #373e47;
+		--background-color: #22272e;
+		--darker-background-color: rgba(99, 110, 123, 0.4);
+		--lighter-background-color: rgba(99, 110, 123, 0.1);
+	}
+
+	body {
+		color: var(--text-color);
+		font-family: "Open Sans", Helvetica, sans-serif;
+		margin: 0;
+		padding: 0;
+		background-color: var(--background-color);
+		opacity: 0;
+		transition: opacity 0.3s;
+	}
+
+	body.loaded {
+		opacity: 1;
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5 {
+		padding-bottom: 0.3em;
+	}
+
+	h1,
+	h2 {
+		border-bottom: 1px solid var(--border-color);
+	}
+
+	a {
+		text-decoration: none;
+		color: var(--color-1);
+	}
+
+	blockquote a {
+		color: #92d3ff;
+	}
+
+	a:hover {
+		text-decoration: underline;
+	}
+
+	hr {
+		border: none;
+		border-bottom: 1px solid var(--border-color);
+	}
+
+	img {
+		max-height: 20em;
+		border-radius: var(--border-radius);
+	}
+
+	#content {
+		max-width: 50rem;
+		padding: 5rem 1rem;
+		margin: auto;
+		padding-top: 5em;
+	}
+
+	:not(pre)>code {
+		background: var(--darker-background-color);
+		border-radius: var(--border-radius);
+		padding: 0.2em 0.4em;
+	}
+
+	pre {
+		background: var(--darker-background-color);
+		padding: 1.6em !important;
+		overflow: auto;
+		padding: calc(0.75em);
+		margin-bottom: 1em;
+		border-radius: var(--border-radius);
+	}
+
+	blockquote {
+		margin: 0;
+		padding: 1em 2em !important;
+		background: #4285f4;
+		color: white;
+		overflow: auto;
+		border-radius: var(--border-radius);
+	}
+
+	table {
+		border-collapse: collapse;
+		margin: 2em 0;
+		font-size: 0.9em;
+		font-family: sans-serif;
+		min-width: 20em;
+		border-radius: var(--border-radius);
+		overflow: auto;
+		display: block;
+	}
+
+	table thead tr {
+		background-color: var(--color-1);
+		color: #ffffff;
+		text-align: left;
+	}
+
+	table th,
+	table td {
+		padding: 0.8em 1.2em;
+	}
+
+	table tbody tr:nth-of-type(odd) {
+		background-color: var(--darker-background-color);
+	}
+
+	table tbody tr:nth-of-type(even) {
+		background-color: var(--lighter-background-color);
+	}
+
+	table tbody tr.active-row {
+		font-weight: bold;
+		color: var(--color-1);
+	}
+
+	ul {
+		padding-inline-start: 0;
+		list-style: none;
+		background-color: var(--lighter-background-color);
+		border-radius: var(--border-radius);
+		border: 1px solid var(--darker-background-color);
+		padding: 0;
+	}
+
+	li {
+		padding: 0.9em;
+		border-bottom: 1px solid var(--darker-background-color);
+	}
+
+	li:last-of-type {
+		border: none;
+	}
+
+	ul ul {
+		border: none;
+		margin: 1em -0.9em -0.9em -0.9em;
+		border-top: 1px solid var(--darker-background-color);
+		border-radius: 0;
+	}
+
+	ul ul li {
+		padding-left: 4em;
+	}
+
+	ul:not(.checklist) li::before {
+		content: "-";
+		margin-right: 0.7em;
+		color: var(--border-color);
+	}
+
+	.checklist input[type="checkbox"] {
+		pointer-events: none;
+		margin-right: 1em;
+		height: 1.2em;
+		width: 1.2em;
+		vertical-align: top;
+
+		appearance: none;
+		background: var(--darker-background-color);
+		border-radius: 2px;
+	}
+
+	.checklist input[type="checkbox"]:checked {
+		appearance: auto;
+		background: inherit;
+	}
+
+	button,
+	.button {
+		padding: 1rem 2em;
+		background: #4285f4;
+		color: white;
+		overflow: auto;
+		border-radius: var(--border-radius);
+		border: none;
+		transition: opacity 0.3s;
+		cursor: pointer;
+	}
+
+	button:hover,
+	.button:hover {
+		text-decoration: none;
+		opacity: 0.9;
+	}
+</style>
+
+<body>
+	<div id="components"></div>
+	<div id="content"></div>
+	<div id="footer"></div>
+</body>
+<script>
+	const markedProps = {};
+	if (typeof hljs !== "undefined")
+		markedProps.highlight = (code) => hljs.highlightAuto(code).value;
+
+	let cwd = "";
+	config.contentPath = config.sitePath;
+	const contentDiv = document.getElementById("content");
+	const footersDiv = document.getElementById("footer");
+	const componentsDiv = document.getElementById("components");
+	if (!config.browserRouter) config.sitePath = config.sitePath + "#/";
+
+	// Rewrite relative URLs
+	marked.use({
+		walkTokens: (token) => {
+			if ("link" == token.type && !/^[a-z]*:\/\/*\b/.test(token.href)) {
+				token.href = cleanPath(config.sitePath + cwd + token.href);
+
+				// Resolve paths
+				token.href = token.href
+					.split("/")
+					.reduce((a, v) => {
+						if (v === ".");
+						else if (v === "..") a.pop();
+						else a.push(v);
+						return a;
+					}, [])
+					.join("/");
+				if (token.href == "") token.href = "/";
+			}
+		},
+	});
+	marked.use({
+		extensions: [{
+			name: 'include',
+			level: 'inline',
+			start: (src) => src.indexOf("include("),
+			tokenizer(src) {
+				const match = /^include\((.*?)\)/.exec(src);
+				if (match) {
+					return {
+						type: 'include',
+						raw: match[0],
+						url: match[1],
+						html: '',
+					};
+				}
+			},
+			renderer: (token) => token.html,
+		}],
+		async: true,
+		async walkTokens(token) {
+			if (token.type === 'include') {
+				token.url = cwd + cleanPath(token.url)
+				token.html = await renderMD(token.url)
+			}
+		}
+	});
+
+	const renderMD = async (path) => {
+		if (path.indexOf("#") != -1) path = path.substr(0, path.lastIndexOf("#"));
+		if (path.slice(-1) == "/" || path == "") path += "README";
+		const res = await fetch(`${config.contentPath}${path}.md`);
+		if (res.status != 200) throw Error();
+		const markdown = await res.text();
+		if (markdown.startsWith("<!doctype html>")) throw Error();
+		return marked.parse(markdown, markedProps);
+	};
+
+	const loadComponent = async (element) => {
+		const html = await renderMD(element);
+		if (!html) return;
+		let div = document.createElement("div");
+		div.innerHTML = html;
+		div.id = element.replaceAll("/", "-");
+		componentsDiv.prepend(div);
+	};
+
+	const cleanPath = (path) => {
+		if (path.slice(-3) == ".md") path = path.slice(0, -3);
+		if (path.endsWith("README")) path = path.slice(0, -6);
+		return path;
+	};
+
+	const loadContent = async () => {
+		try {
+			// Clean URL
+			let path;
+			path = window.location.pathname + window.location.hash;
+			if (!config.browserRouter && path == "/") path = config.sitePath;
+			cwd = path.substr(0, path.lastIndexOf("/")) + "/";
+			if (cwd.startsWith(config.sitePath)) cwd = cwd.slice(config.sitePath.length);
+			if (path.startsWith(config.sitePath)) path = path.slice(config.sitePath.length);
+			path = cleanPath(path);
+			const selector = path.indexOf("#") == -1 ? null : path.substr(path.lastIndexOf("#") + 1);
+			// Load Markdown
+			contentDiv.innerHTML = "";
+			contentDiv.innerHTML = (await renderMD(path)) || "";
+
+			// Reformat document
+			document.title = (document.querySelectorAll("h1")[0]?.innerText || "") + " | " + config.name || "";
+			document.querySelectorAll("#content input[type=checkbox]").forEach((checkbox) => {
+				checkbox.disabled = "";
+				checkbox.parentElement.parentElement.classList.add("checklist");
+			});
+			if (config.browserRouter)
+				document.querySelectorAll("a").forEach((a) => {
+					const href = a.getAttribute("href");
+					if (!/^[a-z]*:\/\/*\b/.test(href))
+						a.onclick = (event) => {
+							event.preventDefault();
+							window.history.pushState({}, window.title, href);
+							loadContent();
+						};
+				});
+			if (selector) document.getElementById(selector)?.scrollIntoView()
+
+			document.body.classList.add("loaded");
+			if (!config.browserRouter) window.location.replace(config.sitePath + path);
+		} catch (err) {
+			if ((config.browserRouter && window.location.pathname != config.sitePath) || (!config.browserRouter && window.location.hash != config.sitePath)) {
+				location.replace(config.sitePath);
+			}
+		}
+	};
+
+	const loadFooter = async (element) => {
+		const html = await renderMD(element);
+		if (!html) return;
+		let div = document.createElement("div");
+		div.innerHTML = html;
+		div.id = element.replaceAll("/", "-");
+		footersDiv.prepend(div);
+	};
+
+	window.onload = async () => {
+		await Promise.all((config.components || []).map((component) => loadComponent(component)));
+		await loadContent();
+		await Promise.all((config.footers || []).map((footer) => loadFooter(footer)));
+	};
+	window.onhashchange = loadContent;
+	if (config.browserRouter) window.onpopstate = loadContent;
+</script>
+
+</html>

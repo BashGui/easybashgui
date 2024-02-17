@@ -1,0 +1,3 @@
+- [Home](README.md)
+- [Install](docs/install.md)
+- [Docs](docs/)
