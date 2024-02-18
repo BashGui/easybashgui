@@ -22,7 +22,7 @@ transparently, based on the availability of the backends (frontends).
 
 * Console mode:
   * dialog
-  * whiptail
+  * cdialog
 * Graphical mode:
   * yad
   * gtkdialog

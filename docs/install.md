@@ -7,14 +7,14 @@ Simplified way to code bash made GUI frontend dialogs! - Installation document!
 
 * Dialog backend that will act as frontend gui:
   * Console:
-    * `dialog` 1.2-20120230+ https://invisible-island.net/dialog
-    * `whiptail` 0.52+ https://pagure.io/newt
+    * `cdialog` / `dialog` 1.2-20120230+ https://invisible-island.net/dialog (required)
+    * `whiptail` 0.52+ https://pagure.io/newt used as falback, not selectable!
   * Graphical:
     * `yad` 0.20+ https://github.com/v1cont/yad (GTK2 branch available)
     * `gtkdialog` 0.8.3+ https://code.google.com/p/gtkdialog (limited support)
     * `kdialog` 1.0+ https://invent.kde.org/utilities/kdialog (was part of kdebin)
     * `zenity` 2.30+ https://wiki.gnome.org/Projects/Zenity (may work with 2.X)
-    * `xdialog` 1.0+ http://xdialog.free.fr/
+    * `xdialog` 1.0+ http://xdialog.free.fr/ (new support for https://wdlkmpx.github.io/Xdialog/ comming)
 * Interpreter runtime programs:
   * `coreutils` 8.0+ https://www.gnu.org/software/coreutils/
   * `bash` 3.0+ https://tiswww.case.edu/php/chet/bash/bashtop.html
@@ -91,7 +91,7 @@ like `wc`, `type`, `cut` and `bash` and we relies on their important features
 that `busybox` neither `dash`/`sh` can provide it!
 * **backends (frontends) are not dependencies, but (c)dialog it is!**, we are 
 aware that we need a backend, but "dialog" is the backend that must be placed as 
-a dependency, but since not only does "whiptail" depend on a library separate 
+a dependency, but since not only, because "cdialog" its the best dependency you must.
 from its own but it has fewer functionalities in itself, "dialog" is by far 
 compatible with everything created since the beginning of times.
 * **don't recommend any backend (frontend), it's not necessary!**, not so much 

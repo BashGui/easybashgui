@@ -85,6 +85,37 @@ EBG is fully modular, you create a new script and just sourcered the endpoint:
 * `easydialog-legacy` stand-alone to create dialog boxes externally (as old nowadays)
 * `easybashlib` used for for optional functions like cleaning temporally working dir
 
+#### Backend Widget support
+
+EBG implements differents dialogs boxes! You don't have to worry about what 
+environment you are running the script in, as **EasyBashGUI** will handle this 
+transparently, based on the availability of the widget backends (frontends).
+
+* Console mode:
+  * dialog
+  * cdialog
+  * whiptail (not selectable, just fallback)
+* Graphical mode:
+  * yad
+  * gtkdialog
+  * kdialog
+  * zenity
+  * xdialog
+
+If there is no dialog/cdialog support installed. Check next section about `supermode`!
+
+#### The supermode for backend widget
+
+The backends for frontends (the widgets to use to diaplay boxes) are selectable 
+by the `supermode` environment variable.
+
+The `supermode` environment variable its only used to force or manually select 
+an especific widget , by example using `kdialog` under GTK desktop, or by example 
+using `zenity` under KDE environment. Also when EBG fails to detect widget usage!
+
+There is no `whiptail` mode because is used only as fallback! when dialog/cdialog 
+is missing, simply just use `supermode=dialog` for!
+
 ### System wide usage vs module user usage
 
 If EBG is not installed you should have at least all the files in the same path
@@ -831,9 +862,9 @@ notify [-c "<command>"] [-i "<icongood|iconbad>"] [-t "<textgood|textbad>"] "[go
 
 ## Notes
 
-EasyBashGUI doesn't work with original "dialog" ( old one ) that is very limited; if you have first version "dialog" in your box, install "cdialog" and alias or link "dialog" to cdialog. No problem in case you have at least "whiptail" installed: since version 4.0.0, EasyBashGUI is able to use it instead of (c)dialog.
+EasyBashGUI doesn't work with original "dialog" ( old one ) that is very limited; if you have first version "dialog" in your box, install "cdialog" and alias or link "dialog" to cdialog.
 
-Since 5.0.0 version you can use EasyBashGUI even if NO WIDGET is installed (that is: no gtkdialog, no kdialog, no zenity, no Xdialog, no (c)dialog, no whiptail... doh!!!!! ). To use "super bare" EBG, simply remove the ".lib" library from your path, or set "supermode" var to "none" before easybashgui sourcing (e.g.: >export supermode="none" && source easybashgui && message "Hello world..." )
+Since 5.0.0 version you can use EasyBashGUI even if NO WIDGET backend is installed (that is: no gtkdialog, no kdialog, no zenity, no Xdialog, no (c)dialog... doh!!!!! ). To use "super bare" EBG, simply remove the ".lib" library from your path, or set "supermode" var to "none" before easybashgui sourcing (e.g.: >export supermode="none" && source easybashgui && message "Hello world..." )
 
 EasyBashGUI sets gtkdialog output statements as variables through "eval". This way, in theory, could be possibly dangerous; nevertheless, so far, I don't know about any alternative way...
 
