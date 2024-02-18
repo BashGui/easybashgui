@@ -5,7 +5,7 @@ Simplified way to code bash made GUI frontend dialogs! - Installation document!
 
 ## Requirements
 
-* Dialog backend that will act as frontend gui:
+* Dialog backend that will act as frontend GUI:
   * Console:
     * `cdialog` / `dialog` 1.2-20120230+ https://invisible-island.net/dialog (required)
     * `whiptail` 0.52+ https://pagure.io/newt used as falback, not selectable!
@@ -42,8 +42,8 @@ bash ~/Devel/newprj/newprogram
 
 ## System wide install
 
-This way you will use it in any project by only sourcered one standar line, 
-becouse will be available for all the system:
+This way you will use it in any project by only sourced one standard line, 
+because will be available for all the system:
 
 1. Install the requirements (check first part of this document)
 2. download EBG from https://github.com/BashGui/easybashgui/releases
@@ -51,7 +51,7 @@ becouse will be available for all the system:
 4. inside the new extracted dir `EasyBashGui` do `make install` as root!
 
 But beware that if you assumed system wide install, the target system of your 
-new script will already have isntalled the EBG package/programs, check paths
+new script will already have installed the EBG package/programs, check paths
 in next section.
 
 ### Install paths
@@ -69,7 +69,7 @@ in next section.
 ### System wide usage vs module user usage
 
 Just after install read full documentation [README.md](README.md), the only 
-diference is the source endpoint line and the clean final line.
+difference is the source endpoint line and the clean final line.
 
 Explanation is on [README.md System wide usage vs module user usage](README.md#system-wide-usage-vs-module-user-usage) section.
 
@@ -82,7 +82,7 @@ And... enjoy !! :-)
 
 ## Packaging
 
-For distro mantainers EBG are a simple and easy to mantain project, 
+For distro maintainers EBG are a simple and easy to maintain project, 
 but due it relies on backend and coreutils programs there are some 
 directions:
 
@@ -90,16 +90,16 @@ directions:
 like `wc`, `type`, `cut` and `bash` and we relies on their important features 
 that `busybox` neither `dash`/`sh` can provide it!
 * **backends (frontends) are not dependencies, but (c)dialog it is!**, we are 
-aware that we need a backend, but "dialog" is the backend that must be placed as 
-a dependency, but since not only, because "cdialog" its the best dependency you must.
+aware that we need a backend, but `dialog` is the backend that must be placed as 
+a dependency, but since not only, because `cdialog` its the best dependency!
 from its own but it has fewer functionalities in itself, "dialog" is by far 
 compatible with everything created since the beginning of times.
 * **don't recommend any backend (frontend), it's not necessary!**, not so much 
 package managers have the suggestion part like Debian, but please don't recommend 
 any backend, the EBG must use the already provided one and present in your env ! 
-your project that will inplement EBG will manage those depends and recommends!
+your project that will implement EBG will manage those depends and recommends!
 * **follows installation paths** the EBG does not put any file outside of the 
-right place, so please dont change anything!
+right place, so please don't change anything!
 * **none of the requirements are build requirements!** yeah, EBG it's fully 
 runtime script!
 

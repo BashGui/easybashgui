@@ -16,7 +16,7 @@ library that aims to give unified GUI functions using frontends for dialogs boxe
 
 #### Backends environments GUI
 
-EBG implements differents dialogs boxes! You don't have to worry about what 
+EBG implements different dialogs boxes! You don't have to worry about what 
 environment you are running the script in, as **EasyBashGUI** will handle this 
 transparently, based on the availability of the backends (frontends).
 
@@ -32,17 +32,17 @@ transparently, based on the availability of the backends (frontends).
 
 ![](docs/easybasguidialogs.jpeg)
 
-#### Compatibilty and runtime
+#### Compatibility and runtime
 
 EBG is coded in `bash`, and uses most of `coreutils` commands, but it may work in
-any other env, becouse those are just used internally.
+any other environment, because those are just used internally.
 
 ## Components
 
 EBG is fully modular:
 
-* `easybashgui` a launcher that will be the endpoint sourcered in your scripts
-* `easybashgui-debug` that toggles some debug options managed by the previus component
+* `easybashgui` a launcher that will be the endpoint sourced in your scripts
+* `easybashgui-debug` that toggles some debug options managed by the previous component
 * `easybashgui.lib` that managed the backends, called as widget library
 * `easydialog-legacy` stand-alone to create dialog boxes externally (as old nowadays)
 * `easybashlib` used for for optional functions like cleaning temporally working dir
