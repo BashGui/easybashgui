@@ -3,6 +3,15 @@ EasyBashGUI - documentation
 
 Simplified way to code bash made GUI frontend dialogs! - Documentation
 
+- [Modes of use](#modes-of-use)
+- [Installation](#installation)
+    - [Quick start usage](#quick-start-usage)
+    - [Quick developer usage](#quick-developer-usage)
+- [EBG Framework](#ebg-framework)
+    - [Examples](#examples)
+- [EBG Reference](#ebg-reference)
+    - [Notes](#notes)
+
 ## Modes of use
 
 You can use as system-wide module lib or as built-in quick start module embedded!
@@ -12,7 +21,7 @@ You can use as system-wide module lib or as built-in quick start module embedded
 Please check [install.md](install.md) document file for any way of installation,
 or just check next section for a more easy and modular way of usage:
 
-## Quick start usage
+#### Quick start usage
 
 Let's assume you have the EBG installed on system-wide, then there 
 are only few steps :
@@ -28,7 +37,7 @@ bash ~/Devel/easybashgui/newprogram
 That's it !!!!! Easyle! But what if you wants all build-in!? Without install?, 
 of course you can! Check next section:
 
-## Quick developer usage
+#### Quick developer usage
 
 But what if we want everything to be within our project, as developers or 
 embedding the EBG?, to make our program independent of the installation:
@@ -47,12 +56,67 @@ bash ~/Devel/easybashgui/newprogram
 
 That's it !!!!! You develop your first GUI script!
 
-## The EBG script
+## EBG Framework
+
+EBG is fully modular, you create a new script and just sourced the endpoint:
+
+* `easybashgui` a launcher that will be the endpoint sourced in your scripts
+* `easybashgui-debug` that toggles some debug options managed by the previous component
+* `easybashgui.lib` that managed the backends, called as widget library
+* `easydialog-legacy` stand-alone to create dialog boxes externally (as old nowadays)
+* `easybashlib` used for for optional functions like cleaning temporally working dir
+
+- Index documentation
+    - [The EBG script](#the-ebg-script)
+    - [Backend Widget support](#backend-widget-support)
+    - [The supermode for backend widget](#the-supermode-for-backend-widget)
+    - [System wide usage vs module user usage](#system-wide-usage-vs-module-user-usage)
+    - [Backend boxes priority](#backend-boxes-priority)
+    - [Box mode windows](#box-mode-windows)
+    - [Size box windows](#size-box-windows)
+    - [Boxes behavior compatibility](#boxes-behavior-compatibility)
+- [Examples](#examples)
+    - [Simple question boxes](#simple-question-boxes)
+    - [Simple text box from standard input](#simple-text-box-from-standard-input)
+    - [The waiting for response](#the-waiting-for-response)
+    - [Simple directory selection](#simple-directory-selection)
+    - [Triplet input examples](#triplet-input-examples)
+    - [Progress bar](#progress-bar)
+    - [Level meter](#level-meter)
+    - [Menu selection](#menu-selection)
+    - [Choose items](#choose-items)
+    - [A more complex example](#a-more-complex-example)
+    - [A notification example](#a-notification-example)
+- [EBG Reference](#ebg-reference)
+    - [Flow](#flow)
+    - [message](#message)
+    - [ok_message](#ok_message)
+    - [alert_message](#alert_message)
+    - [question](#question)
+    - [text](#text)
+    - [wait_seconds (progress bar)](#wait_seconds-progress-bar)
+    - [progress (progresive way)](#progress-progresive-way)
+    - [progress (regresive way)](#progress-regresive-way)
+    - [wait_for](#wait_for)
+    - [terminate_wait_for](#terminate_wait_for)
+    - [fselect](#fselect)
+    - [dselect](#dselect)
+    - [input](#input)
+    - [menu](#menu)
+    - [tagged_menu](#tagged_menu)
+    - [list](#list)
+    - [adjust](#adjust)
+    - [notify_message](#notify_message)
+    - [notify_change](#notify_change)
+    - [notify](#notify)
+- [Notes](#notes)
+
+#### The EBG script
 
 The script that will implement the EBG is always structured in three main parts:
 
-1. The optional `supermode` varialbe and the mandatory sourced endpoint
-2. The source code made by yourselft that must be `bash` language
+1. The optional `supermode` variable and the mandatory sourced endpoint
+2. The source code made by yourself that must be `bash` language
 3. The optional `clean_temp` sentence for user mode only
 
 ```bash
@@ -75,17 +139,38 @@ source ./easybashgui
 message "hola"
 ```
 
-## EBG library
+#### Backend Widget support
 
-EBG is fully modular, you create a new script and just sourcered the endpoint:
+EBG implements different dialogs boxes! You don't have to worry about what 
+environment you are running the script in, as **EasyBashGUI** will handle this 
+transparently, based on the availability of the widget backends (frontends).
 
-* `easybashgui` a launcher that will be the endpoint sourcered in your scripts
-* `easybashgui-debug` that toggles some debug options managed by the previus component
-* `easybashgui.lib` that managed the backends, called as widget library
-* `easydialog-legacy` stand-alone to create dialog boxes externally (as old nowadays)
-* `easybashlib` used for for optional functions like cleaning temporally working dir
+* Console mode:
+  * dialog
+  * cdialog
+  * whiptail (not selectable, just fall back)
+* Graphical mode:
+  * yad
+  * gtkdialog
+  * kdialog
+  * zenity
+  * xdialog
 
-### System wide usage vs module user usage
+If there is no dialog/cdialog support installed. Check next section about `supermode`!
+
+#### The supermode for backend widget
+
+The backends for frontends (the widgets to use to display boxes) are selectable 
+by the `supermode` environment variable.
+
+The `supermode` environment variable its only used to force or manually select 
+an specific widget , by example using `kdialog` under GTK desktop, or by example 
+using `zenity` under KDE environment. Also when EBG fails to detect widget usage!
+
+There is no `whiptail` mode because is used only as fallback! when dialog/cdialog 
+is missing, simply just use `supermode=dialog` for!
+
+#### System wide usage vs module user usage
 
 If EBG is not installed you should have at least all the files in the same path
 as your main script, if you install it on the system you don't have to worry
@@ -162,7 +247,7 @@ message -w 800 -h 100 "Hello World!"
 
 ![](easybashgui-example0.jpeg)
 
-#### Boxes behaviour compatibility
+#### Boxes behavior compatibility
 
 **IMPORTANT**: Each interface GUI has its own way of entering from the user,
 while Yad can have 3 text entry boxes at the same time, on the contrary, Zenity
@@ -181,12 +266,25 @@ We'll use bash to illustrate example uses:
 4. Put your sentences of code in bash
 5. Saves and launch the new script program
 
+- List of examples:
+    - [Simple question boxes](#simple-question-boxes)
+    - [Simple text box from standard input](#simple-text-box-from-standard-input)
+    - [The waiting for response](#the-waiting-for-response)
+    - [Simple directory selection](#simple-directory-selection)
+    - [Triplet input examples](#triplet-input-examples)
+    - [Progress bar](#progress-bar)
+    - [Level meter](#level-meter)
+    - [Menu selection](#menu-selection)
+    - [Choose items](#choose-items)
+    - [A more complex example](#a-more-complex-example)
+    - [A notification example](#a-notification-example)
+
 #### Simple question boxes
 
-This piece of code will lauch 3 dialogs, the first is the main question with a
-default "ok" button for positive answer, in limited backend boxes wil only show
+This piece of code will launch 3 dialogs, the first is the main question with a
+default "ok" button for positive answer, in limited backend boxes will only show
 a unique "ok" button and for cancel you just press "ESC" key.. If the negative 
-response (cancel) is detected will lauch an alert message box or then response 
+response (cancel) is detected will launch an alert message box or then response 
 box with confirmation.
 
 ```bash
@@ -208,10 +306,10 @@ fi
 
 ![](easybashgui-dialogs1.jpeg)
 
-#### Simple text box from standar input
+#### Simple text box from standard input
 
-This piece of code will lauch a text box inside a window but using pipes 
-to parsed to stdin and the `text` function:
+This piece of code will launch a text box inside a window but using pipes 
+to parsed to STDIN and the `text` function:
 
 ```bash
 source easybashgui
@@ -237,7 +335,7 @@ terminate_wait_for
 ```
 
 Take into consideration that `terminate_wait_for` only will close (kill) the 
-last executed `wait_for` function lauched, otherwise you must parse as argument 
+last executed `wait_for` function launched, otherwise you must parse as argument 
 the specific PID of the window box to close.
 
 ![](easybashgui-example2.gif)
@@ -259,12 +357,12 @@ file="$(0< "${dir_tmp}/${file_tmp}" )"
 #### Triplet input examples
 
 This double check of same question, with default "ok" button for positive
-answer, in limited backend boxes wil only show a unique "ok" button
+answer, in limited backend boxeswill only show a unique "ok" button
 and for cancel you just press "ESC" key.. but in any part of the execution
 the cancel will end all the program.
 
 Last box is the extra second input, then the script will store all the variables
-and will show in standar output!
+and will show in standard output!
 
 ```bash
 source easybashgui
@@ -297,7 +395,7 @@ done | progress "This is a test progress..."
 
 #### Level meter
 
-Level meters are easy to set, result of the choosed will be echoed to standard
+Level meters are easy to set, result of the choose will be echoed to standard
 output:
 
 ```bash
@@ -308,7 +406,7 @@ adjust "Please, set Volume level" 15 40 75
 
 #### Menu selection
 
-The menues are complext process internally but easy to use for you, 
+The menus are complex process internally but easy to use for you, 
 it's just elements and the choosen one will be in the temporally file;
 
 ```bash
@@ -318,7 +416,7 @@ choice="$(0< "${dir_tmp}/${file_tmp}" )"
 
 #### Choose items
 
-Same as menues but allows to choose more than one item to you, 
+Same as menus but allows to choose more than one item to you, 
 it's just elements and the selections will be in the temporally file;
 
 ```bash
@@ -376,15 +474,38 @@ while :
 done
 ```
 
-## EBG library reference
+## EBG Reference
 
 This is the reference list documentation for programming
 
+- List of functions:
+    - [Flow](#flow)
+    - [message](#message)
+    - [ok_message](#ok_message)
+    - [alert_message](#alert_message)
+    - [question](#question)
+    - [text](#text)
+    - [wait_seconds (progress bar)](#wait_seconds-progress-bar)
+    - [progress (progresive way)](#progress-progresive-way)
+    - [progress (regresive way)](#progress-regresive-way)
+    - [wait_for](#wait_for)
+    - [terminate_wait_for](#terminate_wait_for)
+    - [fselect](#fselect)
+    - [dselect](#dselect)
+    - [input](#input)
+    - [menu](#menu)
+    - [tagged_menu](#tagged_menu)
+    - [list](#list)
+    - [adjust](#adjust)
+    - [notify_message](#notify_message)
+    - [notify_change](#notify_change)
+    - [notify](#notify)
+
 #### Flow
 
-EBG always use STDIN and STDOUT in conjuction with a temporally directory/filename.
+EBG always use STDIN and STDOUT in conjunction with a temporally directory/filename.
 
-The temporally names are managed throught the variables `${dir_tmp}` and `${file_tmp}`
+The temporally names are managed through the variables `${dir_tmp}` and `${file_tmp}`
 
 #### message
 
@@ -394,7 +515,7 @@ The most simple, its just a normal window
     * text : optional, must be inside double quotes, only alphanumeric characters
 * STDIN: no
 * STDOUT: 
-    * exit code: 1 canceled with ESC, 0 the only button is presed
+    * exit code: 1 canceled with ESC, 0 the only button is pressed
 * STDERR: no
 
 ``` bash
@@ -409,7 +530,7 @@ Same as message but support response and reports question class to window manage
     * text : optional, must be inside double quotes, only alphanumeric characters
 * STDIN: no
 * STDOUT: 
-    * exit code: 1 canceled with ESC, 0 the only button is presed
+    * exit code: 1 canceled with ESC, 0 the only button is pressed
 * STDERR: no
 
 
@@ -425,7 +546,7 @@ Same as message but support response and reports alert class to window manager
     * text : optional, must be inside double quotes, only alphanumeric characters
 * STDIN: no
 * STDOUT: 
-    * exit code: 1 canceled with ESC, 0 the only button is presed
+    * exit code: 1 canceled with ESC, 0 the only button is pressed
 * STDERR: no
 
 
@@ -442,9 +563,9 @@ is that supports output to both SDTERR and exit code:
     * text : optional, must be inside double quotes, only alphanumeric characters
 * STDIN: no
 * STDOUT: 
-    * exit code: 1 canceled with ESC, 0 the only button is presed
+    * exit code: 1 canceled with ESC, 0 the only button is pressed
 * STDERR:
-    * exit code: 1 canceled with ESC, 0 the only button is presed
+    * exit code: 1 canceled with ESC, 0 the only button is pressed
 
 ``` bash
 question "[text]"
@@ -460,7 +581,7 @@ both SDTERR and STDOUT and exit code will present the contents:
 * STDIN: can be piped/redirect for predefined content
     * input: user can write
 * STDOUT: 
-    * (input): the content of box is write to "${dir_tmp}/${file_tmp}"
+    * (input): the content of box is write to `${dir_tmp}`/`${file_tmp}`
 * STDERR:
     * (input): the content of the box input will be out
 
@@ -475,15 +596,15 @@ text <<< "<text>"
 #### wait_seconds (progress bar)
 
 This is an utility function, similar to `sleep`, but will display an automatic 
-progres bar with a duration of the number os seconds you parse it:
+progress bar with a duration of the number os seconds you parse it:
 
 * ARGUMENTS:
     * seconds : mandatory, integer only
 * STDIN: no
 * STDOUT: 
-    * exit code: 0 unless its canceled externally, will be anyting
+    * exit code: 0 unless its canceled externally, will be anything
 * STDERR:
-    * exit code: 0 unless its canceled externally, will be anyting
+    * exit code: 0 unless its canceled externally, will be anything
 
 ``` bash
 wait_seconds <integer>
@@ -500,9 +621,9 @@ percent position is read from STDIN, the number can be piped or parsed from:
 * STDIN:
     * integer: integer with or without "%" that indicates how much will fil the bar
 * STDOUT: 
-    * exit code: 0 unless its canceled externally, will be anyting
+    * exit code: 0 unless its canceled externally, will be anything
 * STDERR:
-    * exit code: 0 unless its canceled externally, will be anyting
+    * exit code: 0 unless its canceled externally, will be anything
 
 ``` bash
 progress "[text]" <<< 20
@@ -526,9 +647,9 @@ from the STDIN to the function to indicate to fil the progress bar in the box:
 * STDIN:
     * PROGRESS: must be sent to indicate to fill the bar
 * STDOUT: 
-    * exit code: 0 unless its canceled externally, will be anyting
+    * exit code: 0 unless its canceled externally, will be anything
 * STDERR:
-    * exit code: 0 unless its canceled externally, will be anyting
+    * exit code: 0 unless its canceled externally, will be anything
 
 ``` bash
 progress "<text>" n <<< PROGRESS
@@ -543,17 +664,17 @@ progress "<text>" 1 <<< PROGRESS
 
 This is an utility function, similar to `progress`, it will show a box with 
 a dynamic progress bar and the text you parse it, the box never close either
-nevers ends, you should do something with their control variable`{wait_for__PID}`
+never ends, you should do something with their control variable`{wait_for__PID}`
 
 * ARGUMENTS:
     * text : optional, must be inside double quotes, only alphanumeric characters
 * STDIN: no
 * STDOUT: 
     * `wait_for__PID` : control variable used to kill the action/function
-    * exit code: 1 canceled with ESC, 0 the only button is presed
+    * exit code: 1 canceled with ESC, 0 the only button is pressed
 * STDERR:
     * `wait_for__PID` : control variable used to kill the action/function
-    * exit code: 1 canceled with ESC, 0 the only button is presed
+    * exit code: 1 canceled with ESC, 0 the only button is pressed
 
 ``` bash
 wait_for "[text]"
@@ -588,13 +709,13 @@ sleep 3
 terminate_wait_for
 ```
 
-In this example the `terminate_wait_for` output "0" becouse PID of `wait_for` was 
-active, PID is still valid and ouput in STDOUT that is STDIN for `terminate_wait_for`
+In this example the `terminate_wait_for` output "0" because PID of `wait_for` was 
+active, PID is still valid and output in STDOUT that is STDIN for `terminate_wait_for`
 
 #### fselect
 
 This function will permit to choose a file and will let to you to use into the 
-variables "${dir_tmp}/${file_tmp}" and STDERR to check the result of the input
+variables `${dir_tmp}`/`${file_tmp}` and STDERR to check the result of the input
 
 * ARGUMENTS:
     * path : optional, string path of the default place to suggest for file
@@ -616,15 +737,15 @@ fselect "[/path/to/directory/[filesuggested]]"
 #### dselect
 
 This function will permit to choose a directory and will let to you to use into the 
-variables "${dir_tmp}/${file_tmp}" and STDERR to check the result of the input
+variables `${dir_tmp}`/`${file_tmp}` and STDERR to check the result of the input
 
 * ARGUMENTS:
     * path : optional, string path of the default place to suggest for path to choose
 * STDIN: no
 * STDOUT: 
-    * path choosen: the path and name of the chosen selected directory from the box
+    * path choose: the path and name of the chosen selected directory from the box
 * STDERR:
-    * path choosen: the path and name of the chosen selected directory from the box
+    * path choose: the path and name of the chosen selected directory from the box
 
 Those variables are filled when the action its completed:
 
@@ -638,9 +759,9 @@ fselect "[/path/to/directory/]"
 #### input
 
 This function will display in same box one, two and/or three inputs, depending 
-of the parameters and can be initializated with default values as suggestions, 
-and will let to you to use into the variables "${dir_tmp}/${file_tmp}" and STDERR 
-to check the result of the input
+of the parameters and can be initialized with default values as suggestions, 
+and will let to you to use into the variables `${dir_tmp}`/`${file_tmp}` 
+and STDERR to check the result of the input
 
 * ARGUMENTS:
     * inputs : required, indicates the number of inputs, can be 1, 2, or 3
@@ -677,8 +798,8 @@ input 3 "<label>" "<value>" "<label2>" "<value2>" "<label3>" "<value3>"
 
 This function will display in same box one and/or more elements in a list, 
 this list will act as selection menu and only one item can be selected, 
-and will let to you to use into the variables "${dir_tmp}/${file_tmp}" and STDERR 
-to check the result of the input
+and will let to you to use into the variables `${dir_tmp}`/`${file_tmp}` 
+and STDERR to check the result of the input
 
 * ARGUMENTS:
     * item(s) : input items to show in list of menu, musty be double quoted
@@ -699,11 +820,11 @@ menu "<item1>" "[item2]" .. "[itemN-1]" "[itemN]"
 
 #### tagged_menu
 
-Like menues will display in same box one and/or more elements in a list, 
+Like menus will display in same box one and/or more elements in a list, 
 this list will act as selection menu and only one item can be selected, 
 but this item selection will have a tag that can be used inside script!
-and will let to you to use into the variables "${dir_tmp}/${file_tmp}" and STDERR 
-to check the result of the input
+and will let to you to use into the variables `${dir_tmp}`/`${file_tmp}` 
+and STDERR to check the result of the input
 
 * ARGUMENTS:
     * item(s) : input items to show in list of menu, musty be double quoted
@@ -725,10 +846,11 @@ tagged_menu "<item1>" "<label1>" "[item2]" "[label2]" .. "[itemN]" "[labelN]"
 
 #### list
 
-Same as menues display in same box one and/or more elements in a list, 
+Same as menus display in same box one and/or more elements in a list, 
 this list will act as selection menu and multiple items can be selected, 
-and will let to you to use into the variables "${dir_tmp}/${file_tmp}" and STDERR 
-to check the result of the selections one line per selected item in order:
+and will let to you to use into the variables `${dir_tmp}`/`${file_tmp}` 
+and STDERR to check the result of the selections one line per selected 
+item in order:
 
 * ARGUMENTS:
     * `<+|->` : presets, if "+" will be selected and if "-" will be deselected
@@ -751,14 +873,14 @@ menu "< <+|->item1>" "[<+|->item2]" .. "[<+|->itemN-1]" "[<+|->itemN]"
 #### adjust
 
 This function will show a slider bar with selector, the bar represents 1 to 100  
-and will let to you to use into the variables "${dir_tmp}/${file_tmp}" and STDERR 
+and will let to you to use into the variables `${dir_tmp}`/`${file_tmp}` and STDERR 
 to check the result of the position of the slide bar:
 
 * ARGUMENTS:
     * text : label to show at the slide
-    * min : minimun allowed value that slide will go at the left
+    * min : minimum allowed value that slide will go at the left
     * init : the value that will start the selector on the slide when display
-    * max : maximun allowed value that slide will go at the right
+    * max : maximum allowed value that slide will go at the right
 * STDIN: no
 * STDOUT: 
     * values: echoes the selected items one line per selection
@@ -774,7 +896,7 @@ Those variables are filled when the action its completed:
 ajust "[text]" "[min]" "[init]" "[max]"
 ```
 
-There are some small issues with digalog and kdialog, values can go outside of limits
+There are some small issues with `digalog` and `kdialog`, values can go outside of limits
 
 #### notify_message
 
@@ -815,7 +937,7 @@ notify_change [-i "<newicon>"] [-t "<newtiptext>"] "[good|bad]"
 Like "message" but now as desktop systray notification to display:
 
 * ARGUMENTS:
-    * command left button : optional , program will lauch if right click
+    * command left button : optional , program will launch if right click
     * icon : path to the icon to display if given, for good/bad types
     * tooltip text : text to display on each case
     * menu items : menu items to shows on selection
@@ -831,9 +953,9 @@ notify [-c "<command>"] [-i "<icongood|iconbad>"] [-t "<textgood|textbad>"] "[go
 
 ## Notes
 
-EasyBashGUI doesn't work with original "dialog" ( old one ) that is very limited; if you have first version "dialog" in your box, install "cdialog" and alias or link "dialog" to cdialog. No problem in case you have at least "whiptail" installed: since version 4.0.0, EasyBashGUI is able to use it instead of (c)dialog.
+EasyBashGUI doesn't work with original "dialog" ( old one ) that is very limited; if you have first version "dialog" in your box, install "cdialog" and alias or link "dialog" to cdialog.
 
-Since 5.0.0 version you can use EasyBashGUI even if NO WIDGET is installed (that is: no gtkdialog, no kdialog, no zenity, no Xdialog, no (c)dialog, no whiptail... doh!!!!! ). To use "super bare" EBG, simply remove the ".lib" library from your path, or set "supermode" var to "none" before easybashgui sourcing (e.g.: >export supermode="none" && source easybashgui && message "Hello world..." )
+Since 5.0.0 version you can use EasyBashGUI even if NO WIDGET backend is installed (that is: no gtkdialog, no kdialog, no zenity, no Xdialog, no (c)dialog... doh!!!!! ). To use "super bare" EBG, simply remove the ".lib" library from your path, or set "supermode" var to "none" before easybashgui sourcing (e.g.: >export supermode="none" && source easybashgui && message "Hello world..." )
 
 EasyBashGUI sets gtkdialog output statements as variables through "eval". This way, in theory, could be possibly dangerous; nevertheless, so far, I don't know about any alternative way...
 
