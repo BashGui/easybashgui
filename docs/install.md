@@ -3,6 +3,8 @@ EasyBashGUI - installation
 
 Simplified way to code bash made GUI frontend dialogs! - Installation document!
 
+**IMPORTANT* for some distro there are packages for [OBS bashgui](https://software.opensuse.org//download.html?project=home%3Avenenux%3Abashgui&package=easybashgui)
+
 ## Requirements
 
 * Dialog backend that will act as frontend GUI:
