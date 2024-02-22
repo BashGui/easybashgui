@@ -67,6 +67,11 @@ Please check [docs/install.md](docs/install.md) document file!
 
 Please check [docs/README.md](docs/README.md) document file!
 
+### Packages
+
+There are for some distros: [![](https://img.shields.io/badge/Debian-A81D33?style=for-the-badge&logo=debian&logoColor=white) ![](https://img.shields.io/badge/Cent%20OS-262577?style=for-the-badge&logo=CentOS&logoColor=white) ![](https://img.shields.io/badge/Red%20Hat-EE0000?style=for-the-badge&logo=redhat&logoColor=white) ![](https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white) ](https://software.opensuse.org//download.html?project=home%3Avenenux%3Abashgui&package=easybashgui)
+
+
 ## Credits.
 
 * Thanks to Bash, Yad, Gtkdialog, Xdialog, Kdialog, Zenity, Cdialog, and Whiptail authors, this library was nothing without their work. Many thanks.
