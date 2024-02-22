@@ -3,7 +3,9 @@ EasyBashGUI
 
 Simplified way to code bash made GUI frontend dialogs! Check the youtube video:
 
-[![](https://img.youtube.com/vi/FEn4doXmiX0/0.jpg)](https://www.youtube.com/watch?v=FEn4doXmiX0)
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=FEn4doXmiX0" target="_blank">
+ <img src="http://img.youtube.com/vi/FEn4doXmiX0/mqdefault.jpg" alt="Watch the video" width="240" height="180" border="10" />
+</a>
 
 ## Introduction to EBG
 
@@ -64,6 +66,11 @@ Please check [docs/install.md](docs/install.md) document file!
 ### Documentation
 
 Please check [docs/README.md](docs/README.md) document file!
+
+### Packages
+
+There are for some distros: [![](https://img.shields.io/badge/Debian-A81D33?style=for-the-badge&logo=debian&logoColor=white) ![](https://img.shields.io/badge/Cent%20OS-262577?style=for-the-badge&logo=CentOS&logoColor=white) ![](https://img.shields.io/badge/Red%20Hat-EE0000?style=for-the-badge&logo=redhat&logoColor=white) ![](https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white) ](https://software.opensuse.org//download.html?project=home%3Avenenux%3Abashgui&package=easybashgui)
+
 
 ## Credits.
 

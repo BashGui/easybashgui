@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://bootswatch.com/4/cosmo/bootstrap.min.css">
+    <style>
+	:root {
+	    --text-color: #000000;
+	    --border-color: #a7cefc;
+	    --border-h-color: #313ae2;
+	    --border-hl-color: #dbdbdb;
+	    --background-color: white;
+	    --background-navbar-color: #0059c5;
+	    --darker-background-color: #d1d7df2f;
+	    --lighter-background-color: #fbfdff;
+	}
+
+	#docs-navbar {
+	    margin: 0;
+	    overflow: hidden;
+	    background-color: var(--background-navbar-color);
+	    position: fixed;
+	    width: 100%;
+	    padding-left: 2rem;
+	    z-index: 5;
+	}
+	#docs-navbar a {
+	    float: left;
+	    display: block;
+	    color: var(--background-color);
+	    text-align: center;
+	    padding: 14px;
+	    text-decoration: none;
+	}
+	#docs-navbar ul {
+	    display: flex;
+	    gap: 1rem;
+	    list-style: none;
+	    margin: 0;
+	    border-radius: inherit;
+	    background: inherit;
+	    border: none;
+	}
+	#docs-navbar li::before {
+	    content: none;
+	}
+
+    #docs-footer {
+	text-align: center;
+	background-color: var(--color-1);
+	color: white;
+	padding: 1rem;
+    }
+
+    #docs-footer a {
+	color: white;
+	text-decoration: underline;
+    }
+
+	#content {
+	    background-color: var(--background-color);
+	    max-width: 90%;
+	    padding: 5rem 1rem;
+	    margin: auto;
+	    padding-top: 5em;
+	}
+
+	body {
+	    font-family: "Open Sans", Helvetica, sans-serif;
+	    color: var(--text-color);
+	    margin: 0;
+	    padding: 0;
+	    opacity: 0;
+	    transition: opacity 0.4s;
+	}
+	body.loaded {
+	    opacity: 1;
+	}
+
+	h1 {
+	    border-bottom: 1px solid var(--border-h-color);
+	}
+	h2,
+	h3,
+	h4,
+	h5 {
+	    border-bottom: 1px solid var(--border-hl-color);
+	}
+
+	table {
+	    border-collapse: collapse;
+	    display: block;
+	}
+	table tbody td {
+	    border: solid 1px var(--border-color) !important;
+	    padding: 0.1em 1.1em;
+	    border-color: var(--border-color) !important;
+	    min-width: 100px;
+	}
+	table thead tr {
+	    text-align: left;
+	    padding: 0.1em 1.1em;
+	    background-color: var(--border-color);
+	}
+	table tbody tr:nth-of-type(odd) {
+	    background-color: var(--darker-background-color);
+	}
+	table tbody tr:nth-of-type(even) {
+	    background-color: var(--lighter-background-color);
+	}
+	table tbody tr.active-row {
+	    font-weight: bold;
+	}
+    </style>
+</head>
+
+<!-- USER CONFIG -->
+<script>
+	const config = {
+		sitePath: "/easybashgui/",
+		browserRouter: false,
+		name: "easybashgui",
+		components: ["docs/navbar", "docs/github"],
+		footers: ["docs/footer"],
+	};
+</script>
+
+<!-- Marked.js - Markdown renderer -->
+<script src="https://cdn.jsdelivr.net/npm/marked@5.1.1/marked.min.js"></script>
+
+<!-- OPTIONAL : Highlight.js - Syntax Highlighting -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/lightfair.min.css">
+
+<body>
+	<div id="components"></div>
+	<div id="content"></div>
+	<div id="footer"></div>
+</body>
+<script>
+	const markedProps = {};
+	if (typeof hljs !== "undefined")
+		markedProps.highlight = (code) => hljs.highlightAuto(code).value;
+
+	let cwd = "";
+	config.contentPath = config.sitePath;
+	const contentDiv = document.getElementById("content");
+	const footersDiv = document.getElementById("footer");
+	const componentsDiv = document.getElementById("components");
+	if (!config.browserRouter) config.sitePath = config.sitePath + "#/";
+
+	// Rewrite relative URLs
+	marked.use({
+		walkTokens: (token) => {
+			if ("link" == token.type && !/^[a-z]*:\/\/*\b/.test(token.href)) {
+				token.href = cleanPath(config.sitePath + cwd + token.href);
+
+				// Resolve paths
+				token.href = token.href
+					.split("/")
+					.reduce((a, v) => {
+						if (v === ".");
+						else if (v === "..") a.pop();
+						else a.push(v);
+						return a;
+					}, [])
+					.join("/");
+				if (token.href == "") token.href = "/";
+			}
+		},
+	});
+	marked.use({
+		extensions: [{
+			name: 'include',
+			level: 'inline',
+			start: (src) => src.indexOf("include("),
+			tokenizer(src) {
+				const match = /^include\((.*?)\)/.exec(src);
+				if (match) {
+					return {
+						type: 'include',
+						raw: match[0],
+						url: match[1],
+						html: '',
+					};
+				}
+			},
+			renderer: (token) => token.html,
+		}],
+		async: true,
+		async walkTokens(token) {
+			if (token.type === 'include') {
+				token.url = cwd + cleanPath(token.url)
+				token.html = await renderMD(token.url)
+			}
+		}
+	});
+
+	const renderMD = async (path) => {
+		if (path.indexOf("#") != -1) path = path.substr(0, path.lastIndexOf("#"));
+		if (path.slice(-1) == "/" || path == "") path += "README";
+		const res = await fetch(`${config.contentPath}${path}.md`);
+		if (res.status != 200) throw Error();
+		const markdown = await res.text();
+		if (markdown.startsWith("<!doctype html>")) throw Error();
+		return marked.parse(markdown, markedProps);
+	};
+
+	const loadComponent = async (element) => {
+		const html = await renderMD(element);
+		if (!html) return;
+		let div = document.createElement("div");
+		div.innerHTML = html;
+		div.id = element.replaceAll("/", "-");
+		componentsDiv.prepend(div);
+	};
+
+	const cleanPath = (path) => {
+		if (path.slice(-3) == ".md") path = path.slice(0, -3);
+		if (path.endsWith("README")) path = path.slice(0, -6);
+		return path;
+	};
+
+	const loadContent = async () => {
+		try {
+			// Clean URL
+			let path;
+			path = window.location.pathname + window.location.hash;
+			if (!config.browserRouter && path == "/") path = config.sitePath;
+			cwd = path.substr(0, path.lastIndexOf("/")) + "/";
+			if (cwd.startsWith(config.sitePath)) cwd = cwd.slice(config.sitePath.length);
+			if (path.startsWith(config.sitePath)) path = path.slice(config.sitePath.length);
+			path = cleanPath(path);
+			const selector = path.indexOf("#") == -1 ? null : path.substr(path.lastIndexOf("#") + 1);
+			// Load Markdown
+			contentDiv.innerHTML = "";
+			contentDiv.innerHTML = (await renderMD(path)) || "";
+
+			// Reformat document
+			document.title = (document.querySelectorAll("h1")[0]?.innerText || "") + " | " + config.name || "";
+			document.querySelectorAll("#content input[type=checkbox]").forEach((checkbox) => {
+				checkbox.disabled = "";
+				checkbox.parentElement.parentElement.classList.add("checklist");
+			});
+			if (config.browserRouter)
+				document.querySelectorAll("a").forEach((a) => {
+					const href = a.getAttribute("href");
+					if (!/^[a-z]*:\/\/*\b/.test(href))
+						a.onclick = (event) => {
+							event.preventDefault();
+							window.history.pushState({}, window.title, href);
+							loadContent();
+						};
+				});
+			if (selector) document.getElementById(selector)?.scrollIntoView()
+
+			document.body.classList.add("loaded");
+			if (!config.browserRouter) window.location.replace(config.sitePath + path);
+		} catch (err) {
+			if ((config.browserRouter && window.location.pathname != config.sitePath) || (!config.browserRouter && window.location.hash != config.sitePath)) {
+				location.replace(config.sitePath);
+			}
+		}
+	};
+
+	const loadFooter = async (element) => {
+		const html = await renderMD(element);
+		if (!html) return;
+		let div = document.createElement("div");
+		div.innerHTML = html;
+		div.id = element.replaceAll("/", "-");
+		footersDiv.prepend(div);
+	};
+
+	window.onload = async () => {
+		await Promise.all((config.components || []).map((component) => loadComponent(component)));
+		await loadContent();
+		await Promise.all((config.footers || []).map((footer) => loadFooter(footer)));
+	};
+	window.onhashchange = loadContent;
+	if (config.browserRouter) window.onpopstate = loadContent;
+</script>
+
+</html>
