@@ -24,7 +24,6 @@ transparently, based on the availability of the backends (frontends).
 
 * Console mode:
   * dialog
-  * cdialog
 * Graphical mode:
   * yad
   * gtkdialog

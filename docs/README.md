@@ -147,7 +147,6 @@ transparently, based on the availability of the widget backends (frontends).
 
 * Console mode:
   * dialog
-  * cdialog
   * whiptail (not selectable, just fall back)
 * Graphical mode:
   * yad
@@ -163,12 +162,12 @@ If there is no dialog/cdialog support installed. Check next section about `super
 The backends for frontends (the widgets to use to display boxes) are selectable 
 by the `supermode` environment variable.
 
-The `supermode` environment variable its only used to force or manually select 
-an specific widget , by example using `kdialog` under GTK desktop, or by example 
-using `zenity` under KDE environment. Also when EBG fails to detect widget usage!
+The `supermode` environment variable is only used to force or manually select 
+a specific widget , by example using `kdialog` under GTK desktop, or by example 
+using `zenity` under KDE environment. 
 
 There is no `whiptail` mode because is used only as fallback! when dialog/cdialog 
-is missing, simply just use `supermode=dialog` for!
+is missing, if whiptail is present, just use `supermode=dialog` for!
 
 #### System wide usage vs module user usage
 
@@ -290,7 +289,7 @@ box with confirmation.
 ```bash
 source easybashgui
 
-question "Do you like Contry music ?"
+question "Do you like Country music ?"
 answer="${?}"
 if [ ${answer} -eq 0 ]
 	then
@@ -385,7 +384,8 @@ You can piped the progress count to a text of a box:
 ```bash
 source easybashgui
 
-for i in 10 20 30 40 50 60 70 80 90 100 do
+for i in 10 20 30 40 50 60 70 80 90 100
+    do
     echo "${i}"
     sleep 1
 done | progress "This is a test progress..."
@@ -425,7 +425,7 @@ choice_list="$(0< "${dir_tmp}/${file_tmp}" )"
 IFS=$'\n' ; choice_array=( $(0< "${dir_tmp}/${file_tmp}" ) ) ; IFS=$' \t\n'
 ```
 
-#### A more complex example
+#### A more complex example: progress bar by steps
 
 ```bash
 source easybashgui
@@ -626,9 +626,7 @@ percent position is read from STDIN, the number can be piped or parsed from:
     * exit code: 0 unless its canceled externally, will be anything
 
 ``` bash
-progress "[text]" <<< 20
-progress "[text]" <<< 60
-progress "[text]" <<< 90
+(echo "10" ; sleep 1 ; echo "50" ; sleep 1 ; echo "100" ; sleep 1 ) | progress "Percent..."
 ```
 
 * To create a progress sequence you must have several statements with different 
@@ -652,12 +650,7 @@ from the STDIN to the function to indicate to fil the progress bar in the box:
     * exit code: 0 unless its canceled externally, will be anything
 
 ``` bash
-progress "<text>" n <<< PROGRESS
-progress "<text>" n-1 <<< PROGRESS
-...
-progress "<text>" 3 <<< PROGRESS
-progress "<text>" 2 <<< PROGRESS
-progress "<text>" 1 <<< PROGRESS
+(echo "PROGRESS" ; sleep 1 ; echo "PROGRESS" ; sleep 1 ) | progress "Steps..." 2
 ```
 
 #### wait_for
@@ -917,7 +910,9 @@ notify_message [-i "<icon>"] "[text]"
 
 #### notify_change
 
-Like "message" but now as desktop systray notification to display:
+This function is used to change the desktop systray notification from a state (say "good" )
+to the other state (say: "bad" ) set previously by notify() function (see below ); 
+moreover, you can optionally change on-the-fly even the systray icon and tooltip:
 
 * ARGUMENTS:
     * icon : optional , picture to show in the box aside

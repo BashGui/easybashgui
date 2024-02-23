@@ -35,7 +35,7 @@
 #####################################
 #####################################
 #
-LIB_VERSION="12.0.5"
+LIB_VERSION="12.0.6"
 LIB_NAME="easybashgui.lib"
 LIB_URL="https://github.com/BashGui/easybashgui"
 LIB_AUTHOR="Vittorio Cagnetta"
@@ -7922,7 +7922,6 @@ elif [ "${mode}" = "dialog" ]
 		init_value_percent_float=$(echo "scale=2; $(( ${init_value} - ${start_value} )) / ${step}" | bc -l )
 		init_value_percent=$(arrotonda "${init_value_percent_float}" )
 		#
-		#
 		dim=10
 		#
 		{
@@ -7934,18 +7933,16 @@ elif [ "${mode}" = "dialog" ]
 		#
 		exit_success=0
 		value_percent=${init_value_percent} && echo ${value_percent}
-		#echo "INIZIO" 1> /home/cagnettav/Desktop/prova-adj.txt
+		#
 		while :
 			do
 			read -n 3 -s key
 			#
-			#echo "---${key}---" 1>> /home/cagnettav/Desktop/prova-adj.txt
-			#
 			case ${exit_success} in 
 				"$(echo -n "${key}" | grep -E "(${up_with_X}|${up_without_X}|${right_with_X}|${right_without_X})" &> /dev/null; echo ${?} )" ) 
-					value_percent=$(( ${value_percent} + 1 )) ;;
+					[ ${value_percent} -lt 100 ] && ((value_percent+=1)) ;;
 				"$(echo -n "${key}" | grep -E "(${down_with_X}|${down_without_X}|${left_with_X}|${left_without_X})" &> /dev/null; echo ${?} )" )
-					value_percent=$(( ${value_percent} - 1 )) ;;
+					[ ${value_percent} -gt 0 ] && ((value_percent-=1)) ;;
 				* )
 					if [[ ${key} =~ .*A.* ]]
 						then
@@ -7959,7 +7956,6 @@ elif [ "${mode}" = "dialog" ]
 					elif [[ ${key} =~ .*D.* ]]
 						then
 						value_percent=$(( ${value_percent} - 1 ))
-						#
 					elif [[ ${key} =~ .*O.* ]]
 						then
 						continue 1
@@ -7980,11 +7976,11 @@ elif [ "${mode}" = "dialog" ]
 		} | \
 		\
 		${dialogo} --title "${supertitle:-EasyBashGUI}: adjust (use arrow keys)" ${progress} "${testo}" "${dim}" "${dimensione_finestra_2}" $(if [ "${dialogo}" = "whiptail --fb" ] ; then echo "${init_value_percent}"; fi )
-		#exit_if_user_closes_window
+		#
 		exit_code="${?}"
 		uscita="${exit_code}"
 		#
-		reset
+		reset -Q
 		#
 		if [ ${uscita} -eq 0 ]
 			then
@@ -8023,20 +8019,11 @@ elif [ "${mode}" = "dialog" ]
 				exit 255
 				#
 			else
-				if [ "${dialogo}" = "zenity" -a ${uscita} -eq 5 ]
-					then
-					# Non far niente: sembra un codice di uscita di zenity legato ai temi...
-					:
-					#
-				else
-					#
-					#
-					alert_message ":( ...Something went wrong..."
-					echo -e "\n:( ...Something went wrong..." 1>&2
-					#
-					exit 1
-					#
-				fi
+				#
+				alert_message ":( ...Something went wrong..."
+				echo -e "\n:( ...Something went wrong..." 1>&2
+				#
+				exit 1
 				#
 			fi
 			#
@@ -8053,4 +8040,4 @@ fi
 ##
 #
 [ "${easybashgui_debug_mode}" = "YES" ] && echo "[lib SOURCED]"
-[ "${easybashgui_debug_mode}" = "NO" ] && : #This is user for getting exit code = 0 :-)
+[ "${easybashgui_debug_mode}" = "NO" ] && : #This is used to get exit code = 0   :-)
