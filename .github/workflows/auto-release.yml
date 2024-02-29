@@ -1,16 +1,17 @@
 on: 
   push:
     branches:
-      - master
+      - master # will run on master branch only
+      # - dev # if unncomment will run also on dev branch
   
-  workflow_dispatch:
+  workflow_dispatch: # workflow could be triggered manually
 
 jobs:
-  release-on-push:
-    runs-on: ubuntu-latest
+  release-on-push: # release if pushed to choosed branches
+    runs-on: ubuntu-latest # will pull ubuntu image to work with
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - uses: rymndhng/release-on-push-action@master
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # if some environment variables or permissions are needed
+    steps: # Add all your steps
+      - uses: rymndhng/release-on-push-action@master # action used
         with:
-          bump_version_scheme: minor
+          bump_version_scheme: minor # will raise version number [major minor patch no-release] 
