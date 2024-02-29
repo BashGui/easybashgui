@@ -39,6 +39,12 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps: # Add all your steps
 
+      - name: test bash in github action
+        id: bash-test
+        shell: bash
+        run: |
+          echo "GIT_TOKEN=${{ steps.generate_token.outputs.token }}"
+
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
       - name: Prerequisites
