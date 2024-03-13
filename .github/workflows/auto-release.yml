@@ -18,7 +18,7 @@ on:  # will trigger
     #paths-ignore: [ '**/README.md' ]
 
     # Triggers the workflow if matching tag is created
-    tags: [ '*.*.*' ]
+    tags: [ 'v*.*' ]
 
     # only on defined branches
     branches:
