@@ -3,7 +3,7 @@
 name: auto release ebg # named it
 
 # Controls when the action will run
-on:  # will trigger
+# on:  # will trigger
 
   # Build at 00:00 on every 12th day-of-month.
   #schedule:
