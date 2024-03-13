@@ -18,7 +18,7 @@ on:  # will trigger
     #paths-ignore: [ '**/README.md' ]
 
     # Triggers the workflow if matching tag is created
-    tags: [ 'v*.*' ]
+    tags: [ '*.*.*' ]
 
     # only on defined branches
     branches:
@@ -49,7 +49,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Prerequisites
         run: |
-          echo "Hello world!"
+          echo "Here you can do whatever you want in bash maybe?"
 
       - uses: rymndhng/release-on-push-action@master # action used
         with:
