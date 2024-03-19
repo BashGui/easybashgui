@@ -35,7 +35,7 @@
 #####################################
 #####################################
 #
-LIB_VERSION="12.0.6"
+LIB_VERSION="13.0.0"
 LIB_NAME="easybashgui.lib"
 LIB_URL="https://github.com/BashGui/easybashgui"
 LIB_AUTHOR="Vittorio Cagnetta"
@@ -139,7 +139,7 @@ fi
 ##
 #
 # Set it if you want _force_ easybashgui mode :
-#supermode="" # <= 5 options: "auto" "gtkdialog" "kdialog", "zenity", "Xdialog", "dialog"
+#supermode="" # <= 8 options: "auto", "yad", "gtkdialog", "kdialog", "zenity", "Xdialog", "gum", "dialog"
 : supermode
 #
 ##
@@ -151,7 +151,7 @@ string_to_clean=':1: error: unexpected .*, expected .* - e.g. .*'
 #
 #####################################
 #
-# ... yad, gtkdialog, kdialog, zenity, Xdialog, or dialog ???
+# ... yad, gtkdialog, kdialog, zenity, Xdialog, gum or dialog ???
 #
 ################
 #
@@ -318,6 +318,13 @@ if [ ${#esistenza_Xdialog} -gt 0 ]
 	Xdialog="SI"
 fi
 #
+gum="NO"
+esistenza_gum="$(type "gum" 2> /dev/null)"
+if [ ${#esistenza_gum} -gt 0 ]
+	then
+	gum="SI"
+fi
+#
 dialog="NO"
 esistenza_dialog="$(type "dialog" 2> /dev/null)"
 if [ ${#esistenza_dialog} -gt 0 ]
@@ -334,7 +341,7 @@ fi
 #
 ################
 #
-if [ "${kdialog}" = "NO" -a "${zenity}" = "NO" -a "${Xdialog}" = "NO" -a "${dialog}" = "NO" -a "${whiptail}" = "NO" ]
+if [ "${kdialog}" = "NO" -a "${zenity}" = "NO" -a "${Xdialog}" = "NO" -a "${gum}" = "NO" -a "${dialog}" = "NO" -a "${whiptail}" = "NO" ]
 	then
 	export eb_gui_fallback="true"
 else
@@ -503,6 +510,29 @@ fi
 #
 ###############
 #
+if [ "${gum}" = "SI" ]
+	then
+	#
+	if [ "${mode}" = "dialog" ] # ...if user has "gum" installed, then he preferes it instead of "dialog"...
+		then
+		# ...only if DISPLAY var is set...
+		if [ ${#DISPLAY} -gt 0 ]
+			then
+			# ;)
+			mode="gum"
+			#
+		else
+			# :/
+			mode="dialog"
+			#
+		fi
+		#
+	fi
+	#
+fi
+#
+###############
+#
 export notify_send_seconds=4
 #
 export notify_icon_default="gtk-execute"
@@ -532,7 +562,7 @@ else
 		"auto" )
 			:;;
 		#
-		"yad"|"gtkdialog"|"kdialog"|"zenity"|"Xdialog"|"dialog" )
+		"yad"|"gtkdialog"|"kdialog"|"zenity"|"Xdialog"|"gum"|"dialog" )
 			[ "${easybashgui_debug_mode}" = "YES" ] && echo -e "\n${LIB_NAME}: Var. \${mode} forced to: \"${supermode}\" ." ; mode="${supermode}" ;;
 		#
 		"none" )
@@ -631,6 +661,11 @@ elif [ "${mode}" = "Xdialog" ]
 	progress="--progress"
 	#
 	dialogo="Xdialog"
+	#
+elif [ "${mode}" = "gum" ]
+	then
+	#
+	:
 	#
 elif [ "${mode}" = "dialog" ]
 	then
@@ -1038,7 +1073,7 @@ if [ "${yad}" = "SI" ]
 	#
 	# notify_change <-i "[new_icon]"> <-t "[new_tooltip]"> "[good|bad]" 
 	#
-    notify_change()
+	notify_change()
 		{
 		local FUNCT_NAME="notify_change"
 		local IFS=$' \t\n'
@@ -1099,7 +1134,47 @@ if [ "${yad}" = "SI" ]
 	#
 fi #if [ "${yad}" = "SI" ]
 # notify(), notify_change()
+#
 ##
+#
+if [ "${mode}" = "gum" ]
+	then
+	translate_gum_color()
+		{
+		color_text="${1}"
+		#
+		[ "${color_text}" = "red" ] && echo 1 && return
+		[ "${color_text}" = "green" ] && echo 2 && return
+		[ "${color_text}" = "purple" ] && echo 5 && return
+		[ "${color_text}" = "yellow" ] && echo 11 && return
+		[ "${color_text}" = "blue" ] && echo 57 && return
+		#
+		}
+	#
+	frame()
+		{
+		echo
+		color_text="${1}"
+		color_number=$(translate_gum_color "${color_text}" )
+		shift
+		#
+		if [ ${#} -eq 0 ]
+			then
+			gum style --height 1 --width 50 --padding '1 3' --border double --border-foreground ${color_number} "${supertitle:-EasyBashGUI}: ${FUNCT_NAME}"
+		else
+			gum style --height 1 --width 50 --padding '1 3' --border double --border-foreground ${color_number} "${supertitle:-EasyBashGUI}: ${@}"
+		fi
+		}
+	#
+	bare_msg()
+		{
+		color_text="${1}"
+		color_number=$(translate_gum_color "${color_text}" )
+		shift
+		gum style --height 7 --width 50 --padding '1 3' --border double --border-foreground ${color_number} "$(echo -e "${@}" )"
+		}
+fi #if [ "${mode}" = "gum" ]
+## translate_gum_color(), frame(), bare_msg()
 #
 # question()
 errexit_option="NO"
@@ -1334,6 +1409,45 @@ elif [ "${mode}" = "zenity" ]
 		return "${exit_code}"
 		#
 		}
+elif [ "${mode}" = "gum" ]
+	then
+	question()
+		{
+		local FUNCT_NAME="question"
+		local IFS=$' \t\n'
+		local widget_color="purple"
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		testo="${@}"
+		#
+		#########################################
+		#
+		frame "${widget_color}" "please confirm"
+		gum confirm --affirmative="Ok" --negative="Cancel" "$(echo -e "${testo}" )"
+		exit_code="${?}"
+		echo
+		#########################################
+		#
+		echo "${exit_code}" 1>&2
+		return "${exit_code}"
+		#
+		}
 else
 	question()
 		{
@@ -1398,7 +1512,7 @@ fi
 #
 ##
 # notify_message()
-[ "${mode}" = "dialog" ] && export notify_send="NO"
+[ "${mode}" = "gum" -o "${mode}" = "dialog" ] && export notify_send="NO"
 # notify_message <-i [icon]> "text"
 if [ "${notify_send}" = "SI" ]
 	then
@@ -1442,57 +1556,99 @@ elif [ "${notify_send}" = "NO" ]
 		terminate_wait_for
 		}
 	#
-	notify_message()
-		{
-		local FUNCT_NAME="notify_message"
-		local IFS=$' \t\n'
-		#
-		unset notify_message_icon
-		#
-		unset OPTIND
-		while getopts ":i:" notify_change_function_options
-			do
-			case ${notify_change_function_options} in
-				#
-				i	) export notify_message_icon="${OPTARG}" ;;
-				#
-			esac
-		done
-		shift $((OPTIND-1))
-		#
-		##############################
-		#
-		export notify_message_text="${@}"
-		#
-		##############################
-		#
-		[ ${#notify_message_icon} -gt 0 ] && : || notify_message_icon="${notify_icon_default}"
-		#
-		if [ "${mode}" = "dialog" ]
-			then
+	if [ "${mode}" = "gum" ]
+		then
+		notify_message()
+			{
+			local FUNCT_NAME="notify_message"
+			local IFS=$' \t\n'
+			local widget_color="yellow"
 			#
-			wait_for "\n${notify_message_text}"
-			sleep ${notify_send_seconds}
-			terminate_wait_for
+			#########################################
+			# Begin check for user custom geometry...
+			while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+				do
+				w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+						then
+						echo "width"
+					elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+						then
+						echo "height"
+					fi )"
+				parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+				reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+			done
+			# End check for user custom geometry...
+			#########################################
 			#
-		elif [ "${mode}" != "dialog" ]
-			then
-			if [ "${kdialog}" = 'SI' ]
+			num_secondi=4
+			testo="${@}"
+			#
+			#########################################
+			frame "${widget_color}" "notification"
+			#bare_msg "${widget_color}"  "${testo}"
+			echo -e "############################\n############################\n\n"
+			gum spin -s pulse --title "$(echo -e "${testo}" )" -- sleep ${num_secondi}
+			echo -e "${testo}"
+			echo -e "\n\n############################\n############################"
+			#
+			echo
+			#########################################
+			#
+			}
+	else
+		notify_message()
+			{
+			local FUNCT_NAME="notify_message"
+			local IFS=$' \t\n'
+			#
+			unset notify_message_icon
+			#
+			unset OPTIND
+			while getopts ":i:" notify_change_function_options
+				do
+				case ${notify_change_function_options} in
+					#
+					i	) export notify_message_icon="${OPTARG}" ;;
+					#
+				esac
+			done
+			shift $((OPTIND-1))
+			#
+			##############################
+			#
+			export notify_message_text="${@}"
+			#
+			##############################
+			#
+			[ ${#notify_message_icon} -gt 0 ] && : || notify_message_icon="${notify_icon_default}"
+			#
+			if [ "${mode}" = "dialog" ]
 				then
 				#
-				:
-				kdialog --icon "${notify_message_icon}" --passivepopup "${supertitle:-EasyBashGUI}:\n\n${notify_message_text}" ${notify_send_seconds}
+				wait_for "\n${notify_message_text}"
+				sleep ${notify_send_seconds}
+				terminate_wait_for
 				#
-			else
-				#
-				:
-				notify_message_alt &
+			elif [ "${mode}" != "dialog" ]
+				then
+				if [ "${kdialog}" = 'SI' ]
+					then
+					#
+					:
+					kdialog --icon "${notify_message_icon}" --passivepopup "${supertitle:-EasyBashGUI}:\n\n${notify_message_text}" ${notify_send_seconds}
+					#
+				else
+					#
+					:
+					notify_message_alt &
+					#
+				fi
 				#
 			fi
 			#
-		fi
-		#
-		}
+			}
+	fi #if [ "${mode}" = "gum" ]
 	#
 fi # if [ "${notify_send}" = "SI" ]
 # notify_message()
@@ -1722,6 +1878,55 @@ elif [ "${mode}" = "Xdialog" ]
 		#${dialogo} --title "${supertitle:-EasyBashGUI}: message" --msgbox "$(echo -e "${testo}" )" "${dimensione_finestra_1}" "${dimensione_finestra_2}" 1> >( clean )
 		${dialogo} --title "${supertitle:-EasyBashGUI}: message" --msgbox "$(echo -e "${testo}" )" "${dimensione_finestra_1}" "${dimensione_finestra_2}" | clean
 		exit_if_user_closes_window
+		#
+		}
+elif [ "${mode}" = "gum" ]
+	then
+	message()
+		{
+		local FUNCT_NAME="message"
+		local IFS=$' \t\n'
+		local widget_color="blue"
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		testo="${@}"
+		#
+		#########################################
+		#
+		frame "${widget_color}"
+		bare_msg "${widget_color}" "${testo}"
+		#
+		select okcancel in "Ok" 
+			do
+			if [ ${#okcancel} -eq 0 ]
+				then
+				echo -e "\n\nErr.: Incorrect selection, please select only number."
+				frame "${widget_color}"
+				bare_msg "${widget_color}" "${testo}"
+				echo "1) Ok"
+			else
+				break
+			fi
+		done
+		#
+		echo
+		#########################################
 		#
 		}
 elif [ "${mode}" = "dialog" ]
@@ -1988,6 +2193,55 @@ elif [ "${mode}" = "Xdialog" ]
 		#${dialogo} --title "${supertitle:-EasyBashGUI}: alert message" ${icona_Attenzione} --msgbox "$(echo -e "${testo}" )" "${dimensione_finestra_1}" "${dimensione_finestra_2}" 1> >( clean )
 		${dialogo} --title "${supertitle:-EasyBashGUI}: alert message" ${icona_Attenzione} --msgbox "$(echo -e "${testo}" )" "${dimensione_finestra_1}" "${dimensione_finestra_2}" | clean
 		exit_if_user_closes_window
+		#
+		}
+elif [ "${mode}" = "gum" ]
+	then
+	alert_message()
+		{
+		local FUNCT_NAME="alert_message"
+		local IFS=$' \t\n'
+		local widget_color="red"
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		testo="${@}"
+		#
+		#########################################
+		#
+		frame "${widget_color}" "alert message"
+		bare_msg "${widget_color}"  ":-(\n${testo}"
+		#
+		select okcancel in "Ok" 
+			do
+			if [ ${#okcancel} -eq 0 ]
+				then
+				echo -e "\n\nErr.: Incorrect selection, please select only number."
+				frame "${widget_color}"
+				bare_msg "${widget_color}" "${testo}"
+				echo "1) Ok"
+			else
+				break
+			fi
+		done
+		#
+		echo
+		#########################################
 		#
 		}
 elif [ "${mode}" = "dialog" ]
@@ -2260,6 +2514,55 @@ elif [ "${mode}" = "Xdialog" ]
 		#
 		}
 	#
+elif [ "${mode}" = "gum" ]
+	then
+	ok_message()
+		{
+		local FUNCT_NAME="ok_message"
+		local IFS=$' \t\n'
+		local widget_color="green"
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		testo="${@}"
+		#
+		#########################################
+		#
+		frame "${widget_color}" "ok message"
+		bare_msg "${widget_color}"  ":-)\n${testo}"
+		#
+		select okcancel in "Ok" 
+			do
+			if [ ${#okcancel} -eq 0 ]
+				then
+				echo -e "\n\nErr.: Incorrect selection, please select only number."
+				frame "${widget_color}"
+				bare_msg "${widget_color}" ":-)\n${testo}"
+				echo "1) Ok"
+			else
+				break
+			fi
+		done
+		#
+		echo
+		#########################################
+		#
+		}
 elif [ "${mode}" = "dialog" ]
 	then
 	ok_message()
@@ -2680,6 +2983,81 @@ elif [ "${mode}" = "Xdialog" ]
 		OUT_STDERR="$(0< "${file}" )"
 		echo "${OUT_STDERR}" 1>&2
 		}
+elif [ "${mode}" = "gum" ]
+	then
+	text()
+		{
+		local FUNCT_NAME="text"
+		local IFS=$' \t\n'
+		local editable="--editable"
+		local window_title="editing text"
+		local widget_color="purple"
+		#
+		#########################################
+		# Begin check for text options...
+		while getopts ":w:h:F" function_option
+			do
+			case ${function_option} in
+				#
+				w	) : ;;
+				h	) : ;;
+				F	) editable="" ; widget_color="blue"; window_title="(not) editable text" ; F_param_number=$(($OPTIND - 1)) ;;
+				#
+			esac
+		done
+		#
+		if [ ${#editable} -eq 0 ]
+			then
+			array_parameters=( $@ )
+			F_param_array_number=$(( ${F_param_number} - 1 ))
+			#echo "devo eliminare array_parameters[${F_param_array_number}]: ${array_parameters[${F_param_array_number}]} ..." 2>/dev/null
+			unset array_parameters[${F_param_array_number}]
+			#echo "ora i parametri sono: \"${array_parameters[@]}\" ..." 2>/dev/null
+			set -- "${array_parameters[@]}"
+		fi
+		# End check for text options...
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		file_input="${dir_tmp}/${file_ignore}"
+		#
+		cat - 1> "${file_input}"
+		#
+		#########################################
+		#
+		if [ ${#editable} -gt 0 ]
+			then
+			#
+			frame "${widget_color}" "$(echo -e "${window_title}\n(CTRL+D to finish)" )" && echo
+			file_input_content="$(0< "${file_input}" )"
+			file_input_lines=$(echo -e "${file_input_content}" | wc -l | tr -dc [[:digit:]] );  [ ${file_input_lines} -le 7 ] && gum_write_lines=7 || gum_write_lines=${file_input_lines}
+			echo -e "${file_input_content}" | gum write --height=${file_input_lines} --width=100 --char-limit=0 --placeholder "(CTRL+D to finish)" | tee "${dir_tmp}/${file_tmp}" | cat - 1>&2
+			#
+		elif [ ${#editable} -eq 0 ]
+			then
+			#
+			gum pager --soft-wrap --border-foreground="$(translate_gum_color "${widget_color}" )" 0< "${file_input}"
+			#
+		fi
+		#
+		echo
+		#########################################
+		#
+		}
 elif [ "${mode}" = "dialog" ]
 	then
 	text()
@@ -2994,6 +3372,45 @@ elif [ "${mode}" = "Xdialog" ]
 		exit_if_user_closes_window
 		#
 		}
+elif [ "${mode}" = "gum" ]
+	then
+	wait_seconds()
+		{
+		local FUNCT_NAME="wait_seconds"
+		local IFS=$' \t\n'
+		local widget_color="yellow"
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		num_secondi=${1}
+		testo="\tPlease wait..."
+		#
+		#########################################
+		frame "${widget_color}" "please wait"
+		#
+		echo -e "############################\n############################\n\n"
+		gum spin -s pulse --title "$(echo -e "${testo}" )" -- sleep ${num_secondi}
+		#echo -e "\n\n############################\n############################"
+		#
+		echo
+		#########################################
+		#
+		}
 elif [ "${mode}" = "dialog" ]
 	then
 	wait_seconds()
@@ -3297,6 +3714,57 @@ elif [ "${mode}" = "Xdialog" ]
 		#
 		OUT_STDERR="${wait_for__PID}"
 		echo "${OUT_STDERR}" 1>&2
+		#
+		}
+elif [ "${mode}" = "gum" ]
+	then
+	wait_for()
+		{
+		local FUNCT_NAME="wait_for"
+		local IFS=$' \t\n'
+		local widget_color="yellow"
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		num_secondi=1972
+		testo="${@}"
+		#
+		#########################################
+		frame "${widget_color}" "please wait"
+		#
+		echo -e "############################\n############################\n\n"
+		#gum spin -s pulse --title "$(echo -e "${testo}" )" -- sleep ${num_secondi} &
+		echo -en "      ${testo}\r"
+		#
+		#Thank you Tom Hale (from https://superuser.com/questions/305933/preventing-bash-from-displaying-done-when-a-background-command-finishes-execut ) :
+		silent_background() 
+			{
+			{ 2>&3 "$@"& } 3>&2 2>-
+			disown &>/dev/null  # Close STD{OUT,ERR} for silence if job has already completed
+			}
+		silent_background sleep ${num_secondi} 
+		#
+		#echo -e "\n\n############################\n############################"
+		#
+		export wait_for__PID="${!}"
+		#
+		#echo
+		#########################################
 		#
 		}
 elif [ "${mode}" = "dialog" ]
@@ -3620,6 +4088,49 @@ elif [ "${mode}" = "Xdialog" ]
 		#
 		OUT_STDERR="$(0< "${dir_tmp}/${file_tmp}" )"
 		echo "${OUT_STDERR}" 1>&2
+		#
+		}
+elif [ "${mode}" = "gum" ]
+	then
+	fselect()
+		{
+		local FUNCT_NAME="fselect"
+		local IFS=$' \t\n'
+		local widget_color="purple"
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		if [ ${#} -gt 0 ]
+			then
+			dir="${1}"
+		else
+			dir="${HOME}/"
+		fi
+		#
+		#########################################
+		frame "${widget_color}" "file select"
+		#
+		gum file --all --file "${dir}" 1> "${dir_tmp}/${file_tmp}" 
+		#
+		echo
+		#########################################
+		#
+		cat "${dir_tmp}/${file_tmp}" 1>&2
 		#
 		}
 elif [ "${mode}" = "dialog" ]
@@ -3991,6 +4502,49 @@ elif [ "${mode}" = "Xdialog" ]
 		#
 		OUT_STDERR="$(0< "${dir_tmp}/${file_tmp}" )"
 		echo "${OUT_STDERR}" 1>&2
+		#
+		}
+elif [ "${mode}" = "gum" ]
+	then
+	dselect()
+		{
+		local FUNCT_NAME="dselect"
+		local IFS=$' \t\n'
+		local widget_color="purple"
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		if [ ${#} -gt 0 ]
+			then
+			dir="${1}"
+		else
+			dir="${HOME}/"
+		fi
+		#
+		#########################################
+		frame "${widget_color}" "dir select"
+		#
+		gum file --all --directory --file.faint "${dir}" 1> "${dir_tmp}/${file_tmp}" 
+		#
+		echo
+		#########################################
+		#
+		cat "${dir_tmp}/${file_tmp}" 1>&2
 		#
 		}
 elif [ "${mode}" = "dialog" ]
@@ -4612,6 +5166,53 @@ elif [ "${mode}" = "Xdialog" ]
 		#
 		OUT_STDERR="$(0< "${dir_tmp}/${file_tmp}" )"
 		echo "${OUT_STDERR}" 1>&2
+		#
+		}
+elif [ "${mode}" = "gum" ]
+	then
+	menu()
+		{
+		local FUNCT_NAME="menu"
+		local IFS=$' \t\n'
+		local widget_color="purple"
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		unset args
+		local IFS=$'\n'
+			threshold=${#}
+			args=( $(for (( num=1 ; num <= ${threshold} ; num++ ))
+						do
+						echo "${1}"
+						shift
+					done) )
+		local IFS=$' \t\n'
+		: args[@]
+		#
+		#########################################
+		frame "${widget_color}"
+		#
+		eval gum choose --limit=1 $(for ((index=0; index < ${#args[@]} ; index++)) ; do item_to_output="${args[${index}]}" ; echo -en "\"${item_to_output}\" " ; done) 1> "${dir_tmp}/${file_tmp}"
+		#
+		echo
+		#########################################
+		#
+		cat "${dir_tmp}/${file_tmp}" 1>&2
 		#
 		}
 elif [ "${mode}" = "dialog" ]
@@ -5290,6 +5891,74 @@ elif [ "${mode}" = "Xdialog" ]
 		echo "${OUT_STDERR}" 1>&2
 		#
 		}
+elif [ "${mode}" = "gum" ]
+	then
+	tagged_menu()
+		{
+		local FUNCT_NAME="tagged_menu"
+		local IFS=$' \t\n'
+		local widget_color="purple"
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		unset tagged_tags
+		unset tagged_args
+		local IFS=$'\n'
+			threshold=${#}
+			for (( num=1,array_index=0 ; num <= ${threshold} ; num++,num++,array_index++ ))
+				do
+				tagged_args[${array_index}]="${1}"
+				tagged_tags[${array_index}]="${2}"
+				#
+				shift ; shift
+			done
+		local IFS=$' \t\n'
+		: tagged_args[@]
+		: tagged_tags[@]
+		#
+		#########################################
+		#
+		tags_list="$(for (( tags_list_index=0; tags_list_index < ${#tagged_tags[@]} ; tags_list_index++ ))
+						do
+						progressive_tag="${tagged_tags[${tags_list_index}]}"
+						echo "${progressive_tag}"
+					done )"
+		args_and_tags_list="$(for (( args_and_tags_list_index=0; args_and_tags_list_index < ${#tagged_args[@]} ; args_and_tags_list_index++ ))
+								do
+								progressive_arg="${tagged_args[${args_and_tags_list_index}]}"
+								progressive_tag="${tagged_tags[${args_and_tags_list_index}]}"
+								echo "${progressive_arg}EBG_TAGGEDMENU-DELIMITER_EBG${progressive_tag}EBG_TAGGEDMENU-ENDLINE_EBG"
+							done )"
+		#
+		#########################################
+		frame "${widget_color}" "tagged menu"
+		#
+		selected_tag="$(echo "${tags_list}" | gum choose --limit=1 )"
+		selected_arg="$(echo "${args_and_tags_list}" | fgrep "EBG_TAGGEDMENU-DELIMITER_EBG${selected_tag}EBG_TAGGEDMENU-ENDLINE_EBG" | gsed s\#'^\(.*\)EBG_TAGGEDMENU-DELIMITER_EBG\(.*\)EBG_TAGGEDMENU-ENDLINE_EBG$'#'\1'# | head -n 1 )"
+		#
+		echo "${selected_arg}" 1> "${dir_tmp}/${file_tmp}"
+		#
+		echo
+		#########################################
+		#
+		cat "${dir_tmp}/${file_tmp}" 1>&2
+		#
+		}
 elif [ "${mode}" = "dialog" ]
 	then
 	tagged_menu()
@@ -5917,6 +6586,91 @@ elif [ "${mode}" = "Xdialog" ]
 		[ ${#exit_code} -gt 0 ] && return "${exit_code}"
 		#
 		}
+elif [ "${mode}" = "gum" ]
+	then
+	list()
+		{
+		local FUNCT_NAME="list"
+		local IFS=$' \t\n'
+		local widget_color="purple"
+		#
+		: 1> "${dir_tmp}/${file_tmp}"
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		local IFS=$'\n'
+			threshold=${#}
+			args=( $(for (( num=1 ; num <= ${threshold} ; num++ ))
+						do
+						echo "${1}"
+						shift
+					done)  )
+		local IFS=$' \t\n'
+		: args[@]
+		#
+		for (( index=0 ; index < ${#args[@]} ; index++ ))
+			do
+			#
+			arg_prog="${args[${index}]}"
+			first_char="${arg_prog:0:1}"
+			#
+			if [ "${first_char}" = "+" ]
+				then
+				arg="${arg_prog:1}"
+				#
+				echo -e "${arg}" 1>> "${dir_tmp}/${file_tmp}"
+				#
+			else
+				#
+				if [ "${first_char}" = "-" ]
+					then
+					arg="${arg_prog:1}"
+				else
+					arg="${arg_prog}"
+				fi
+				#
+			fi #if [ "${first_char}" = "+" ]
+			#
+			args[${index}]="${arg}"
+			#
+		done
+		#
+		local IFS=$'\n'
+			array_selected_items=( $(0< "${dir_tmp}/${file_tmp}" ) )
+		local IFS=$' \t\n'
+		first_selected_items="${array_selected_items[0]}"
+		#
+		#########################################
+		frame "${widget_color}"
+		#
+		arguments="$(for ((index=0; index < ${#args[@]} ; index++)) ; do item_to_output="${args[${index}]}" ; echo -en "\"${item_to_output}\" " ; done )"
+		selected_arguments="$(echo -en "\"${first_selected_items}\""; for ((selected_items_index=1; selected_items_index < ${#array_selected_items[@]} ; selected_items_index++)) ; do selected_item_to_output="${array_selected_items[${selected_items_index}]}" ; echo -en ",\"${selected_item_to_output}\"" ; done )"
+		#
+		user_list_choice="$(eval gum choose --cursor-prefix \"[  ]\" --selected-prefix \"[✓] \" --unselected-prefix \"[ ] \" --no-limit --selected=${selected_arguments} ${arguments} )"
+		#
+		echo "${user_list_choice}" 1> "${dir_tmp}/${file_tmp}"
+		#
+		echo
+		#########################################
+		#
+		cat "${dir_tmp}/${file_tmp}" 1>&2
+		#
+		}
 elif [ "${mode}" = "dialog" ]
 	then
 	list()
@@ -6463,6 +7217,91 @@ elif [ "${mode}" = "Xdialog" ]
 		fi #if [ "${scelta}" = "$(0< "${dir_tmp}/${file_tmp}" )" ]
 		#
 		exit_if_user_closes_window
+		#
+		OUT_STDERR="$(0< "${dir_tmp}/${file_tmp}" )"
+		echo "${OUT_STDERR}" 1>&2
+		#
+		}
+elif [ "${mode}" = "gum" ]
+	then
+	input()
+		{
+		local FUNCT_NAME="input"
+		local IFS=$' \t\n'
+		local widget_color="purple"
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		: 1> "${dir_tmp}/${file_tmp}"
+		#
+		quanti_campi=${1}
+		#
+		shift #...perche' il primo parametro e': "quanti_campi" ...
+		threshold=${#}
+		local IFS=$'\n'
+			args=( $(for (( num=1 ; num <= ${threshold} ; num++ ))
+					do
+					echo "${1}"
+					shift
+				done) )
+		local IFS=$' \t\n'
+		#
+		#########################################
+		frame "${widget_color}"
+		#
+		iteration=0
+		for (( volta=1 ; volta <= $(( ${quanti_campi} * 2 )) ; volta++,volta++ ))
+			do
+			iteration=$(( ${iteration} + 1 ))
+			#
+			testo="${args[$(( ${volta} - 1 ))]}"
+			parametro="${args[${volta}]}"; [ ${#parametro} -eq 0 -a ${quanti_campi} -eq 1 ] && testo="Please, write data ..." && parametro="${args[$(( ${volta} - 1 ))]}"		
+			#
+			#############
+			#
+			echo -e "\n############################"
+			scelta="$(gum input --width=0 --header.foreground="" --header="$(echo -e "${testo}" ):" --value="${parametro}" )"
+			[ ${#scelta} -eq 0 ] && scelta="NULL"
+			echo -e "${iteration}) => ${scelta}\n############################"
+			#
+			printf -v scelta "%q" "${scelta}"
+			echo "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
+			#
+			#############
+			#
+			if [ $(fgrep "${scelta}" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -gt 0 ]
+				then
+				:
+			else
+				question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nContinue ?"
+				if [ "${conferma}" -eq 0 ] #"Confermato"
+					then
+					:
+				elif [ "${conferma}" -eq 1 ] #"Non confermato"
+					then
+					exit
+				fi
+			fi
+			#
+		done
+		#
+		echo
+		#########################################
 		#
 		OUT_STDERR="$(0< "${dir_tmp}/${file_tmp}" )"
 		echo "${OUT_STDERR}" 1>&2
@@ -7126,6 +7965,117 @@ elif [ "${mode}" = "Xdialog" ]
 		\
 		${dialogo} --title "${supertitle:-EasyBashGUI}: progress" --gauge "[Inter-process message #]: <starting> ...\n\n${testo}"  "${dimensione_finestra_1}" "${dimensione_finestra_2}"
 		exit_if_user_closes_window ; unset testo_new
+		#
+		}
+elif [ "${mode}" = "gum" ]
+	then
+	progress()
+		{
+		local FUNCT_NAME="progress"
+		local IFS=$' \t\n'
+		local widget_color="blue"
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		array_symbols=( '|' '|' '/' '-' '\' )
+		#
+		steps=100
+		[ ${#} -eq 0 ] && testo="Progress" || testo="${1}"
+		#
+		if [ ${#} -ge 2 ]
+			then
+			if [ $(echo -n "${2}" | tr -dc '[[:digit:]]' | wc -c ) -eq 0 ]
+				then
+				# Il secondo argomento c'e', ma NON e' formato da cifre numeriche...
+				alert_message "$(basename "${eb_current_process_path}" ): \n second argument \n\n must be an integer..."
+				return
+				#
+			else
+				quanti_sono_gli_elementi=$(echo -n "${2}" | tr -dc '[[:digit:]]' )
+				steps=${quanti_sono_gli_elementi}
+				#
+				if [ ${quanti_sono_gli_elementi} -eq 0 ]
+					then
+					alert_message "$(basename "${eb_current_process_path}" ): \n this progress \n\n \"${testo}\" \n\n has 0 elements..."
+					return
+				fi
+				#
+				percentuale_di_1_elemento_sul_totale_degli_elementi=$(echo "scale=10; 100 / ${quanti_sono_gli_elementi}" | bc -l)
+				if [ $(echo -n "${percentuale_di_1_elemento_sul_totale_degli_elementi}" | cut -d '.' -f 1 | tr -dc '[[:digit:]]' | wc -c) -eq 0 ]
+					then
+					secondo_numero=$(echo -n "${percentuale_di_1_elemento_sul_totale_degli_elementi}" | cut -d '.' -f 2)
+					percentuale_di_1_elemento_sul_totale_degli_elementi="0.${secondo_numero}"
+				fi
+				#
+			fi #if [ $(echo -n "${2}" | tr -dc '[[:digit:]]' | wc -c ) -eq 0 ] # Il secondo argomento c'e', ma NON e' formato da cifre numeriche...
+			#
+		fi #if [ ${#} -ge 2 ]
+		#
+		#########################################
+		frame "${widget_color}"
+		#
+		echo -e "\n############################"
+		echo -e "${testo} :"
+		echo -e "############################"
+			{
+			index=0
+			while read standard_input
+				do
+				if [ "${standard_input}" = "PROGRESS" ]
+					then
+					index=$(( ${index} + 1 ))
+					percentuale=$(echo "scale=10; ${index} * ${percentuale_di_1_elemento_sul_totale_degli_elementi}" | bc -l )
+					[ "X${percentuale%%.*}" = "X" ] && secondo_numero=${percentuale_di_1_elemento_sul_totale_degli_elementi##*.} && percentuale="0.${secondo_numero}"
+					#
+					echo "${percentuale%%.*}"
+					#
+				else
+					#
+					echo "${standard_input%%.*}"
+					#
+				fi
+			done
+			sleep 1 
+			} \
+		| \
+			\
+			{
+			for (( index_symb=0 ; ; index_symb++ ))
+				do
+				read percentuale_to_display
+				if [ ${#percentuale_to_display} -eq 0 ]
+					then
+					break
+				fi
+				#
+				symb="${array_symbols[${index_symb}]}"
+				#
+				echo -en "${percentuale_to_display}% ${symb} \r"
+				#
+				if [ ${index_symb} -eq $(( ${#array_symbols[@]} - 1 )) ]
+					then
+					index_symb="0"
+				fi
+			done
+			}
+		#
+		echo
+		#########################################
 		#
 		}
 elif [ "${mode}" = "dialog" ]
@@ -7874,6 +8824,89 @@ elif [ "${mode}" = "Xdialog" ]
 		fi
 		# End exit code check... 
 		#####################################################
+		#
+		OUT_STDERR="${final_value}"
+		echo "${OUT_STDERR}" 1>&2
+		}
+elif [ "${mode}" = "gum" ]
+	then
+	adjust()
+		{
+		local FUNCT_NAME="adjust"
+		local IFS=$' \t\n'
+		local widget_color="purple"
+		#
+		#########################################
+		# Begin check for user custom geometry...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			do
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+					then
+					echo "width"
+				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+					then
+					echo "height"
+				fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry...
+		#########################################
+		#
+		##
+		#
+		testo="${1-"Please adjust parameter..."}"
+		#
+		start_value=${2-"0"}
+		init_value=${3-"50"}
+		end_value=${4-"100"}
+		#
+		start_value_percent=0
+		end_value_percent=100
+		#
+		num_tot_elementi=$(( ${end_value} - ${start_value} ))
+		diff_values_percent=$(( ${end_value_percent} - ${start_value_percent} ))
+		step=$(echo "scale=2; ${num_tot_elementi} / ${diff_values_percent}" | bc -l )
+		# =>
+		init_value_percent_float=$(echo "scale=2; $(( ${init_value} - ${start_value} )) / ${step}" | bc -l )
+		init_value_percent=$(arrotonda "${init_value_percent_float}" )
+		#
+		#########################################
+		frame "${widget_color}"
+		#
+		echo -e "\n############################"
+		echo -e "${testo} [${init_value_percent} %]:"
+		echo "(please write percent)"
+		echo -e "############################"
+		read selected_value
+		selected_value_percent="$(echo "${selected_value}" | tr -dc '[[:digit:]]' )"
+		if [ ${#selected_value_percent} -eq 0 ]
+			then
+			selected_value_percent="${init_value_percent}"
+		fi
+		if [ ${selected_value_percent} -gt 100 ]
+			then
+			selected_value_percent=100
+		fi
+		echo "${selected_value_percent}" 1> "${dir_tmp}/${file_tmp}"
+		#
+		#
+		value_percent=$(tr -dc '[[:digit:]]' 0< "${dir_tmp}/${file_tmp}" )
+		: value_percent
+		#
+		final_value_temp=$(echo "scale=2; ${value_percent} * ${step}" | bc -l )
+		final_value_float=$(echo "scale=2; ${start_value} + ${final_value_temp}" | bc -l )
+		: final_value_float
+		#
+		final_value=$(arrotonda "${final_value_float}" )
+		: final_value
+		#
+		echo "${final_value}" 1> "${dir_tmp}/${file_tmp}" 
+		#
+		#####################################################
+		#
+		echo
+		#########################################
 		#
 		OUT_STDERR="${final_value}"
 		echo "${OUT_STDERR}" 1>&2

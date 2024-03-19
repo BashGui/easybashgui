@@ -9,8 +9,9 @@ Simplified way to code bash made GUI frontend dialogs! - Installation document!
 
 * Dialog backend that will act as frontend GUI:
   * Console:
+    * `gum` 0.13.0+ https://github.com/charmbracelet/gum (selectable)
     * `cdialog` / `dialog` 1.2-20120230+ https://invisible-island.net/dialog (required)
-    * `whiptail` 0.52+ https://pagure.io/newt used as falback, not selectable!
+    * `whiptail` 0.52+ https://pagure.io/newt (used as falback, not selectable!)
   * Graphical:
     * `yad` 0.20+ https://github.com/v1cont/yad (GTK2 branch available)
     * `gtkdialog` 0.8.3+ https://code.google.com/p/gtkdialog (limited support)

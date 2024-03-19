@@ -146,6 +146,7 @@ environment you are running the script in, as **EasyBashGUI** will handle this
 transparently, based on the availability of the widget backends (frontends).
 
 * Console mode:
+  * gum
   * dialog
   * whiptail (not selectable, just fall back)
 * Graphical mode:
@@ -486,8 +487,8 @@ This is the reference list documentation for programming
     - [question](#question)
     - [text](#text)
     - [wait_seconds (progress bar)](#wait_seconds-progress-bar)
-    - [progress (progresive way)](#progress-progresive-way)
-    - [progress (regresive way)](#progress-regresive-way)
+    - [progress (percent way)](#progress-percent-way)
+    - [progress (step way)](#progress-step-way)
     - [wait_for](#wait_for)
     - [terminate_wait_for](#terminate_wait_for)
     - [fselect](#fselect)
@@ -610,7 +611,7 @@ progress bar with a duration of the number os seconds you parse it:
 wait_seconds <integer>
 ```
 
-#### progress (progresive way)
+#### progress (percent way)
 
 This is an utility function, similar to `wait_seconds`, it will show a box with 
 a bar that will fill at the number percent position, the number to select the 
@@ -632,7 +633,7 @@ percent position is read from STDIN, the number can be piped or parsed from:
 * To create a progress sequence you must have several statements with different 
 numbers that indicate the progress
 
-#### progress (regresive way)
+#### progress (step way)
 
 Similar to `progress` but using element number indicator, it will show a box with 
 a bar that will fill at the number elements to left, the number to select the 
@@ -860,7 +861,7 @@ Those variables are filled when the action its completed:
 * `${file_tmp}` random file name where is content has the values selected in order
 
 ``` bash
-menu "< <+|->item1>" "[<+|->item2]" .. "[<+|->itemN-1]" "[<+|->itemN]"
+list "< <+|->item1>" "[<+|->item2]" .. "[<+|->itemN-1]" "[<+|->itemN]"
 ```
 
 #### adjust
@@ -889,7 +890,6 @@ Those variables are filled when the action its completed:
 ajust "[text]" "[min]" "[init]" "[max]"
 ```
 
-There are some small issues with `digalog` and `kdialog`, values can go outside of limits
 
 #### notify_message
 
@@ -912,7 +912,7 @@ notify_message [-i "<icon>"] "[text]"
 
 This function is used to change the desktop systray notification from a state (say "good" )
 to the other state (say: "bad" ) set previously by notify() function (see below ); 
-moreover, you can optionally change on-the-fly even the systray icon and tooltip:
+moreover, you can optionally change on-the-fly even the systray icon and its tooltip:
 
 * ARGUMENTS:
     * icon : optional , picture to show in the box aside
@@ -950,7 +950,7 @@ notify [-c "<command>"] [-i "<icongood|iconbad>"] [-t "<textgood|textbad>"] "[go
 
 EasyBashGUI doesn't work with original "dialog" ( old one ) that is very limited; if you have first version "dialog" in your box, install "cdialog" and alias or link "dialog" to cdialog.
 
-Since 5.0.0 version you can use EasyBashGUI even if NO WIDGET backend is installed (that is: no gtkdialog, no kdialog, no zenity, no Xdialog, no (c)dialog... doh!!!!! ). To use "super bare" EBG, simply remove the ".lib" library from your path, or set "supermode" var to "none" before easybashgui sourcing (e.g.: >export supermode="none" && source easybashgui && message "Hello world..." )
+Since 5.0.0 version you can use EasyBashGUI even if NO WIDGET backend is installed (that is: no yad, no gtkdialog, no kdialog, no zenity, no Xdialog, no gum, no (c)dialog... doh!!!!! ). To use "super bare" EBG, simply remove the ".lib" library from your path, or set "supermode" var to "none" before easybashgui sourcing (e.g.: >export supermode="none" && source easybashgui && message "Hello world..." )
 
 EasyBashGUI sets gtkdialog output statements as variables through "eval". This way, in theory, could be possibly dangerous; nevertheless, so far, I don't know about any alternative way...
 

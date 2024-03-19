@@ -23,6 +23,7 @@ environment you are running the script in, as **EasyBashGUI** will handle this
 transparently, based on the availability of the backends (frontends).
 
 * Console mode:
+  * gum
   * dialog
 * Graphical mode:
   * yad
@@ -73,7 +74,7 @@ There are for some distros: [![](https://img.shields.io/badge/Debian-A81D33?styl
 
 ## Credits.
 
-* Thanks to Bash, Yad, Gtkdialog, Xdialog, Kdialog, Zenity, Cdialog, and Whiptail authors, this library was nothing without their work. Many thanks.
+* Thanks to Bash, Yad, Gtkdialog, Xdialog, Kdialog, Zenity, Gum, Cdialog, and Whiptail authors, this library was nothing without their work. Many thanks.
 * Thanks to PICCORO McKAY Lenz for his efforts and *excellent* work on README (and bug hunting too).
 * Thanks to zen0bit for first try and README impulse revival.
 * Thanks to Frank Dietermann for suggestion though to make EBG "posix compliant" (since vers. 11.X.X )
