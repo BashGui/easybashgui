@@ -1436,8 +1436,8 @@ elif [ "${mode}" = "gum" ]
 		#
 		testo="${@}"
 		#
-		#which_terminal="$(ps -o comm= -p $(ps -o ppid= -p $(ps -o ppid= -p $$ )))"
 		which_terminal="$(ps -o comm= -p $(ps -o ppid= -p $$ ))"
+		[[ ${which_terminal} == *"sh" ]] && which_terminal="$(ps -o comm= -p $(ps -o ppid= -p $(ps -o ppid= -p $$ )))"
 		#
 		#########################################
 		#
