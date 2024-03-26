@@ -1443,7 +1443,8 @@ elif [ "${mode}" = "gum" ]
 		#
 		frame "${widget_color}" "please confirm"
 		#
-		if [ "${which_terminal}" = "mate-terminal" -o "${which_terminal}" = "qterminal"  -o "${which_terminal}" = "lxterminal" ]
+		[[ ${which_terminal} == "gnome-terminal"* ]] && which_terminal="gnome-terminal"
+		if [ "${which_terminal}" = "gnome-terminal" -o "${which_terminal}" = "mate-terminal" -o "${which_terminal}" = "qterminal"  -o "${which_terminal}" = "konsole" ]
 			then
 			#
 			gum confirm --affirmative="Ok" --negative="Cancel" "$(echo -e "${testo}" )"
