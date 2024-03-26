@@ -9,9 +9,6 @@ Simplified way to code bash made GUI frontend dialogs! Check the youtube video:
 
 ## Introduction to EBG
 
-... There is [bashlib](https://github.com/cyberark/bash-lib) that is for the code 
-itselft, well so for the GUIs there is **EasyBashGUI** then!
-
 **E**asy **B**ash **G**ui shortened as EBG, is a Posix compliant Bash functions 
 library that aims to give unified GUI functions using frontends for dialogs boxeds 
 (from the user's point of view are frontends but from the EGB side are backends)

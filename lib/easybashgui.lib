@@ -35,7 +35,7 @@
 #####################################
 #####################################
 #
-LIB_VERSION="13.0.0"
+LIB_VERSION="13.0.1"
 LIB_NAME="easybashgui.lib"
 LIB_URL="https://github.com/BashGui/easybashgui"
 LIB_AUTHOR="Vittorio Cagnetta"
@@ -1436,11 +1436,37 @@ elif [ "${mode}" = "gum" ]
 		#
 		testo="${@}"
 		#
+		#which_terminal="$(ps -o comm= -p $(ps -o ppid= -p $(ps -o ppid= -p $$ )))"
+		which_terminal="$(ps -o comm= -p $(ps -o ppid= -p $$ ))"
+		#
 		#########################################
 		#
 		frame "${widget_color}" "please confirm"
-		gum confirm --affirmative="Ok" --negative="Cancel" "$(echo -e "${testo}" )"
-		exit_code="${?}"
+		#
+		if [ "${which_terminal}" = "mate-terminal" -o "${which_terminal}" = "qterminal"  -o "${which_terminal}" = "lxterminal" ]
+			then
+			#
+			gum confirm --affirmative="Ok" --negative="Cancel" "$(echo -e "${testo}" )"
+			exit_code="${?}"
+			echo -e "\n\t${testo}"
+			#
+		else	
+			#
+			echo -e "\n\t${testo}"
+			gum choose --item.foreground 250 "Ok" "Cancel" 1> "${dir_tmp}/${file_tmp}"
+			answer=$(0< "${dir_tmp}/${file_tmp}" )
+			exit_code=$(if [ "${answer}" = "Ok" ]
+							then
+							echo 0
+						elif [ "${answer}" = "Cancel" ]
+							then
+							echo 1
+						else
+							echo 1
+						fi )
+			#
+		fi
+		#
 		echo
 		#########################################
 		#
@@ -1551,6 +1577,35 @@ elif [ "${notify_send}" = "NO" ]
 	#
 	notify_message_alt()
 		{
+		local FUNCT_NAME="notify_message_alt"
+		local IFS=$' \t\n'
+		#
+		#########################################
+		# Begin check for user custom geometry (and let's remove icon option)...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" -o "${1}" = "--icon" -o "${1}" = "-i" ]
+			do
+			if [ "${1}" = "--icon" -o "${1}" = "-i" ]
+				then
+				icon_parameter="${2}" ; [ -e "${icon_parameter}" ] && shift 2 || shift 1
+				continue
+			fi
+			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
+						then
+						echo "width"
+					elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+						then
+						echo "height"
+					fi )"
+			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
+			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
+		done
+		# End check for user custom geometry (and let's remove icon option)...
+		#########################################
+		#
+		: notify_send_seconds
+		notify_message_text="${@}"
+		#
+		#########################################
 		wait_for "\n\n${notify_message_text}\n\n\n\n(Please, install \"kdialog\" or \"notify-send\" for a nicer notification)\n\n."
 		sleep ${notify_send_seconds}
 		terminate_wait_for
@@ -1565,31 +1620,36 @@ elif [ "${notify_send}" = "NO" ]
 			local widget_color="yellow"
 			#
 			#########################################
-			# Begin check for user custom geometry...
-			while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+			# Begin check for user custom geometry (and let's remove icon option)...
+			while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" -o "${1}" = "--icon" -o "${1}" = "-i" ]
 				do
+				if [ "${1}" = "--icon" -o "${1}" = "-i" ]
+					then
+					icon_parameter="${2}" ; [ -e "${icon_parameter}" ] && shift 2 || shift 1
+					continue
+				fi
 				w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
-						then
-						echo "width"
-					elif [ "${1}" = "--height" -o "${1}" = "-h" ]
-						then
-						echo "height"
-					fi )"
+							then
+							echo "width"
+						elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+							then
+							echo "height"
+						fi )"
 				parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
 				reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
 			done
-			# End check for user custom geometry...
+			# End check for user custom geometry (and let's remove icon option)...
 			#########################################
 			#
-			num_secondi=4
-			testo="${@}"
+			: notify_send_seconds
+			notify_message_text="${@}"
 			#
 			#########################################
 			frame "${widget_color}" "notification"
-			#bare_msg "${widget_color}"  "${testo}"
+			#
 			echo -e "############################\n############################\n\n"
-			gum spin -s pulse --title "$(echo -e "${testo}" )" -- sleep ${num_secondi}
-			echo -e "${testo}"
+			gum spin -s pulse --title "$(echo -e "${notify_message_text}" )" -- sleep ${notify_send_seconds}
+			echo -e "${notify_message_text}"
 			echo -e "\n\n############################\n############################"
 			#
 			echo

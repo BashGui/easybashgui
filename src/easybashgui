@@ -76,7 +76,7 @@
 #
 #
 ###################################################################
-MODULE_VERSION="13.0.0"
+MODULE_VERSION="13.0.1"
 MODULE_NAME="easybashgui"
 libexec_dir="/usr/lib/easybashgui"
 ###################################################################
@@ -670,20 +670,25 @@ elif [ "${eb_gui_fallback}" = "true" ]
 		local IFS=$' \t\n'
 		#
 		#########################################
-		# Begin check for user custom geometry...
-		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+		# Begin check for user custom geometry (and let's remove icon option)...
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" -o "${1}" = "--icon" -o "${1}" = "-i" ]
 			do
+			if [ "${1}" = "--icon" -o "${1}" = "-i" ]
+				then
+				icon_parameter="${2}" ; [ -e "${icon_parameter}" ] && shift 2 || shift 1
+				continue
+			fi
 			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
-					then
-					echo "width"
-				elif [ "${1}" = "--height" -o "${1}" = "-h" ]
-					then
-					echo "height"
-				fi )"
+						then
+						echo "width"
+					elif [ "${1}" = "--height" -o "${1}" = "-h" ]
+						then
+						echo "height"
+					fi )"
 			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
 			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
 		done
-		# End check for user custom geometry...
+		# End check for user custom geometry (and let's remove icon option)...
 		#########################################
 		#
 		num_secondi=4
