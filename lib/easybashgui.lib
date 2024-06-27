@@ -35,7 +35,7 @@
 #####################################
 #####################################
 #
-LIB_VERSION="13.0.1"
+LIB_VERSION="13.0.2"
 LIB_NAME="easybashgui.lib"
 LIB_URL="https://github.com/BashGui/easybashgui"
 LIB_AUTHOR="Vittorio Cagnetta"
@@ -6889,21 +6889,31 @@ if [ "${mode}" = "yad" ]
 		#############
 		scelta="$(eval $(local IFS=$'\t' && echo -e "${dialogo}\t--title\t\"${supertitle:-EasyBashGUI}: data input\"\t--form\t${stringa_yad}\t--separator\t\"\\\n\"\t${dimensione_finestra}\t2>\t/dev/null" ) )"
 		unset stringa_yad
-		printf -v scelta "%q" "${scelta}"
-		echo -e "${scelta}" 1> "${dir_tmp}/${file_tmp}"
-		#############
-		#
-		if [ $(fgrep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -eq 0 ]
-			then
-			question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?" ; conferma="${?}"
-			if [ "${conferma}" -eq 0 ] #"Confermato"
+		#printf -v scelta "%q" "${scelta}"
+		#echo -e "${scelta}" 1> "${dir_tmp}/${file_tmp}"
+		: 1> "${dir_tmp}/${file_tmp}"
+		for (( volta=1 ; volta <= ${quanti_campi} ; volta++ ))
+			do
+			#
+			scelta_line="$(echo -e "${scelta}" | head -n ${volta} | tail -n 1 )"
+			#
+			[ ${#scelta_line} -gt 0 ] && printf -v scelta_line "%q" "${scelta_line}"
+			#
+			echo -e "${scelta_line}" 1>> "${dir_tmp}/${file_tmp}"
+			if [ $(fgrep "$(echo -e "${scelta_line}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -eq 0 ]
 				then
-				:
-			elif [ "${conferma}" -eq 1 ] #"Non confermato"
-				then
-				exit
+				question "Warning: could not write \"\${scelta_line}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?" ; conferma="${?}"
+				if [ "${conferma}" -eq 0 ] #"Confermato"
+					then
+					:
+				elif [ "${conferma}" -eq 1 ] #"Non confermato"
+					then
+					exit
+				fi
 			fi
-		fi
+			#
+		done
+		#############
 		#
 		exit_if_user_closes_window
 		#
@@ -7232,6 +7242,7 @@ elif [ "${mode}" = "Xdialog" ]
 					echo -ne "${args[${index}]}\t"
 				done)"
 		#
+		#############
 		if [ ${quanti_campi} -eq 1 ]
 			then
 			inputbox="--inputbox"
@@ -7249,6 +7260,19 @@ elif [ "${mode}" = "Xdialog" ]
 				#
 			local IFS=$' \t\n'
 			#
+			if [ $(fgrep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -eq 0 ]
+				then
+				question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\n Continue ?" ; conferma="${?}"
+				if [ "${conferma}" -eq 0 ] #"Confermato"
+					then
+					:
+				elif [ "${conferma}" -eq 1 ] #"Non confermato"
+					then
+					exit
+				fi
+				#
+			fi #if [ "${scelta}" = "$(0< "${dir_tmp}/${file_tmp}" )" ]
+			#
 		elif [ ${quanti_campi} -gt 1 ]
 			then
 			inputbox="--${quanti_campi}inputsbox"
@@ -7257,25 +7281,37 @@ elif [ "${mode}" = "Xdialog" ]
 				#
 				#############
 				scelta=$( ${dialogo} --stdout --separator "\\n" --title "${supertitle:-EasyBashGUI}: data input" ${inputbox} "Please, write data ..." ${dimensione_finestra} ${parametri} 2> /dev/null | grep -v "${string_to_clean}" )
-				printf -v scelta "%q" "${scelta}"
-				echo -e "${scelta}" 1> "${dir_tmp}/${file_tmp}"
+				#printf -v scelta "%q" "${scelta}"
+				#echo -e "${scelta}" 1> "${dir_tmp}/${file_tmp}"
 				#############
 				#
 			local IFS=$' \t\n'
 			#
+			: 1> "${dir_tmp}/${file_tmp}"
+			for (( volta=1 ; volta <= ${quanti_campi} ; volta++ ))
+				do
+				#
+				scelta_line="$(echo -e "${scelta}" | head -n ${volta} | tail -n 1 )"
+				#
+				[ ${#scelta_line} -gt 0 ] && printf -v scelta_line "%q" "${scelta_line}"
+				#
+				echo -e "${scelta_line}" 1>> "${dir_tmp}/${file_tmp}"
+				if [ $(fgrep "$(echo -e "${scelta_line}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -eq 0 ]
+					then
+					question "Warning: could not write \"\${scelta_line}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\nShould I continue the same ?" ; conferma="${?}"
+					if [ "${conferma}" -eq 0 ] #"Confermato"
+						then
+						:
+					elif [ "${conferma}" -eq 1 ] #"Non confermato"
+						then
+						exit
+					fi
+				fi
+				#
+			done
+			#
 		fi #if [ ${quanti_campi} -eq 1 ]
-		#
-		if [ $(fgrep "$(echo -e "${scelta}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -eq 0 ]
-			then
-			question "Warning: could not write \"\${scelta}\" variable in: \"${dir_tmp}/${file_tmp}\" ...\n Continue ?" ; conferma="${?}"
-			if [ "${conferma}" -eq 0 ] #"Confermato"
-				then
-				:
-			elif [ "${conferma}" -eq 1 ] #"Non confermato"
-				then
-				exit
-			fi
-		fi #if [ "${scelta}" = "$(0< "${dir_tmp}/${file_tmp}" )" ]
+		#############
 		#
 		exit_if_user_closes_window
 		#

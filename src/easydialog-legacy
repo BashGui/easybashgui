@@ -114,6 +114,7 @@ while getopts ":hvm:" option
 		elif [ "${OPTARG}" = "k" ]; then export supermode="kdialog" && break ; \
 		elif [ "${OPTARG}" = "z" ]; then export supermode="zenity" && break ; \
 		elif [ "${OPTARG}" = "x" ]; then export supermode="Xdialog" && break ; \
+		elif [ "${OPTARG}" = "x" ]; then export supermode="gum" && break ; \
 		elif [ "${OPTARG}" = "d" ]; then export supermode="dialog" && break ; \
 		elif [ "${OPTARG}" = "n" ]; then export supermode="none" && break ; \
 		else usage ; \
