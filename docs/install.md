@@ -3,7 +3,7 @@ EasyBashGUI - installation
 
 Simplified way to code bash made GUI frontend dialogs! - Installation document!
 
-**IMPORTANT** for some distro there are packages at [OBS bashgui for ![](https://img.shields.io/badge/Debian-A81D33?style=for-the-badge&logo=debian&logoColor=white) ![](https://img.shields.io/badge/Cent%20OS-262577?style=for-the-badge&logo=CentOS&logoColor=white) ![](https://img.shields.io/badge/Red%20Hat-EE0000?style=for-the-badge&logo=redhat&logoColor=white) ![](https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white) ](https://software.opensuse.org//download.html?project=home%3Avenenux%3Abashgui&package=easybashgui)
+**IMPORTANT** there are packages ready to use at [![OBS bashgui build service](https://build.opensuse.org/projects/home:venenux:bashgui/packages/easybashgui/badge.svg?type=percent)](https://build.opensuse.org/package/show/home:venenux:bashgui/easybashgui) just visit and use with your Linux distribution package manager!
 
 ## Requirements
 
@@ -84,6 +84,8 @@ In summary; you should get the endpoint like:
 And... enjoy !! :-)
 
 ## Packaging
+
+Before read, there are already made package at [![build result](https://build.opensuse.org/projects/home:venenux:bashgui/packages/easybashgui/badge.svg?type=percent)](https://build.opensuse.org/package/show/home:venenux:bashgui/easybashgui)! you can visit and check it for starting point!
 
 For distro maintainers EBG are a simple and easy to maintain project, 
 but due it relies on backend and coreutils programs there are some 
