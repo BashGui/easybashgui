@@ -123,9 +123,14 @@ The script that will implement the EBG is always structured in three main parts:
 #!/bin/bash
 # part 1 environment variables and endpoint
 export supermode="zenity"
-source /path/easybashgui
+export supertitle="Hola script v.0.0.1"
+export supericon="system"
+export supercontext="windows" #or supercontext="terminal" (see below)
+source /path/easybashgui #or simply: "source easybashgui" if you have installed it ! ;)
+#
 # part 2 .. code here
 message "hola"
+#
 # part 3 the finally sentences or output manipulation
 echo $?
 clean_temp
@@ -145,16 +150,16 @@ EBG implements different dialogs boxes! You don't have to worry about what
 environment you are running the script in, as **EasyBashGUI** will handle this 
 transparently, based on the availability of the widget backends (frontends).
 
-* Console mode:
+* Console mode (supercontext="terminal") :
   * gum
   * dialog
   * whiptail (not selectable, just fall back)
-* Graphical mode:
+* Graphical mode (supercontext="windows") :
   * yad
   * gtkdialog
   * kdialog
   * zenity
-  * xdialog
+  * Xdialog
 
 If there is no dialog/cdialog support installed. Check next section about `supermode`!
 
@@ -369,6 +374,7 @@ source easybashgui
 
 input 1 "(write here IP address)"
 input 1 "Please, write IP address" "192.168.1.1"
+input 2 "Username" "root" "IP address" "192.168.0.1"
 input 3 "Username" "root" "IP address" "192.168.0.1" "Destination directory" "/tmp"
 IFS=$'\n' ; choices=( $(0< "${dir_tmp}/${file_tmp}" ) ) ; IFS=$' \t\n'
 user="${choices[0]}"
@@ -443,7 +449,7 @@ for (( index=0 ; index < ${#women[@]} ; index++ }))
 	echo "PROGRESS"
 	#
 done | progress "This is a _LOVE_ progress..." "${#women[@]}"
-# if you use "PROGRESS" string in STDIN do not forget second argument ( "[elements number]" )
+# if you use "PROGRESS" string in STDIN (echo "PROGRESS") do not forget progress() second argument ( "[elements number]" )
 ```
 
 #### A notification example
@@ -911,7 +917,7 @@ notify_message [-i "<icon>"] "[text]"
 #### notify_change
 
 This function is used to change the desktop systray notification from a state (say "good" )
-to the other state (say: "bad" ) set previously by notify() function (see below ); 
+to the other state (say: "bad" ) set _previously by notify() _ function (see below ); 
 moreover, you can optionally change on-the-fly even the systray icon and its tooltip:
 
 * ARGUMENTS:
@@ -943,7 +949,7 @@ Like "message" but now as desktop systray notification to display:
     * PID: echoes the PID of the current process
 
 ``` bash
-notify [-c "<command>"] [-i "<icongood|iconbad>"] [-t "<textgood|textbad>"] "[good|bad]" "<item1>" "<command1>" "[item2]" "[command2]" .. "[itemN]" "[commandN]"
+notify [-c "<command>"] [-i "<icongood|iconbad>"] [-t "<textgood|textbad>"] "<item1>" "<command1>" "[item2]" "[command2]" .. "[itemN]" "[commandN]"
 ```
 
 ## Notes

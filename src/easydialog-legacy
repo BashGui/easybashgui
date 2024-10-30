@@ -35,6 +35,7 @@ usage()
 	echo -e "\t k \t\t=>\t to force kdialog"
 	echo -e "\t z \t\t=>\t to force zenity"
 	echo -e "\t x \t\t=>\t to force Xdialog"
+	echo -e "\t m \t\t=>\t to force gum"
 	echo -e "\t d \t\t=>\t to force (c)dialog"
 	echo -e "\t n \t\t=>\t to force no widget ( => shell boxes)"
 	echo -e "\n"
@@ -114,7 +115,7 @@ while getopts ":hvm:" option
 		elif [ "${OPTARG}" = "k" ]; then export supermode="kdialog" && break ; \
 		elif [ "${OPTARG}" = "z" ]; then export supermode="zenity" && break ; \
 		elif [ "${OPTARG}" = "x" ]; then export supermode="Xdialog" && break ; \
-		elif [ "${OPTARG}" = "x" ]; then export supermode="gum" && break ; \
+		elif [ "${OPTARG}" = "m" ]; then export supermode="gum" && break ; \
 		elif [ "${OPTARG}" = "d" ]; then export supermode="dialog" && break ; \
 		elif [ "${OPTARG}" = "n" ]; then export supermode="none" && break ; \
 		else usage ; \

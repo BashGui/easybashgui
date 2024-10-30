@@ -35,7 +35,7 @@
 #####################################
 #####################################
 #
-LIB_VERSION="13.0.2"
+LIB_VERSION="14.0.0"
 LIB_NAME="easybashgui.lib"
 LIB_URL="https://github.com/BashGui/easybashgui"
 LIB_AUTHOR="Vittorio Cagnetta"
@@ -139,7 +139,7 @@ fi
 ##
 #
 # Set it if you want _force_ easybashgui mode :
-#supermode="" # <= 8 options: "auto", "yad", "gtkdialog", "kdialog", "zenity", "Xdialog", "gum", "dialog"
+#supermode="" # <= 8 options: "auto", "yad", "gtkdialog", "kdialog", "zenity", "Xdialog", "gum", "dialog" "none"
 : supermode
 #
 ##
@@ -341,7 +341,7 @@ fi
 #
 ################
 #
-if [ "${kdialog}" = "NO" -a "${zenity}" = "NO" -a "${Xdialog}" = "NO" -a "${gum}" = "NO" -a "${dialog}" = "NO" -a "${whiptail}" = "NO" ]
+if [ "${yad}" = "NO" -a "${gtkdialog}" = "NO" -a "${kdialog}" = "NO" -a "${zenity}" = "NO" -a "${Xdialog}" = "NO" -a "${gum}" = "NO" -a "${dialog}" = "NO" -a "${whiptail}" = "NO" ]
 	then
 	export eb_gui_fallback="true"
 else
@@ -552,30 +552,320 @@ fi
 #
 #####################################
 #
-# This is only for test, it's preferable that mode is set automatically...
+# EasybashGUI is designed to set mode automatically, but you can force its mode with "supermode"...
 if [ ${#supermode} -eq 0 ]
 	then
-	#echo "Var \"\${supermode}\" not set."
+	#echo "Var. \"\${supermode}\" not set."
 	:
 else
 	case "${supermode}" in
 		"auto" )
-			:;;
+			: # "auto" = "mode" variable is already set...
+			;;
 		#
 		"yad"|"gtkdialog"|"kdialog"|"zenity"|"Xdialog"|"gum"|"dialog" )
-			[ "${easybashgui_debug_mode}" = "YES" ] && echo -e "\n${LIB_NAME}: Var. \${mode} forced to: \"${supermode}\" ." ; mode="${supermode}" ;;
+			if [ "${!supermode}" = "SI" ]
+				then
+				if [ "${supermode}" = "yad" -o "${supermode}" = "gtkdialog" -o "${supermode}" = "kdialog" -o "${supermode}" = "zenity" -o "${supermode}" = "Xdialog" ]
+					then
+					if [ "${#DISPLAY}" -gt 0 ]
+						then
+						: # Xorg is up and running...
+						[ "${easybashgui_debug_mode}" = "YES" ] && echo -e "\n${LIB_NAME}: var. \${mode} forced to: \"${supermode}\" ." 
+						mode="${supermode}" 
+						#
+					else
+						#
+						echo -en "\n${LIB_NAME}: ERR: mode \"${supermode}\" needs X up and running! Since it seems current context is the console (no windows ) => "
+						if [ "${dialog}" = "SI" -o "${whiptail}" = "SI" ]
+							then
+							#
+							echo -e "var. \${mode} is forced to: \"dialog\" ."
+							mode="dialog"
+							#
+							if [ "${gum}" = "SI" ]
+								then
+								#
+								echo -e "\n${LIB_NAME}: Since \"gum\" is installed in your system, var. \${mode} is forced to: \"gum\" ."
+								mode="gum"
+								#
+							fi
+							#
+						else
+							echo -e "\n${LIB_NAME}: var. \${mode} forced to: \"none\" ."
+							export eb_gui_fallback="true" ; return 1
+						fi
+						#
+					fi #if [ "${#DISPLAY}" -gt 0 ]
+					#
+				elif [ "${supermode}" = "gum" -o "${supermode}" = "dialog" ]
+					then
+					if [ "${#DISPLAY}" -gt 0 ]
+						then
+						: # Xorg is up and running...
+						if [ ! -t 0 -o ! -t 1 -o ! -t 2 ]
+							then
+							export supercontext="terminal"
+						else
+							gum_or_dialog="OK"
+						fi
+					else
+						gum_or_dialog="OK"
+					fi
+					#
+					if [ "${gum_or_dialog}" = "OK" ]
+						then
+						unset gum_or_dialog
+						#
+						[ "${easybashgui_debug_mode}" = "YES" ] && echo -e "\n${LIB_NAME}: var. \${mode} forced to: \"${supermode}\" ." 
+						mode="${supermode}"
+						#
+					fi
+					#
+				fi #if [ "${supermode}" = "yad" -o "${supermode}" = "gtkdialog" -o "${supermode}" = "kdialog" -o "${supermode}" = "zenity" -o "${supermode}" = "Xdialog" ]
+				#
+			else
+				if [ "${supermode}" = "dialog" -a "${whiptail}" = "SI" ]
+					then
+					#
+					[ "${easybashgui_debug_mode}" = "YES" ] && echo -e "\n${LIB_NAME}: var. \${mode} forced to: \"dialog\" ." 
+					mode="dialog"
+					#
+				else
+					#
+					if [ $(type -ap "${supermode}" 2>/dev/null | tail -n 1 | wc -c) -gt 0 ]
+						then
+						#
+						echo -en "\n${LIB_NAME}: ERR: \"${supermode}\" not available in this context ! => "
+						#
+					else
+						#
+						echo -en "\n${LIB_NAME}: ERR: \"${supermode}\" not installed in this system ! => "
+						#
+					fi
+					#
+					echo -e "var. \${mode} forced to: \"auto\" ."
+					: # "auto" = "mode" variable is already set...
+					#
+				fi #if [ "${supermode}" = "dialog" -a "${whiptail}" = "SI" ]
+				#
+			fi #if [ "${!supermode}" = "SI" ]
+			#
+			;;
 		#
 		"none" )
-			[ "${easybashgui_debug_mode}" = "YES" ] && echo -e "\n${LIB_NAME}: Var. \${mode} forced to: \"${supermode}\" ." ; export eb_gui_fallback="true" ; return 1 ;;
+			if [ "${#DISPLAY}" -gt 0 ]
+				then
+				: # Xorg is up and running...
+				if [ ! -t 0 -o ! -t 1 -o ! -t 2 ]
+					then
+					export supercontext="terminal"
+				else
+					none_mode="OK"
+				fi
+			else
+				none_mode="OK"
+			fi
+			#
+			if [ "${none_mode}" = "OK" ]
+				then
+				unset none_mode
+				#
+				if [ "EBGbyVittorio${supercontext}" = "EBGbyVittorio" ]
+					then
+					#
+					:
+					#
+				elif [ "${supercontext}" = "windows" ]
+					then
+					#
+					echo -e "\n${LIB_NAME}: ERR: \${supercontext} value (= \"${supercontext}\" ) incompatible with console (no X running! )  ! => var. \${supercontext} ignored."
+					#
+				elif [ "${supercontext}" = "terminal" ]
+					then
+					#
+					:
+					#
+				else
+					#
+					echo -e "\n${LIB_NAME}: ERR: \${supercontext} value (= \"${supercontext}\" ) not correct ! (available options are: \"windows\" or \"terminal\" )  => var. \${supercontext} ignored."
+					#
+				fi
+				#
+				[ "${easybashgui_debug_mode}" = "YES" ] && echo -e "\n${LIB_NAME}: var. \${mode} forced to: \"${supermode}\" ."
+				export eb_gui_fallback="true" ; return 1
+				#
+			fi
+			;;
 		#
 		*)
-			echo -e "\n${LIB_NAME}: ERR: \"supermode\" is not correct." 1>&2 && sleep 2 && exit 1 ;;
+			echo -e "\n${LIB_NAME}: ERR: mode \"${supermode}\" doesn't exist (available options are: \"auto\", \"yad\", \"gtkdialog\", \"kdialog\", \"zenity\", \"Xdialog\", \"gum\", \"dialog\" and \"none\" ) => var. \${mode} forced to: \"auto\" ."
+			: # "auto" = "mode" variable is already set...
+			;;
 		#
 	esac
 fi
 #
-#####################################
+###############
+# "supercontext" can be set to "windows" or "terminal"
+if [ ${#supercontext} -eq 0 ]
+	then
+	#echo "Var. \"\${supercontext}\" not set."
+	:
+else
+	#
+	echo "Var. \"\${#supercontext}\" is: \"${#supercontext}\", so: \"\${supercontext}\" is: \"${supercontext}\" ..."
+	if [ "${supercontext}" = "windows" ]
+		then
+		#
+		if [ "${#DISPLAY}" -gt 0 ]
+			then
+			: # Xorg is up and running...
+			#
+			if [ "${mode}" = "gum" -o "${mode}" = "dialog" -o "${mode}" = "none" ]
+				then
+				#
+				echo -e "\n${LIB_NAME}: ERR: \"${supermode}\" incompatible with \${supercontext} value (= \"${supercontext}\" ) ! => var. \${mode} forced to: \"auto\" ."
+				: # "auto" = "mode" variable is already set...
+				#
+			fi
+			#
+		else
+			#
+			echo -e "\n${LIB_NAME}: ERR: \${supercontext} value (= \"${supercontext}\" ) incompatible with console (no X running! )  ! => var. \${supercontext} ignored."
+			#
+			if [ "${mode}" != "gum" -a "${mode}" != "dialog" ]
+				#
+				then
+				if [ "${dialog}" = "SI" -o "${whiptail}" = "SI" ]
+					then
+					#
+					echo -e "\n${LIB_NAME}: var. \${mode} is forced to: \"dialog\" ."
+					mode="dialog"
+					#
+					if [ "${gum}" = "SI" ]
+						then
+						#
+						echo -e "\n${LIB_NAME}: Since \"gum\" is installed in your system, var. \${mode} is forced to: \"gum\" ."
+						mode="gum"
+						#
+					fi
+					#
+				else
+					echo -e "\n${LIB_NAME}: var. \${mode} forced to: \"none\" ."
+					export eb_gui_fallback="true" ; return 1
+				fi
+				#
+			fi
+			# if [ "${mode}" != "gum" -a "${mode}" != "dialog" ]
+		fi # if [ "${#DISPLAY}" -gt 0 ]
+		#
+	elif [ "${supercontext}" = "terminal" ]
+		then
+		#
+		if [ ${#TERM} -gt 0 -a $(type -ap "${TERM}" 2>/dev/null | tail -n 1| wc -c ) -gt 0 ]
+			then
+			:
+		elif [ $(type -ap xterm 2>/dev/null | tail -n 1 | wc -c) -gt 0 ]
+			then
+			export TERM="xterm"
+		elif [ $(type -ap mate-terminal 2>/dev/null | tail -n 1 | wc -c) -gt 0 ]
+			then
+			export TERM="mate-terminal"
+		elif [ $(type -ap lxterminal 2>/dev/null | tail -n 1 | wc -c) -gt 0 ]
+			then
+			export TERM="lxterminal"
+		elif [ $(type -ap rxvt 2>/dev/null | tail -n 1 | wc -c) -gt 0 ]
+			then
+			export TERM="rxvt"
+		elif [ $(type -ap gnome-terminal 2>/dev/null | tail -n 1 | wc -c) -gt 0 ]
+			then
+			export TERM="gnome-terminal"
+		elif [ $(type -ap konsole 2>/dev/null | tail -n 1 | wc -c) -gt 0 ]
+			then
+			export TERM="konsole"
+		else
+			echo -e "\n${LIB_NAME}: ERR: no terminal in this system ? (Please, set your TERM env variable )."
+			exit 1
+		fi
+		export TERMINAL="${TERM}"
+		#
+		for fd in 0 1 2
+			do
+			if [ ! -t ${fd} ]
+				then
+				#
+				if [ "${dialog}" = "SI" -o "${whiptail}" = "SI" ]
+					then
+					#
+					echo -e "\n${LIB_NAME}: var. \${supermode} is forced to: \"dialog\" ."
+					export supermode="dialog"
+					#
+					if [ "${gum}" = "SI" ]
+						then
+						#
+						echo -e "\n${LIB_NAME}: Since \"gum\" is installed in your system, var. \${supermode} is forced to: \"gum\" ."
+						export supermode="gum"
+						#
+					fi
+					#
+				else
+					#
+					: #About "none" mode, it will be set by next iteration of script below...
+					#
+				fi
+				#
+				if [ "${TERMINAL}" = "xterm" ]
+					then
+					${TERMINAL} -e ${0} ${@} ; exit
+				#elif [ "${TERMINAL}" = "mate-terminal" ]
+				#	then
+				#	${TERMINAL} -e "${0} ${@}" ; exit
+				else
+					${TERMINAL} -e ${0} ${@} ; exit
+				fi
+				#
+			fi
+			#
+		done
+		#
+		if [ "${mode}" != "gum" -a "${mode}" != "dialog" ] # "mode" can't be "none", since in that case EBG returned 1 before, and so loaded easybashgui fallback functions...
+			then
+			#
+			echo -en "\n${LIB_NAME}: Since var. \${supercontext} is set to \"${supercontext}\", "
+			#
+			if [ "${dialog}" = "SI" -o "${whiptail}" = "SI" ] 
+				then
+				#
+				echo -e "var. \${mode} is forced to: \"dialog\" ."
+				mode="dialog"
+				#
+				if [ "${gum}" = "SI" ]
+					then
+					#
+					echo -e "\n${LIB_NAME}: Since \"gum\" is installed in your system, var. \${mode} is forced to: \"gum\" ."
+					mode="gum"
+					#
+				fi
+				#
+			else
+				#
+				: #mode is already "gum" or "dialog" ...
+				#
+			fi #if [ "${dialog}" = "SI" -o "${whiptail}" = "SI" ]
+			#
+		fi #if [ "${mode}" != "gum" -a "${mode}" != "dialog" ]
+		#
+	else
+		#
+		echo -e "\n${LIB_NAME}: ERR: \${supercontext} value (= \"${supercontext}\" ) not correct ! (available options are: \"windows\" or \"terminal\" )  => var. \${supercontext} ignored."
+		#
+	fi #if [ "${supercontext}" = "windows" ]
+	#
+fi #if [ ${#supercontext} -eq 0 ]
 #
+###############
+#####################################
 ###############
 #
 # Variables...
@@ -776,7 +1066,7 @@ elif [ "${mode}" = "dialog" ]
 	#
 	if [ "${ERR_MESSAGE}" = "YES" ]
 		then
-		echo -e "\nYour \"whiptail\" version is obsolete or your \"dialog\" is NOT an alias to \"cdialog\", but is the original very old one... \nPlease, try to install \"cdialog\" and alias \"dialog\" to it. \nAlternately, you could install newest \"whiptail\", that is a cdialog replacement."
+		echo -e "\nYour \"whiptail\" version is obsolete/missing or your \"dialog\" is NOT an alias to \"cdialog\", but is the original very old one... \nPlease, try to install \"cdialog\" and alias \"dialog\" to it. \nAlternately, you could install newest \"whiptail\", that is a cdialog replacement."
 		export eb_gui_fallback="true"
 		return 1
 	fi
@@ -1032,7 +1322,7 @@ if [ "${yad}" = "SI" ]
 		# add handler for tray icon left click...
 		notify_on_click()
 			{
-			echo "tooltip:${0##*/} -> wait..." 1> "${ebg_PIPE}"
+			#echo "tooltip:${0##*/} -> wait..." 1> "${ebg_PIPE}"
 			#
 			if [ ${#click_command} -eq 0 ]
 				then

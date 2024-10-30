@@ -22,12 +22,18 @@ transparently, based on the availability of the backends (frontends).
 * Console mode:
   * gum
   * dialog
+  * none (= bash)
 * Graphical mode:
   * yad
   * gtkdialog
   * kdialog
   * zenity
-  * xdialog
+  * Xdialog
+  
+  Since 14.0.0 version you can export "supercontext" env. variable (available values are: 
+  supercontext="terminal" or supercontext="windows" ) to set EasyBashGUI to use 
+  a terminal (xterm, gnome-terminal, etc. ) with "gum", "dialog" or "none" mode or 
+  graphical widgets ("yad", "gtkdialog", "kdialog", "zenity", "Xdialog" ). 
 
 ![](docs/easybasguidialogs.jpeg)
 
