@@ -34,7 +34,7 @@ echo -e "source easybashgui\nmessage hola" > ~/Devel/easybashgui/newprogram
 bash ~/Devel/easybashgui/newprogram
 ```
 
-That's it !!!!! Easyle! But what if you wants all build-in!? Without install?, 
+That's it !!!!! Easy! But what if you wants all built-in!? Without install? 
 of course you can! Check next section:
 
 #### Quick developer usage
@@ -468,11 +468,11 @@ while :
 	#
 	if [ "${answer}" = "GOOD" ]
 		then
-		notify_message "Changed in \"good\" ..."
+		notify_message --seconds 3 "Changed in \"good\" ..."
 		notify_change "good"
 	elif [ "${answer}" = "BAD" ]
 		then
-		notify_message "Changed in \"bad\" ..."
+		notify_message -s 3 --icon "application-exit" "Changed in \"bad\" ..."
 		notify_change -i "gtk-help" -t "This tooltip is bad" "bad"
 	else
 		exit
@@ -911,7 +911,7 @@ Like "message" but in the form of notification, allows to choose the icon to dis
     * PID: echoes the PID of the current process
 
 ``` bash
-notify_message [-i "<icon>"] "[text]"
+notify_message [-i|--icon "<icon>"] [-s|--seconds "<seconds>"] "[text]"
 ```
 
 #### notify_change

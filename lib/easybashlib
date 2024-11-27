@@ -13,7 +13,7 @@
 # prevent repeated inclusion
 if [ "${eb_incl_easybashlib__imported+defined}" = "defined" ]
 then
-	echo "easybashlib: INFO: easybashlib not sourced (already sourced)."
+	#echo "easybashlib: INFO: easybashlib not sourced (already sourced)."
 	return 0
 fi
 #

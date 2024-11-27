@@ -76,7 +76,7 @@
 #
 #
 ###################################################################
-MODULE_VERSION="14.0.0"
+MODULE_VERSION="14.1.0"
 MODULE_NAME="easybashgui"
 libexec_dir="/usr/lib/easybashgui"
 ###################################################################
@@ -669,38 +669,51 @@ elif [ "${eb_gui_fallback}" = "true" ]
 		local FUNCT_NAME="notify_message"
 		local IFS=$' \t\n'
 		#
-		#########################################
-		# Begin check for user custom geometry (and let's remove icon option)...
-		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" -o "${1}" = "--icon" -o "${1}" = "-i" ]
+		unset notify_message_icon
+		unset notify_send_seconds_user
+		#
+		##
+		#
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" -o "${1}" = "-i" -o "${1}" = "--icon" -o "${1}" = "-s" -o "${1}" = "--seconds" ]
 			do
-			if [ "${1}" = "--icon" -o "${1}" = "-i" ]
+			if [ "${1}" = "-w" -o "${1}" = "--width" ]
 				then
-				icon_parameter="${2}" ; [ -e "${icon_parameter}" ] && shift 2 || shift 1
+				shift 2
+				continue
+			elif [ "${1}" = "-h" -o "${1}" = "--height" ]
+				then
+				shift 2
+				continue
+			elif [ "${1}" = "-i" -o "${1}" = "--icon" ]
+				then
+				icon_parameter="${2}" ; [ "$(icon_check "${icon_parameter}" )" = "YES" ] && shift 2 || shift 1
+				export notify_message_icon="${icon_parameter}"
+				continue
+			elif [ "${1}" = "-s" -o "${1}" = "--seconds" ]
+				then
+				export notify_send_seconds_user="${2}" && shift 2 || shift 1
 				continue
 			fi
-			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
-						then
-						echo "width"
-					elif [ "${1}" = "--height" -o "${1}" = "-h" ]
-						then
-						echo "height"
-					fi )"
-			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
-			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
 		done
-		# End check for user custom geometry (and let's remove icon option)...
-		#########################################
 		#
-		num_secondi=4
-		testo="############################\n############################\n\n $(echo -e "${@}" )\n\n############################\n############################"
+		##############################
+		#
+		notify_send_seconds=4
+		[ ${#notify_send_seconds_user} -gt 0 ] && notify_send_seconds_user=$(echo "${notify_send_seconds_user}" | tr -dc [[:digit:]] )
+		[ ${#notify_send_seconds_user} -gt 0 ] && \
+			notify_send_seconds_none=${notify_send_seconds_user} || \
+			notify_send_seconds_none=${notify_send_seconds}
+		: notify_send_seconds_none
+		#
+		none_mode_text="############################\n############################\n\n $(echo -e "${@}" )\n\n############################\n############################"
 		#
 		#########################################
 		echo -e "\n\n\n${frame}"
 		echo "$(basename "${eb_current_process_path}" ): notification"
 		echo "${frame}"
-		echo -e "\n${testo}\n"
+		echo -e "\n${none_mode_text}\n"
 		#
-		sleep ${num_secondi}
+		sleep ${notify_send_seconds_none}
 		#
 		echo -e "${frame}\n"
 		echo
@@ -1425,7 +1438,7 @@ elif [ "${eb_gui_fallback}" = "true" ]
 				scelta="${parametro}"
 			fi
 			#
-			printf -v scelta "%q" "${scelta}"
+			printf -v scelta "%q" "${scelta}" && scelta="$(echo "${scelta}" | gsed 's/\\ / /g' )"
 			echo "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
 			#
 			#############

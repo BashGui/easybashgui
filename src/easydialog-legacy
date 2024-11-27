@@ -44,6 +44,7 @@ usage()
 	echo -e "\t --message -> \"[text]\" \t\t\t=>\t ( 1 argument )"
 	echo -e "\t --alert_message -> \"[text]\" \t\t=>\t ( 1 argument )"
 	echo -e "\t --ok_message -> \"[text]\" \t\t=>\t ( 1 argument )"
+	echo -e "\t --notify_message -> \"[text]\" \t\t=>\t ( 1 argument )"
 	echo -e "\t --text \t\t\t\t=>\t ( STDIN, NO argument, box output to \"\${dir_tmp}/\${file_tmp}\" and STDERR )"
 	echo -e "\t --wait_seconds -> \"[integer]\" \t\t=>\t ( 1 argument )"
 	echo -e "\t --wait_for -> \"[text]\" \t\t=>\t ( 1 argument, PID to kill to \"wait_for__PID\" variable and STDERR )"

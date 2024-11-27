@@ -35,7 +35,7 @@
 #####################################
 #####################################
 #
-LIB_VERSION="14.0.0"
+LIB_VERSION="14.1.0"
 LIB_NAME="easybashgui.lib"
 LIB_URL="https://github.com/BashGui/easybashgui"
 LIB_AUTHOR="Vittorio Cagnetta"
@@ -105,8 +105,8 @@ done
 typing_gsed="$(type 'gsed' 2> /dev/null )"
 if [ ${#typing_gsed} -eq 0 ]
 	then
-	[ "${mascotte}" = "Beastie" ] && echo -e "\n\n\n\nYou need to install \"gsed\" ( GNU Sed ) port/package to use ${LIB_NAME}...\nSorry :(\n\n\n\n" 1>&2
-	[ "${mascotte}" = "Tux" ] && echo -e "\n\n\n\nErr.: gsed aliasing failed!...\n:(\n\n\n\n" 1>&2
+	[ "${mascotte}" = "Beastie" ] && echo -e "\n\n${LIB_NAME}: ERR: You need to install \"gsed\" ( GNU Sed ) port/package to use ${LIB_NAME}...\nSorry :(\n\n\n\n" 1>&2
+	[ "${mascotte}" = "Tux" ] && echo -e "\n\n${LIB_NAME}: ERR: gsed aliasing failed!...\n:(\n\n\n\n" 1>&2
 	#
 	exit 1
 fi
@@ -714,7 +714,7 @@ if [ ${#supercontext} -eq 0 ]
 	:
 else
 	#
-	echo "Var. \"\${#supercontext}\" is: \"${#supercontext}\", so: \"\${supercontext}\" is: \"${supercontext}\" ..."
+	#echo "Var. \"\${#supercontext}\" is: \"${#supercontext}\", so: \"\${supercontext}\" is: \"${supercontext}\" ..."
 	if [ "${supercontext}" = "windows" ]
 		then
 		#
@@ -1119,6 +1119,35 @@ clean()
 		fi
 		echo "${Xdialog_stdout}" | grep -v "${string_to_clean}"
 	done
+	}
+#
+##
+#
+icon_check()
+	{
+	local FUNCT_NAME="icon_check"
+	local IFS=$' \t\n'
+	#
+	icon_to_check="${1}"
+	#
+	array_icon_dirs=( "/usr/share/icons/gnome/32x32" "/usr/share/icons/mate/32x32" "/usr/local/share/icons/gnome/32x32" "/usr/local/share/icons/mate/32x32" )
+	#
+	unset icon_check_var
+	icon_check_var="$(for (( index=0 ; index < ${#array_icon_dirs[@]} ; index++ )) 
+					do
+					icon_dir="${array_icon_dirs[${index}]}"
+					#
+					icon_result="$(find "${icon_dir}" -name "${icon_to_check}*" 2>/dev/null )"
+					[ ${#icon_result} -gt 0 ] && echo "YES" && break
+					#
+				done)"
+	#
+	[ ${#icon_check_var} -eq 0 ] && [ -e "${icon_to_check}" ] && icon_check_var="YES"
+	# so... =>
+	[ ${#icon_check_var} -eq 0 ] && icon_check_var="NO"
+	#
+	echo "${icon_check_var}"
+	#
 	}
 #
 ##
@@ -1839,17 +1868,33 @@ if [ "${notify_send}" = "SI" ]
 		local IFS=$' \t\n'
 		#
 		unset notify_message_icon
+		unset notify_send_seconds_user
 		#
-		unset OPTIND
-		while getopts ":i:" notify_change_function_options
+		##
+		#
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" -o "${1}" = "-i" -o "${1}" = "--icon" -o "${1}" = "-s" -o "${1}" = "--seconds" ]
 			do
-			case ${notify_change_function_options} in
-				#
-				i	) export notify_message_icon="${OPTARG}" ;;
-				#
-			esac
+			if [ "${1}" = "-w" -o "${1}" = "--width" ]
+				then
+				shift 2
+				continue
+			elif [ "${1}" = "-h" -o "${1}" = "--height" ]
+				then
+				shift 2
+				continue
+			elif [ "${1}" = "-i" -o "${1}" = "--icon" ]
+				then
+				icon_parameter="${2}" ; [ "$(icon_check "${icon_parameter}" )" = "YES" ] && shift 2 || shift 1
+				export notify_message_icon="${icon_parameter}"
+				continue
+			elif [ "${1}" = "-s" -o "${1}" = "--seconds" ]
+				then
+				export notify_send_seconds_user="${2}" && shift 2 || shift 1
+				continue
+			fi
 		done
-		shift $((OPTIND-1))
+		#
+		##
 		#
 		##############################
 		#
@@ -1857,7 +1902,11 @@ if [ "${notify_send}" = "SI" ]
 		#
 		##############################
 		#
-		notify_send_milliseconds=$(( ${notify_send_seconds} * 1000 ))
+		[ ${#notify_send_seconds_user} -gt 0 ] && notify_send_seconds_user=$(echo "${notify_send_seconds_user}" | tr -dc [[:digit:]] )
+		[ ${#notify_send_seconds_user} -gt 0 ] && \
+			notify_send_milliseconds=$(( ${notify_send_seconds_user} * 1000 )) || \
+			notify_send_milliseconds=$(( ${notify_send_seconds} * 1000 ))
+		#
 		[ ${#notify_message_icon} -gt 0 ] && : || notify_message_icon="${notify_icon_default}"
 		#
 		notify-send -t ${notify_send_milliseconds} -a "${supertitle:-EasyBashGUI}:" -i "${notify_message_icon}" "${notify_message_text}"
@@ -1872,33 +1921,49 @@ elif [ "${notify_send}" = "NO" ]
 		local IFS=$' \t\n'
 		#
 		#########################################
-		# Begin check for user custom geometry (and let's remove icon option)...
-		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" -o "${1}" = "--icon" -o "${1}" = "-i" ]
+		unset notify_message_icon
+		unset notify_send_seconds_user
+		#
+		##
+		#
+		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" -o "${1}" = "-i" -o "${1}" = "--icon" -o "${1}" = "-s" -o "${1}" = "--seconds" ]
 			do
-			if [ "${1}" = "--icon" -o "${1}" = "-i" ]
+			if [ "${1}" = "-w" -o "${1}" = "--width" ]
 				then
-				icon_parameter="${2}" ; [ -e "${icon_parameter}" ] && shift 2 || shift 1
+				shift 2
+				continue
+			elif [ "${1}" = "-h" -o "${1}" = "--height" ]
+				then
+				shift 2
+				continue
+			elif [ "${1}" = "-i" -o "${1}" = "--icon" ]
+				then
+				icon_parameter="${2}" ; [ "$(icon_check "${icon_parameter}" )" = "YES" ] && shift 2 || shift 1
+				export notify_message_icon="${icon_parameter}"
+				continue
+			elif [ "${1}" = "-s" -o "${1}" = "--seconds" ]
+				then
+				export notify_send_seconds_user="${2}" && shift 2 || shift 1
 				continue
 			fi
-			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
-						then
-						echo "width"
-					elif [ "${1}" = "--height" -o "${1}" = "-h" ]
-						then
-						echo "height"
-					fi )"
-			parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
-			reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
 		done
-		# End check for user custom geometry (and let's remove icon option)...
+		#
+		##
+		#
 		#########################################
 		#
 		: notify_send_seconds
+		[ ${#notify_send_seconds_user} -gt 0 ] && notify_send_seconds_user=$(echo "${notify_send_seconds_user}" | tr -dc [[:digit:]] )
+		[ ${#notify_send_seconds_user} -gt 0 ] && \
+			notify_send_seconds_alt=${notify_send_seconds_user} || \
+			notify_send_seconds_alt=${notify_send_seconds}
+		: notify_send_seconds_alt
+		#
 		notify_message_text="${@}"
 		#
 		#########################################
 		wait_for "\n\n${notify_message_text}\n\n\n\n(Please, install \"kdialog\" or \"notify-send\" for a nicer notification)\n\n."
-		sleep ${notify_send_seconds}
+		sleep ${notify_send_seconds_alt}
 		terminate_wait_for
 		}
 	#
@@ -1911,35 +1976,50 @@ elif [ "${notify_send}" = "NO" ]
 			local widget_color="yellow"
 			#
 			#########################################
-			# Begin check for user custom geometry (and let's remove icon option)...
-			while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" -o "${1}" = "--icon" -o "${1}" = "-i" ]
+			#
+			unset notify_message_icon
+			unset notify_send_seconds_user
+			#
+			##
+			#
+			while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" -o "${1}" = "-i" -o "${1}" = "--icon" -o "${1}" = "-s" -o "${1}" = "--seconds" ]
 				do
-				if [ "${1}" = "--icon" -o "${1}" = "-i" ]
+				if [ "${1}" = "-w" -o "${1}" = "--width" ]
 					then
-					icon_parameter="${2}" ; [ -e "${icon_parameter}" ] && shift 2 || shift 1
+					shift 2
+					continue
+				elif [ "${1}" = "-h" -o "${1}" = "--height" ]
+					then
+					shift 2
+					continue
+				elif [ "${1}" = "-i" -o "${1}" = "--icon" ]
+					then
+					icon_parameter="${2}" ; [ "$(icon_check "${icon_parameter}" )" = "YES" ] && shift 2 || shift 1
+					export notify_message_icon="${icon_parameter}"
+					continue
+				elif [ "${1}" = "-s" -o "${1}" = "--seconds" ]
+					then
+					export notify_send_seconds_user="${2}" && shift 2 || shift 1
 					continue
 				fi
-				w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
-							then
-							echo "width"
-						elif [ "${1}" = "--height" -o "${1}" = "-h" ]
-							then
-							echo "height"
-						fi )"
-				parameter=$(echo -n "${2}" | tr -dc '[[:digit:]]' ) ; [ ${#parameter} -eq 0 ] && break
-				reset_geometry="YES" && eval "local ${w_or_h}=${parameter}" && shift 2
 			done
-			# End check for user custom geometry (and let's remove icon option)...
+			#
 			#########################################
 			#
 			: notify_send_seconds
+			[ ${#notify_send_seconds_user} -gt 0 ] && notify_send_seconds_user=$(echo "${notify_send_seconds_user}" | tr -dc [[:digit:]] )
+			[ ${#notify_send_seconds_user} -gt 0 ] && \
+				notify_send_seconds_gum=${notify_send_seconds_user} || \
+				notify_send_seconds_gum=${notify_send_seconds}
+			: notify_send_seconds_gum
+			#
 			notify_message_text="${@}"
 			#
 			#########################################
 			frame "${widget_color}" "notification"
 			#
 			echo -e "############################\n############################\n\n"
-			gum spin -s pulse --title "$(echo -e "${notify_message_text}" )" -- sleep ${notify_send_seconds}
+			gum spin -s pulse --title "$(echo -e "${notify_message_text}" )" -- sleep ${notify_send_seconds_gum}
 			echo -e "${notify_message_text}"
 			echo -e "\n\n############################\n############################"
 			#
@@ -1954,19 +2034,41 @@ elif [ "${notify_send}" = "NO" ]
 			local IFS=$' \t\n'
 			#
 			unset notify_message_icon
+			unset notify_send_seconds_user
 			#
-			unset OPTIND
-			while getopts ":i:" notify_change_function_options
+			##
+			#
+			while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" -o "${1}" = "-i" -o "${1}" = "--icon" -o "${1}" = "-s" -o "${1}" = "--seconds" ]
 				do
-				case ${notify_change_function_options} in
-					#
-					i	) export notify_message_icon="${OPTARG}" ;;
-					#
-				esac
+				if [ "${1}" = "-w" -o "${1}" = "--width" ]
+					then
+					shift 2
+					continue
+				elif [ "${1}" = "-h" -o "${1}" = "--height" ]
+					then
+					shift 2
+					continue
+				elif [ "${1}" = "-i" -o "${1}" = "--icon" ]
+					then
+					icon_parameter="${2}" ; [ "$(icon_check "${icon_parameter}" )" = "YES" ] && shift 2 || shift 1
+					export notify_message_icon="${icon_parameter}"
+					continue
+				elif [ "${1}" = "-s" -o "${1}" = "--seconds" ]
+					then
+					export notify_send_seconds_user="${2}" && shift 2 || shift 1
+					continue
+				fi
 			done
-			shift $((OPTIND-1))
 			#
 			##############################
+			#
+			: notify_send_seconds
+			[ ${#notify_send_seconds_user} -gt 0 ] && notify_send_seconds_user=$(echo "${notify_send_seconds_user}" | tr -dc [[:digit:]] )
+			[ ${#notify_send_seconds_user} -gt 0 ] && \
+				notify_send_seconds_else=${notify_send_seconds_user} || \
+				notify_send_seconds_else=${notify_send_seconds}
+			: notify_send_seconds_else
+			#
 			#
 			export notify_message_text="${@}"
 			#
@@ -1978,7 +2080,7 @@ elif [ "${notify_send}" = "NO" ]
 				then
 				#
 				wait_for "\n${notify_message_text}"
-				sleep ${notify_send_seconds}
+				sleep ${notify_send_seconds_else}
 				terminate_wait_for
 				#
 			elif [ "${mode}" != "dialog" ]
@@ -1987,16 +2089,16 @@ elif [ "${notify_send}" = "NO" ]
 					then
 					#
 					:
-					kdialog --icon "${notify_message_icon}" --passivepopup "${supertitle:-EasyBashGUI}:\n\n${notify_message_text}" ${notify_send_seconds}
+					kdialog --icon "${notify_message_icon}" --passivepopup "${supertitle:-EasyBashGUI}:\n\n${notify_message_text}" ${notify_send_seconds_else}
 					#
 				else
 					#
 					:
 					notify_message_alt &
 					#
-				fi
+				fi #if [ "${kdialog}" = 'SI' ]
 				#
-			fi
+			fi #if [ "${mode}" = "dialog" ]
 			#
 			}
 	fi #if [ "${mode}" = "gum" ]
@@ -7179,15 +7281,14 @@ if [ "${mode}" = "yad" ]
 		#############
 		scelta="$(eval $(local IFS=$'\t' && echo -e "${dialogo}\t--title\t\"${supertitle:-EasyBashGUI}: data input\"\t--form\t${stringa_yad}\t--separator\t\"\\\n\"\t${dimensione_finestra}\t2>\t/dev/null" ) )"
 		unset stringa_yad
-		#printf -v scelta "%q" "${scelta}"
-		#echo -e "${scelta}" 1> "${dir_tmp}/${file_tmp}"
+		#
 		: 1> "${dir_tmp}/${file_tmp}"
 		for (( volta=1 ; volta <= ${quanti_campi} ; volta++ ))
 			do
 			#
 			scelta_line="$(echo -e "${scelta}" | head -n ${volta} | tail -n 1 )"
 			#
-			[ ${#scelta_line} -gt 0 ] && printf -v scelta_line "%q" "${scelta_line}"
+			[ ${#scelta_line} -gt 0 ] && printf -v scelta_line "%q" "${scelta_line}" && scelta_line="$(echo "${scelta_line}" | gsed 's/\\ / /g' )"
 			#
 			echo -e "${scelta_line}" 1>> "${dir_tmp}/${file_tmp}"
 			if [ $(fgrep "$(echo -e "${scelta_line}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -eq 0 ]
@@ -7381,7 +7482,7 @@ elif [ "${mode}" = "kdialog" ]
 			#
 			#############
 			scelta="$(eval $(local IFS=$'\t' && echo -e "${dialogo}\t--title\t\"${supertitle:-EasyBashGUI}: data input\"\t--inputbox\t\"${testo}\"\t\"${parametro}\"\t2>\t/dev/null" ) )"
-			printf -v scelta "%q" "${scelta}"
+			printf -v scelta "%q" "${scelta}" && scelta="$(echo "${scelta}" | gsed 's/\\ / /g' )"
 			echo -e "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
 			#############
 			#
@@ -7459,7 +7560,7 @@ elif [ "${mode}" = "zenity" ]
 			#
 			#############
 			scelta="$(eval $(local IFS=$'\t' && echo -e "${dialogo}\t--title\t\"${supertitle:-EasyBashGUI}: data input\"\t--entry\t--text\t\"${testo}\"\t${dimensione_finestra}\t--entry-text\t\"${parametro}\"\t2>\t/dev/null" ) )"
-			printf -v scelta "%q" "${scelta}"
+			printf -v scelta "%q" "${scelta}" && scelta="$(echo "${scelta}" | gsed 's/\\ / /g' )"
 			echo -e "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
 			#############
 			#
@@ -7544,7 +7645,7 @@ elif [ "${mode}" = "Xdialog" ]
 				#
 				#############
 				scelta=$( ${dialogo} --stdout --separator "\\n" --title "${supertitle:-EasyBashGUI}: data input" ${inputbox} "${testo}" ${dimensione_finestra} ${parametro} 2> /dev/null | grep -v "${string_to_clean}" )
-				printf -v scelta "%q" "${scelta}"
+				printf -v scelta "%q" "${scelta}" && scelta="$(echo "${scelta}" | gsed 's/\\ / /g' )"
 				echo -e "${scelta}" 1> "${dir_tmp}/${file_tmp}"
 				#############
 				#
@@ -7571,8 +7672,6 @@ elif [ "${mode}" = "Xdialog" ]
 				#
 				#############
 				scelta=$( ${dialogo} --stdout --separator "\\n" --title "${supertitle:-EasyBashGUI}: data input" ${inputbox} "Please, write data ..." ${dimensione_finestra} ${parametri} 2> /dev/null | grep -v "${string_to_clean}" )
-				#printf -v scelta "%q" "${scelta}"
-				#echo -e "${scelta}" 1> "${dir_tmp}/${file_tmp}"
 				#############
 				#
 			local IFS=$' \t\n'
@@ -7583,7 +7682,7 @@ elif [ "${mode}" = "Xdialog" ]
 				#
 				scelta_line="$(echo -e "${scelta}" | head -n ${volta} | tail -n 1 )"
 				#
-				[ ${#scelta_line} -gt 0 ] && printf -v scelta_line "%q" "${scelta_line}"
+				[ ${#scelta_line} -gt 0 ] && printf -v scelta_line "%q" "${scelta_line}" && scelta_line="$(echo "${scelta_line}" | gsed 's/\\ / /g' )"
 				#
 				echo -e "${scelta_line}" 1>> "${dir_tmp}/${file_tmp}"
 				if [ $(fgrep "$(echo -e "${scelta_line}" | head -n 1 )" 0< "${dir_tmp}/${file_tmp}" | wc -c ) -eq 0 ]
@@ -7666,7 +7765,7 @@ elif [ "${mode}" = "gum" ]
 			[ ${#scelta} -eq 0 ] && scelta="NULL"
 			echo -e "${iteration}) => ${scelta}\n############################"
 			#
-			printf -v scelta "%q" "${scelta}"
+			printf -v scelta "%q" "${scelta}" && scelta="$(echo "${scelta}" | gsed 's/\\ / /g' )"
 			echo "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
 			#
 			#############
@@ -7746,13 +7845,13 @@ elif [ "${mode}" = "dialog" ]
 				${dialogo} ${separator} --title "${supertitle:-EasyBashGUI}: data input" --inputbox "${testo}" ${dimensione_finestra} "${parametro}" 2>> "${dir_tmp}/${file_tmp}" ; echo "" 1>> "${dir_tmp}/${file_tmp}"
 				#
 				scelta="$(0< "${dir_tmp}/${file_tmp}" )"
-				printf -v scelta "%q" "${scelta}"
+				printf -v scelta "%q" "${scelta}" && scelta="$(echo "${scelta}" | gsed 's/\\ / /g' )"
 				echo -e "${scelta}" 1> "${dir_tmp}/${file_tmp}"
 				#
 			else
 				#
 				scelta="$(eval $(local IFS=$'\t' && echo -e "${dialogo}\t--stdout\t${separator}\t\"\\n\"\t--title\t\"${supertitle:-EasyBashGUI}: data input\"\t--inputbox\t\"${testo}\"\t${dimensione_finestra}\t\"${parametro}\"\t2>\t/dev/null" ) )"
-				printf -v scelta "%q" "${scelta}"
+				printf -v scelta "%q" "${scelta}" && scelta="$(echo "${scelta}" | gsed 's/\\ / /g' )"
 				echo -e "${scelta}" 1>> "${dir_tmp}/${file_tmp}"
 				#
 			fi

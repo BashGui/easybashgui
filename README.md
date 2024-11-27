@@ -30,10 +30,6 @@ transparently, based on the availability of the backends (frontends).
   * zenity
   * Xdialog
   
-  Since 14.0.0 version you can export "supercontext" env. variable (available values are: 
-  supercontext="terminal" or supercontext="windows" ) to set EasyBashGUI to use 
-  a terminal (xterm, gnome-terminal, etc. ) with "gum", "dialog" or "none" mode or 
-  graphical widgets ("yad", "gtkdialog", "kdialog", "zenity", "Xdialog" ). 
 
 ![](docs/easybasguidialogs.jpeg)
 
@@ -72,7 +68,7 @@ Please check [docs/README.md](docs/README.md) document file!
 
 ### Packages
 
-There are for some distros [![build result](https://build.opensuse.org/projects/home:venenux:bashgui/packages/easybashgui/badge.svg?type=percent)](https://build.opensuse.org/package/show/home:venenux:bashgui/easybashgui) :  [![](https://img.shields.io/badge/Debian-A81D33?style=for-the-badge&logo=debian&logoColor=white) ![](https://img.shields.io/badge/Cent%20OS-262577?style=for-the-badge&logo=CentOS&logoColor=white) ![](https://img.shields.io/badge/Red%20Hat-EE0000?style=for-the-badge&logo=redhat&logoColor=white) ![](https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white) ](https://software.opensuse.org//download.html?project=home%3Avenenux%3Abashgui&package=easybashgui) and more!
+There are (sometimes old, please check easybashgui-x.x.x.tar.gz first! ) for some distros [![build result](https://build.opensuse.org/projects/home:venenux:bashgui/packages/easybashgui/badge.svg?type=percent)](https://build.opensuse.org/package/show/home:venenux:bashgui/easybashgui) :  [![](https://img.shields.io/badge/Debian-A81D33?style=for-the-badge&logo=debian&logoColor=white) ![](https://img.shields.io/badge/Cent%20OS-262577?style=for-the-badge&logo=CentOS&logoColor=white) ![](https://img.shields.io/badge/Red%20Hat-EE0000?style=for-the-badge&logo=redhat&logoColor=white) ![](https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white) ](https://software.opensuse.org//download.html?project=home%3Avenenux%3Abashgui&package=easybashgui) and more!
 
 
 ## Credits.
