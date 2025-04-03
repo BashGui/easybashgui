@@ -584,7 +584,8 @@ It will offers a canvas layer to user to write, from the user input and
 also can present a predefined text from STDIN, it supports output to 
 both SDTERR and STDOUT and exit code will present the contents:
 
-* ARGUMENTS: no
+* ARGUMENTS:
+    * -F : optional, switch to avoid text editing
 * STDIN: can be piped/redirect for predefined content
     * input: user can write
 * STDOUT: 
@@ -593,12 +594,12 @@ both SDTERR and STDOUT and exit code will present the contents:
     * (input): the content of the box input will be out
 
 ``` bash
-text <<< "<text>"
+text -F <<< "<text>"
 ```
 
 * `${dir_tmp}` is a random path directory to place the file containing the next file
 * `${file_tmp}` random file name where is content has the values one line per input
-* Only for kdialog, zenity, and Xdialog you can also edit text inside the box
+* Only for yad, kdialog, zenity, qarma, gtkdialog and Xdialog you can also edit text inside the box
 
 #### wait_seconds (progress bar)
 
@@ -667,6 +668,7 @@ a dynamic progress bar and the text you parse it, the box never close either
 never ends, you should do something with their control variable`{wait_for__PID}`
 
 * ARGUMENTS:
+    * -n|--no-pulsation : optional, switch to avoid pulsation
     * text : optional, must be inside double quotes, only alphanumeric characters
 * STDIN: no
 * STDOUT: 
@@ -677,7 +679,7 @@ never ends, you should do something with their control variable`{wait_for__PID}`
     * exit code: 1 canceled with ESC, 0 the only button is pressed
 
 ``` bash
-wait_for "[text]"
+wait_for -n "[text]"
 sleep 3
 kill -9 ${wait_for__PID}
 ```

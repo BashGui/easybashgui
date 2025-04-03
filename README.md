@@ -28,6 +28,7 @@ transparently, based on the availability of the backends (frontends).
   * gtkdialog
   * kdialog
   * zenity
+  * qarma
   * Xdialog
   
 

@@ -12,10 +12,9 @@
 #
 #########################
 #
-# Copyright (C) 2024 Vittorio Cagnetta
+# Copyright (C) 2025 Vittorio Cagnetta
 #
 # Author: Vittorio Cagnetta <vaisarger@gmail.com>
-# Author: Christian ? <https://launchpad.net/~cgat-1>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -76,7 +75,7 @@
 #
 #
 ###################################################################
-MODULE_VERSION="14.1.0"
+MODULE_VERSION="15.0.0"
 MODULE_NAME="easybashgui"
 libexec_dir="/usr/lib/easybashgui"
 ###################################################################
@@ -849,8 +848,13 @@ elif [ "${eb_gui_fallback}" = "true" ]
 		#
 		#########################################
 		# Begin check for user custom geometry...
-		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+		no_pulsation="NO"
+		while [ "${1:-unset}" = "--no-pulsation" -o "${1:-unset}" = "-n" -o "${1:-unset}" = "--width" -o "${1:-unset}" = "-w" -o "${1:-unset}" = "--height" -o "${1:-unset}" = "-h" ]
 			do
+			if [ "${1:-unset}" = "--no-pulsation" -o "${1:-unset}" = "-n" ]
+				then
+				no_pulsation="YES" && shift 1 && continue
+			fi
 			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
 					then
 					echo "width"
@@ -869,7 +873,7 @@ elif [ "${eb_gui_fallback}" = "true" ]
 		#
 		#########################################
 		echo -e "\n\n\n${frame}"
-		echo "$(basename "${eb_current_process_path}" ): please wait"
+		echo "$(basename "${eb_current_process_path}" ): $([ "${no_pulsation}" = "YES" ] && echo "note" || echo "please wait")"
 		echo "${frame}"
 		echo -e "\n${testo}\n"
 		#

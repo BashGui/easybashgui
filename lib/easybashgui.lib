@@ -4,11 +4,11 @@
 #####################################
 #
 # EasyBashGUI allows you to use SAME script
-# with yad, gtkdialog, kdialog, zenity, Xdialog, gum, (c)dialog, whiptail or bare bash !!!!
+# with yad, gtkdialog, kdialog, zenity, qarma, Xdialog, gum, (c)dialog, whiptail or bare bash !!!!
 #
 #########################
 #
-# Copyright (C) 2024 Vittorio Cagnetta
+# Copyright (C) 2025 Vittorio Cagnetta
 #
 # Author: Vittorio Cagnetta <vaisarger@gmail.com>
 #
@@ -35,7 +35,7 @@
 #####################################
 #####################################
 #
-LIB_VERSION="14.1.0"
+LIB_VERSION="15.0.0"
 LIB_NAME="easybashgui.lib"
 LIB_URL="https://github.com/BashGui/easybashgui"
 LIB_AUTHOR="Vittorio Cagnetta"
@@ -72,8 +72,18 @@ fi
 ##
 # mascotte...
 [ ${#OSTYPE} -gt 0 ] && os=${OSTYPE} || os="$(uname -s )"
-[ $(echo -n "${os}" | grep -i "bsd" | wc -c ) -gt 0 ] && \
-mascotte="Beastie" || mascotte="Tux"
+if [ $(echo -n "${os}" | grep -i "bsd" | wc -c ) -gt 0 ]
+	then
+	mascotte="Beastie"
+elif [ $(echo -n "${os}" | grep -i "linux" | wc -c ) -gt 0 ]
+	then
+	mascotte="Tux"
+elif [ $(echo -n "${os}" | grep -i "haiku" | wc -c ) -gt 0 ]
+	then
+	mascotte="Leaf"
+else
+	mascotte="Tux"
+fi
 #
 ##
 #
@@ -102,6 +112,7 @@ for word in sed gsed
 done 
 [ "${mascotte}" = "Beastie" ] && : #later we'll check for gsed binary...
 [ "${mascotte}" = "Tux" ] && shopt -s expand_aliases && alias gsed=sed #gsed is no more a function...
+[ "${mascotte}" = "Leaf" ] && : #for future works...
 typing_gsed="$(type 'gsed' 2> /dev/null )"
 if [ ${#typing_gsed} -eq 0 ]
 	then
@@ -139,7 +150,7 @@ fi
 ##
 #
 # Set it if you want _force_ easybashgui mode :
-#supermode="" # <= 8 options: "auto", "yad", "gtkdialog", "kdialog", "zenity", "Xdialog", "gum", "dialog" "none"
+#supermode="" # <= 10 options: "auto", "yad", "gtkdialog", "kdialog", "zenity", "qarma", "Xdialog", "gum", "dialog" "none"
 : supermode
 #
 ##
@@ -151,7 +162,7 @@ string_to_clean=':1: error: unexpected .*, expected .* - e.g. .*'
 #
 #####################################
 #
-# ... yad, gtkdialog, kdialog, zenity, Xdialog, gum or dialog ???
+# ... yad, gtkdialog, kdialog, zenity, Xdialog, gum or dialog ??? (since its experimental support, "qarma" has to be forced through "supermode")
 #
 ################
 #
@@ -311,6 +322,13 @@ if [ ${#esistenza_zenity} -gt 0 ]
 	#
 fi #if [ ${#esistenza_zenity} -gt 0 ]
 #
+qarma="NO"
+esistenza_qarma="$(type "qarma" 2> /dev/null)"
+if [ ${#esistenza_qarma} -gt 0 ]
+	then
+	qarma="SI"
+fi
+#
 Xdialog="NO"
 esistenza_Xdialog="$(type "Xdialog" 2> /dev/null)"
 if [ ${#esistenza_Xdialog} -gt 0 ]
@@ -341,7 +359,7 @@ fi
 #
 ################
 #
-if [ "${yad}" = "NO" -a "${gtkdialog}" = "NO" -a "${kdialog}" = "NO" -a "${zenity}" = "NO" -a "${Xdialog}" = "NO" -a "${gum}" = "NO" -a "${dialog}" = "NO" -a "${whiptail}" = "NO" ]
+if [ "${yad}" = "NO" -a "${gtkdialog}" = "NO" -a "${kdialog}" = "NO" -a "${zenity}" = "NO" -a "${qarma}" = "NO" -a "${Xdialog}" = "NO" -a "${gum}" = "NO" -a "${dialog}" = "NO" -a "${whiptail}" = "NO" ]
 	then
 	export eb_gui_fallback="true"
 else
@@ -563,10 +581,10 @@ else
 			: # "auto" = "mode" variable is already set...
 			;;
 		#
-		"yad"|"gtkdialog"|"kdialog"|"zenity"|"Xdialog"|"gum"|"dialog" )
+		"yad"|"gtkdialog"|"kdialog"|"zenity"|"qarma"|"Xdialog"|"gum"|"dialog" )
 			if [ "${!supermode}" = "SI" ]
 				then
-				if [ "${supermode}" = "yad" -o "${supermode}" = "gtkdialog" -o "${supermode}" = "kdialog" -o "${supermode}" = "zenity" -o "${supermode}" = "Xdialog" ]
+				if [ "${supermode}" = "yad" -o "${supermode}" = "gtkdialog" -o "${supermode}" = "kdialog" -o "${supermode}" = "zenity" -o "${supermode}" = "qarma" -o "${supermode}" = "Xdialog" ]
 					then
 					if [ "${#DISPLAY}" -gt 0 ]
 						then
@@ -937,6 +955,24 @@ elif [ "${mode}" = "zenity" ]
 		dialogo="zenity --window-icon ${supericon}" \
 	|| \
 		dialogo="zenity"
+	#
+elif [ "${mode}" = "qarma" ]
+	then
+	dimensione_finestra="--width=${width} --height=${height}"
+	dimensione_finestra_1="--width=${width} --height=${height}"
+	dimensione_finestra_2=""
+	no_tags=""
+	no_buttons=""
+	menubox="--list"
+	icona_Ok=""
+	icona_Attenzione=""
+	progress="--progress"
+	# 
+	[ "${user_icon}" = "YES" ] \
+	&& \
+		dialogo="qarma --window-icon ${supericon}" \
+	|| \
+		dialogo="qarma"
 	#
 elif [ "${mode}" = "Xdialog" ]
 	then
@@ -1678,7 +1714,7 @@ elif [ "${mode}" = "kdialog" ]
 		return "${exit_code}"
 		#
 		}
-elif [ "${mode}" = "zenity" ]
+elif [ "${mode}" = "zenity" -o "${mode}" = "qarma" ]
 	then
 	question()
 		{
@@ -2091,10 +2127,22 @@ elif [ "${notify_send}" = "NO" ]
 					:
 					kdialog --icon "${notify_message_icon}" --passivepopup "${supertitle:-EasyBashGUI}:\n\n${notify_message_text}" ${notify_send_seconds_else}
 					#
+				elif [ "${zenity}" = 'SI' ]
+					then
+					#
+					:
+					zenity --notification --text "${supertitle:-EasyBashGUI}:\n\n${notify_message_text}"
+					#
+				elif [ "${qarma}" = 'SI' ]
+					then
+					#
+					:
+					qarma --notification --text "${supertitle:-EasyBashGUI}:\n\n${notify_message_text}"
+					#
 				else
 					#
 					:
-					notify_message_alt &
+					notify_message_alt "${supertitle:-EasyBashGUI}:\n\n${notify_message_text}" &
 					#
 				fi #if [ "${kdialog}" = 'SI' ]
 				#
@@ -2256,7 +2304,7 @@ elif [ "${mode}" = "kdialog" ]
 		exit_if_user_closes_window
 		#
 		}
-elif [ "${mode}" = "zenity" ]
+elif [ "${mode}" = "zenity" -o "${mode}" = "qarma" ]
 	then
 	message()
 		{
@@ -2570,7 +2618,7 @@ elif [ "${mode}" = "kdialog" ]
 		exit_if_user_closes_window
 		#
 		}
-elif [ "${mode}" = "zenity" ]
+elif [ "${mode}" = "zenity" -o "${mode}" = "qarma" ]
 	then
 	alert_message()
 		{
@@ -2887,7 +2935,7 @@ elif [ "${mode}" = "kdialog" ]
 		exit_if_user_closes_window
 		#
 		}
-elif [ "${mode}" = "zenity" ]
+elif [ "${mode}" = "zenity" -o "${mode}" = "qarma" ]
 	then
 	ok_message()
 		{
@@ -3308,7 +3356,7 @@ elif [ "${mode}" = "kdialog" ]
 		#echo "${OUT_STDERR}" 1>&2
 		#
 		}
-elif [ "${mode}" = "zenity" ]
+elif [ "${mode}" = "zenity" -o "${mode}" = "qarma" ]
 	then
 	text()
 		{
@@ -3743,7 +3791,7 @@ elif [ "${mode}" = "kdialog" ]
 		[ $(( ${num_secondi} - 2 )) -gt 0 ] && sleep $(( ${num_secondi} - 2 ))
 		#
 		}
-elif [ "${mode}" = "zenity" ]
+elif [ "${mode}" = "zenity" -o "${mode}" = "qarma" ]
 	then
 	wait_seconds()
 		{
@@ -3920,8 +3968,13 @@ if [ "${mode}" = "yad" ]
 		#########################################
 		# Begin check for user custom geometry...
 		reset_geometry="NO"
-		while [ "${1:-unset}" = "--width" -o "${1:-unset}" = "-w" -o "${1:-unset}" = "--height" -o "${1:-unset}" = "-h" ]
+		no_pulsation="NO"
+		while [ "${1:-unset}" = "--no-pulsation" -o "${1:-unset}" = "-n" -o "${1:-unset}" = "--width" -o "${1:-unset}" = "-w" -o "${1:-unset}" = "--height" -o "${1:-unset}" = "-h" ]
 			do
+			if [ "${1:-unset}" = "--no-pulsation" -o "${1:-unset}" = "-n" ]
+				then
+				no_pulsation="YES" && shift 1 && continue
+			fi
 			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
 					then
 					echo "width"
@@ -3944,10 +3997,22 @@ if [ "${mode}" = "yad" ]
 		#
 		testo_yad="$(echo "${testo}" | tr -d '<>' )"
 		#
-		yess() { while : ; do echo 'y' ; sleep 0.1 ; done ; }
-		#yes | \
-		yess | \
-			${dialogo} --title "${supertitle:-EasyBashGUI}: please wait" --progress --pulsate --auto-kill --text "$(echo -e "${testo_yad}" )" ${dimensione_finestra} &>/dev/null &
+		if [ "${no_pulsation}" = "YES" ]
+			then
+			#
+			echo -e "${testo_yad}" | \
+				${dialogo} --title "${supertitle:-EasyBashGUI}: note" --auto-kill --no-buttons --borders=0 --text-info --listen  ${dimensione_finestra} &>/dev/null &
+			:
+			#
+		else
+			#
+			yess() { while : ; do echo 'y' ; sleep 0.1 ; done ; }
+			#yes | \
+			yess | \
+				${dialogo} --title "${supertitle:-EasyBashGUI}: please wait" --progress --pulsate --auto-kill --text "$(echo -e "${testo_yad}" )" ${dimensione_finestra} &>/dev/null &
+			:
+			#
+		fi
 		#
 		export wait_for__PID="${!}"
 		#
@@ -3967,8 +4032,13 @@ elif [ "${mode}" = "gtkdialog" ]
 		#########################################
 		# Begin check for user custom geometry...
 		reset_geometry="NO"
-		while [ "${1:-unset}" = "--width" -o "${1:-unset}" = "-w" -o "${1:-unset}" = "--height" -o "${1:-unset}" = "-h" ]
+		no_pulsation="NO"
+		while [ "${1:-unset}" = "--no-pulsation" -o "${1:-unset}" = "-n" -o "${1:-unset}" = "--width" -o "${1:-unset}" = "-w" -o "${1:-unset}" = "--height" -o "${1:-unset}" = "-h" ]
 			do
+			if [ "${1:-unset}" = "--no-pulsation" -o "${1:-unset}" = "-n" ]
+				then
+				no_pulsation="YES" && shift 1 && continue
+			fi
 			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
 					then
 					echo "width"
@@ -3986,7 +4056,7 @@ elif [ "${mode}" = "gtkdialog" ]
 		testo_gtkdialog="$(echo "${testo}" | tr '"' "'" )"
 		#
 		export WAITFOR_DIALOG="
-		<window title=\"${supertitle:-EasyBashGUI}: please wait\" default_height=\"${height}\" default_width=\"${width}\" window_position=\"1\" icon-name=\"${supericon:-gtk-dialog-warning}\">
+		<window title=\"${supertitle:-EasyBashGUI}: $([ "${no_pulsation}" = "YES" ] && echo "note" || echo "please wait")\" default_height=\"${height}\" default_width=\"${width}\" window_position=\"1\" icon-name=\"${supericon:-gtk-dialog-warning}\">
 			<vbox>
 				<frame>
 					<pixmap xalign=\"0\">
@@ -4033,8 +4103,13 @@ elif [ "${mode}" = "kdialog" ]
 		#########################################
 		# Begin check for user custom geometry...
 		reset_geometry="NO"
-		while [ "${1:-unset}" = "--width" -o "${1:-unset}" = "-w" -o "${1:-unset}" = "--height" -o "${1:-unset}" = "-h" ]
+		no_pulsation="NO"
+		while [ "${1:-unset}" = "--no-pulsation" -o "${1:-unset}" = "-n" -o "${1:-unset}" = "--width" -o "${1:-unset}" = "-w" -o "${1:-unset}" = "--height" -o "${1:-unset}" = "-h" ]
 			do
+			if [ "${1:-unset}" = "--no-pulsation" -o "${1:-unset}" = "-n" ]
+				then
+				no_pulsation="YES" && shift 1 && continue
+			fi
 			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
 					then
 					echo "width"
@@ -4064,17 +4139,28 @@ elif [ "${mode}" = "kdialog" ]
 		num_secondi=3
 		#testo_kdialog="\n${testo}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n..................................................................................................."
 		testo_kdialog="${testo}"
-		# ${dialogo} NON si puo' usare qui...
-		yes | \
-			{ 
-			while read dummy_var
-				do
-				local dialogo="kdialog"
-				${dialogo} --title "${supertitle:-EasyBashGUI}: please wait" --passivepopup "$(echo -e " ${testo_kdialog}" )" "${num_secondi}"
-				sleep 15
-			done
-			sleep 1
-			} &>/dev/null &
+		#
+		if [ "${no_pulsation}" = "YES" ]
+			then
+			#
+			echo "${testo_kdialog}" | ${dialogo} --title "${supertitle:-EasyBashGUI}: please wait" --textinputbox "$(cat - )" &>/dev/null &
+			:
+			#
+		else
+			# ${dialogo} NON si puo' usare qui...
+			yes | \
+				{ 
+				while read dummy_var
+					do
+					local dialogo="kdialog"
+					${dialogo} --title "${supertitle:-EasyBashGUI}: please wait" --passivepopup "$(echo -e " ${testo_kdialog}" )" "${num_secondi}"
+					sleep 15
+				done
+				sleep 1
+				} &>/dev/null &
+			:
+			#
+		fi
 		#
 		export wait_for__PID="${!}"
 		#
@@ -4082,7 +4168,7 @@ elif [ "${mode}" = "kdialog" ]
 		echo "${OUT_STDERR}" 1>&2
 		#
 		}
-elif [ "${mode}" = "zenity" ]
+elif [ "${mode}" = "zenity" -o "${mode}" = "qarma" ]
 	then
 	wait_for()
 		{
@@ -4094,8 +4180,13 @@ elif [ "${mode}" = "zenity" ]
 		#########################################
 		# Begin check for user custom geometry...
 		reset_geometry="NO"
-		while [ "${1:-unset}" = "--width" -o "${1:-unset}" = "-w" -o "${1:-unset}" = "--height" -o "${1:-unset}" = "-h" ]
+		no_pulsation="NO"
+		while [ "${1:-unset}" = "--no-pulsation" -o "${1:-unset}" = "-n" -o "${1:-unset}" = "--width" -o "${1:-unset}" = "-w" -o "${1:-unset}" = "--height" -o "${1:-unset}" = "-h" ]
 			do
+			if [ "${1:-unset}" = "--no-pulsation" -o "${1:-unset}" = "-n" ]
+				then
+				no_pulsation="YES" && shift 1 && continue
+			fi
 			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
 					then
 					echo "width"
@@ -4117,8 +4208,21 @@ elif [ "${mode}" = "zenity" ]
 		testo="${@}"
 		#
 		testo_zenity="$(echo "${testo}" | tr -d '<>' )"
-		yes | \
-			${dialogo} --title "${supertitle:-EasyBashGUI}: please wait" --progress --pulsate --auto-kill --text "$(echo -e "${testo_zenity}" )" ${dimensione_finestra} &>/dev/null &
+		#
+		if [ "${no_pulsation}" = "YES" ]
+			then
+			#
+			echo -e "${testo_zenity}" | \
+				${dialogo} --title "${supertitle:-EasyBashGUI}: note" --text-info ${dimensione_finestra} &>/dev/null &
+			:
+			#
+		else
+			#
+			yes | \
+				${dialogo} --title "${supertitle:-EasyBashGUI}: please wait" --progress --pulsate --auto-kill --text "$(echo -e "${testo_zenity}" )" ${dimensione_finestra} &>/dev/null &
+			:
+			#
+		fi
 		#
 		export wait_for__PID="${!}"
 		#
@@ -4138,8 +4242,13 @@ elif [ "${mode}" = "Xdialog" ]
 		#########################################
 		# Begin check for user custom geometry...
 		reset_geometry="NO"
-		while [ "${1:-unset}" = "--width" -o "${1:-unset}" = "-w" -o "${1:-unset}" = "--height" -o "${1:-unset}" = "-h" ]
+		no_pulsation="NO"
+		while [ "${1:-unset}" = "--no-pulsation" -o "${1:-unset}" = "-n" -o "${1:-unset}" = "--width" -o "${1:-unset}" = "-w" -o "${1:-unset}" = "--height" -o "${1:-unset}" = "-h" ]
 			do
+			if [ "${1:-unset}" = "--no-pulsation" -o "${1:-unset}" = "-n" ]
+				then
+				no_pulsation="YES" && shift 1 && continue
+			fi
 			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
 					then
 					echo "width"
@@ -4161,7 +4270,7 @@ elif [ "${mode}" = "Xdialog" ]
 		testo="${@}"
 		#
 		yes | \
-			${dialogo} ${no_buttons} --title "${supertitle:-EasyBashGUI}: please wait" ${icona_Attenzione} --infobox "$(echo -e "${testo}" )" ${dimensione_finestra} 0 &>/dev/null &
+			${dialogo} ${no_buttons} --title "${supertitle:-EasyBashGUI}: $([ "${no_pulsation}" = "YES" ] && echo "note" || echo "please wait")" ${icona_Attenzione} --infobox "$(echo -e "${testo}" )" ${dimensione_finestra} 0 &>/dev/null &
 		#
 		export wait_for__PID="${!}"
 		#
@@ -4179,8 +4288,13 @@ elif [ "${mode}" = "gum" ]
 		#
 		#########################################
 		# Begin check for user custom geometry...
-		while [ "${1}" = "--width" -o "${1}" = "-w" -o "${1}" = "--height" -o "${1}" = "-h" ]
+		no_pulsation="NO"
+		while [ "${1:-unset}" = "--no-pulsation" -o "${1:-unset}" = "-n" -o "${1:-unset}" = "--width" -o "${1:-unset}" = "-w" -o "${1:-unset}" = "--height" -o "${1:-unset}" = "-h" ]
 			do
+			if [ "${1:-unset}" = "--no-pulsation" -o "${1:-unset}" = "-n" ]
+				then
+				no_pulsation="YES" && shift 1 && continue
+			fi
 			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
 					then
 					echo "width"
@@ -4198,7 +4312,7 @@ elif [ "${mode}" = "gum" ]
 		testo="${@}"
 		#
 		#########################################
-		frame "${widget_color}" "please wait"
+		frame "${widget_color}" "$([ "${no_pulsation}" = "YES" ] && echo "note" || echo "please wait")"
 		#
 		echo -e "############################\n############################\n\n"
 		#gum spin -s pulse --title "$(echo -e "${testo}" )" -- sleep ${num_secondi} &
@@ -4231,8 +4345,13 @@ elif [ "${mode}" = "dialog" ]
 		#
 		#########################################
 		# Begin check for user custom geometry...
-		while [ "${1:-unset}" = "--width" -o "${1:-unset}" = "-w" -o "${1:-unset}" = "--height" -o "${1:-unset}" = "-h" ]
+		no_pulsation="NO"
+		while [ "${1:-unset}" = "--no-pulsation" -o "${1:-unset}" = "-n" -o "${1:-unset}" = "--width" -o "${1:-unset}" = "-w" -o "${1:-unset}" = "--height" -o "${1:-unset}" = "-h" ]
 			do
+			if [ "${1:-unset}" = "--no-pulsation" -o "${1:-unset}" = "-n" ]
+				then
+				no_pulsation="YES" && shift 1 && continue
+			fi
 			w_or_h="$(if [ "${1}" = "--width" -o "${1}" = "-w" ]
 					then
 					echo "width"
@@ -4254,7 +4373,7 @@ elif [ "${mode}" = "dialog" ]
 			echo -e "\n\n################################################\n################################################\n\n\t$(echo -e "${testo}" )\n\n################################################\n################################################\n"
 		fi
 		num_secondi=1972
-		${dialogo} ${no_buttons} --title "${supertitle:-EasyBashGUI}: please wait" ${icona_Attenzione} --infobox "$(echo -e "${testo}" )" "${dimensione_finestra_1}" "${dimensione_finestra_2}" ; exit_if_user_closes_window
+		${dialogo} ${no_buttons} --title "${supertitle:-EasyBashGUI}: $([ "${no_pulsation}" = "YES" ] && echo "note" || echo "please wait")" ${icona_Attenzione} --infobox "$(echo -e "${testo}" )" "${dimensione_finestra_1}" "${dimensione_finestra_2}" ; exit_if_user_closes_window
 		#
 		sleep "${num_secondi}" &
 		#
@@ -4448,7 +4567,7 @@ elif [ "${mode}" = "kdialog" ]
 		echo "${OUT_STDERR}" 1>&2
 		#
 		}
-elif [ "${mode}" = "zenity" ]
+elif [ "${mode}" = "zenity" -o "${mode}" = "qarma" ]
 	then
 	fselect()
 		{
@@ -4861,7 +4980,7 @@ elif [ "${mode}" = "kdialog" ]
 		echo "${OUT_STDERR}" 1>&2
 		#
 		}
-elif [ "${mode}" = "zenity" ]
+elif [ "${mode}" = "zenity" -o "${mode}" = "qarma" ]
 	then
 	dselect()
 		{
@@ -5169,7 +5288,7 @@ if [ "${mode}" = "yad" ]
 		#
 		#
 		local IFS=$'\t\n'
-			scelta="$(eval $(local IFS=$'\t' ; echo -e "${dialogo}\t${stdout}\t${no_tags}\t--title\t\"${supertitle:-EasyBashGUI}: menu\"\t${menubox}\t--no-headers\t${text}\t\"Select option...\"\t${dimensione_finestra}\t${dimensione_menu}\t--separator=''\t${column}\t${parametri}\t2>\t/dev/null" ; local IFS=$'\t\n') )"
+			scelta="$(eval $(local IFS=$'\t' ; echo -e "${dialogo}\t${stdout}\t${no_tags}\t--title\t\"${supertitle:-EasyBashGUI}: menu\"\t${menubox}\t--no-headers\t${text}\t\"Select the option...\"\t${dimensione_finestra}\t${dimensione_menu}\t--separator=''\t${column}\t${parametri}\t2>\t/dev/null" ; local IFS=$'\t\n') )"
 			if [ "${dialogo}" = "dialog" ]
 				then
 				if [ $(echo -n "${scelta}" | wc -c) -gt 0 ]
@@ -5262,7 +5381,7 @@ elif [ "${mode}" = "gtkdialog" ]
 		local IFS=$' \t\n'
 		#
 		export MENU_DIALOG="
-		<window title=\"${supertitle:-EasyBashGUI}: Select option...\" default_height=\"${height}\" default_width=\"${width}\" window_position=\"1\" icon-name=\"${supericon:-gtk-dialog-question}\">
+		<window title=\"${supertitle:-EasyBashGUI}: Select the option...\" default_height=\"${height}\" default_width=\"${width}\" window_position=\"1\" icon-name=\"${supericon:-gtk-dialog-question}\">
 			<vbox>
 				<frame>
 					<list>
@@ -5362,7 +5481,7 @@ elif [ "${mode}" = "kdialog" ]
 		#
 		#
 		local IFS=$'\t\n'
-			scelta="$(eval $(local IFS=$'\t' ; echo -e "${dialogo}\t${stdout}\t${no_tags}\t--title\t\"${supertitle:-EasyBashGUI}: menu\"\t${menubox}\t${text}\t\"Select option...\"\t${dimensione_finestra}\t${dimensione_menu}\t${column}\t${parametri}\t2>\t/dev/null" ; local IFS=$'\t\n') )"
+			scelta="$(eval $(local IFS=$'\t' ; echo -e "${dialogo}\t${stdout}\t${no_tags}\t--title\t\"${supertitle:-EasyBashGUI}: menu\"\t${menubox}\t${text}\t\"Select the option...\"\t${dimensione_finestra}\t${dimensione_menu}\t${column}\t${parametri}\t2>\t/dev/null" ; local IFS=$'\t\n') )"
 			if [ "${dialogo}" = "dialog" ]
 				then
 				if [ $(echo -n "${scelta}" | wc -c) -gt 0 ]
@@ -5407,7 +5526,7 @@ elif [ "${mode}" = "kdialog" ]
 		echo "${OUT_STDERR}" 1>&2
 		#
 		}
-elif [ "${mode}" = "zenity" ]
+elif [ "${mode}" = "zenity" -o "${mode}" = "qarma" ]
 	then
 	menu()
 		{
@@ -5474,7 +5593,7 @@ elif [ "${mode}" = "zenity" ]
 		#
 		#
 		local IFS=$'\t\n'
-			scelta="$(eval $(local IFS=$'\t' ; echo -e "${dialogo}\t${stdout}\t${no_tags}\t--title\t\"${supertitle:-EasyBashGUI}: menu\"\t${menubox}\t${text}\t\"Select option...\"\t${dimensione_finestra}\t${dimensione_menu}\t${column}\t${parametri}\t2>\t/dev/null" ; local IFS=$'\t\n') )"
+			scelta="$(eval $(local IFS=$'\t' ; echo -e "${dialogo}\t${stdout}\t${no_tags}\t--title\t\"${supertitle:-EasyBashGUI}: menu\"\t${menubox}\t${text}\t\"Select the option...\"\t${dimensione_finestra}\t${dimensione_menu}\t${column}\t${parametri}\t2>\t/dev/null" ; local IFS=$'\t\n') )"
 			if [ "${dialogo}" = "dialog" ]
 				then
 				if [ $(echo -n "${scelta}" | wc -c) -gt 0 ]
@@ -5576,7 +5695,7 @@ elif [ "${mode}" = "Xdialog" ]
 		#
 		#
 		local IFS=$'\t\n'
-			scelta="$(eval $(local IFS=$'\t' ; echo -e "${dialogo}\t${stdout}\t${no_tags}\t--title\t\"${supertitle:-EasyBashGUI}: menu\"\t${menubox}\t${text}\t\"Select option...\"\t${dimensione_finestra}\t${dimensione_menu}\t${column}\t${parametri}\t2>\t/dev/null" ; local IFS=$'\t\n') )"
+			scelta="$(eval $(local IFS=$'\t' ; echo -e "${dialogo}\t${stdout}\t${no_tags}\t--title\t\"${supertitle:-EasyBashGUI}: menu\"\t${menubox}\t${text}\t\"Select the option...\"\t${dimensione_finestra}\t${dimensione_menu}\t${column}\t${parametri}\t2>\t/dev/null" ; local IFS=$'\t\n') )"
 			if [ "${dialogo}" = "dialog" ]
 				then
 				if [ $(echo -n "${scelta}" | wc -c) -gt 0 ]
@@ -5729,14 +5848,14 @@ elif [ "${mode}" = "dialog" ]
 				done )"
 			#echo "eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: menu\" --menu \"Select option...\" ${dim_finestra} ${dimensione_menu} ${parametri}"
 			[ ${dimensione_menu} -eq 6 ] && dimensione_menu=5
-			eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: menu\" --menu \"Select option...\" ${dim_finestra} ${dimensione_menu} ${parametri} 2> "${dir_tmp}/${file_tmp}"
+			eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: menu\" --menu \"Select the option...\" ${dim_finestra} ${dimensione_menu} ${parametri} 2> "${dir_tmp}/${file_tmp}"
 			exit_if_user_closes_window
 			#
 			scelta="$(0< "${dir_tmp}/${file_tmp}" )"
 			#
 		else
 			local IFS=$'\t\n'
-				scelta="$(eval $(local IFS=$'\t' ; echo -e "${dialogo}\t${stdout}\t${no_tags}\t--title\t\"${supertitle:-EasyBashGUI}: menu\"\t${menubox}\t${text}\t\"Select option...\"\t${dimensione_finestra}\t${dimensione_menu}\t${column}\t${parametri}\t2>\t/dev/null" ; local IFS=$'\t\n') )"
+				scelta="$(eval $(local IFS=$'\t' ; echo -e "${dialogo}\t${stdout}\t${no_tags}\t--title\t\"${supertitle:-EasyBashGUI}: menu\"\t${menubox}\t${text}\t\"Select the option...\"\t${dimensione_finestra}\t${dimensione_menu}\t${column}\t${parametri}\t2>\t/dev/null" ; local IFS=$'\t\n') )"
 				if [ "${dialogo}" = "dialog" ]
 					then
 					if [ $(echo -n "${scelta}" | wc -c) -gt 0 ]
@@ -5863,7 +5982,7 @@ if [ "${mode}" = "yad" ]
 		#
 		#
 		local IFS=$'\t\n'
-			scelta="$(eval $(local IFS=$'\t' ; echo -e "${dialogo}\t${stdout}\t${no_tags}\t--title\t\"${supertitle:-EasyBashGUI}: menu\"\t${menubox}\t--no-headers\t${text}\t\"Select option...\"\t${dimensione_finestra}\t${dimensione_menu}\t--separator=''\t${column}\t${column}\t${tagged_mode_options}\t${tagged_parametri}\t2>\t/dev/null" ; local IFS=$'\t\n') )"
+			scelta="$(eval $(local IFS=$'\t' ; echo -e "${dialogo}\t${stdout}\t${no_tags}\t--title\t\"${supertitle:-EasyBashGUI}: menu\"\t${menubox}\t--no-headers\t${text}\t\"Select the option...\"\t${dimensione_finestra}\t${dimensione_menu}\t--separator=''\t${column}\t${column}\t${tagged_mode_options}\t${tagged_parametri}\t2>\t/dev/null" ; local IFS=$'\t\n') )"
 			if [ "${dialogo}" = "dialog" ]
 				then
 				if [ $(echo -n "${scelta}" | wc -c) -gt 0 ]
@@ -5961,7 +6080,7 @@ elif [ "${mode}" = "gtkdialog" ]
 		local IFS=$' \t\n'
 		#
 		export MENU_DIALOG="
-		<window title=\"${supertitle:-EasyBashGUI}: Select option...\" default_height=\"${height}\" default_width=\"${width}\" window_position=\"1\" icon-name=\"${supericon:-gtk-dialog-question}\">
+		<window title=\"${supertitle:-EasyBashGUI}: Select the option...\" default_height=\"${height}\" default_width=\"${width}\" window_position=\"1\" icon-name=\"${supericon:-gtk-dialog-question}\">
 			<vbox>
 				<frame>
 					<list>
@@ -6071,7 +6190,7 @@ elif [ "${mode}" = "kdialog" ]
 		#
 		#
 		local IFS=$'\t\n'
-			scelta="$(eval $(local IFS=$'\t' ; echo -e "${dialogo}\t${stdout}\t${no_tags}\t--title\t\"${supertitle:-EasyBashGUI}: menu\"\t${menubox}\t${text}\t\"Select option...\"\t${dimensione_finestra}\t${dimensione_menu}\t${column}\t${tagged_parametri}\t2>\t/dev/null" ; local IFS=$'\t\n') )"
+			scelta="$(eval $(local IFS=$'\t' ; echo -e "${dialogo}\t${stdout}\t${no_tags}\t--title\t\"${supertitle:-EasyBashGUI}: menu\"\t${menubox}\t${text}\t\"Select the option...\"\t${dimensione_finestra}\t${dimensione_menu}\t${column}\t${tagged_parametri}\t2>\t/dev/null" ; local IFS=$'\t\n') )"
 			if [ "${dialogo}" = "dialog" ]
 				then
 				if [ $(echo -n "${scelta}" | wc -c) -gt 0 ]
@@ -6116,7 +6235,7 @@ elif [ "${mode}" = "kdialog" ]
 		echo "${OUT_STDERR}" 1>&2
 		#
 		}
-elif [ "${mode}" = "zenity" ]
+elif [ "${mode}" = "zenity" -o "${mode}" = "qarma" ]
 	then
 	tagged_menu()
 		{
@@ -6168,7 +6287,7 @@ elif [ "${mode}" = "zenity" ]
 		local IFS=$'\n'
 			stdout=""
 			text="--text"
-			tagged_mode_options="--hide-column=1\t--print-column=1"
+			tagged_mode_options="--hide-column=1"
 			column="--column\t\" \""
 			dimensione_menu=""
 			tagged_parametri="$(for (( index=0 ; index < ${#tagged_args[@]} ; index++ ))
@@ -6191,7 +6310,7 @@ elif [ "${mode}" = "zenity" ]
 		#
 		#
 		local IFS=$'\t\n'
-			scelta="$(eval $(local IFS=$'\t' ; echo -e "${dialogo}\t${stdout}\t${no_tags}\t--title\t\"${supertitle:-EasyBashGUI}: menu\"\t${menubox}\t${text}\t\"Select option...\"\t${dimensione_finestra}\t${dimensione_menu}\t--separator=''\t${column}\t${column}\t${tagged_mode_options}\t${tagged_parametri}\t2>\t/dev/null" ; local IFS=$'\t\n') )"
+			scelta="$(eval $(local IFS=$'\t' ; echo -e "${dialogo}\t${stdout}\t${no_tags}\t--title\t\"${supertitle:-EasyBashGUI}: menu\"\t${menubox}\t${text}\t\"Select the option...\"\t${dimensione_finestra}\t${dimensione_menu}\t--separator=''\t${column}\t${column}\t${tagged_mode_options}\t${tagged_parametri}\t2>\t/dev/null" ; local IFS=$'\t\n') )"
 			if [ "${dialogo}" = "dialog" ]
 				then
 				if [ $(echo -n "${scelta}" | wc -c) -gt 0 ]
@@ -6299,7 +6418,7 @@ elif [ "${mode}" = "Xdialog" ]
 		#
 		#
 		local IFS=$'\t\n'
-			scelta="$(eval $(local IFS=$'\t' ; echo -e "${dialogo}\t${stdout}\t${no_tags}\t--title\t\"${supertitle:-EasyBashGUI}: menu\"\t${menubox}\t${text}\t\"Select option...\"\t${dimensione_finestra}\t${dimensione_menu}\t${column}\t${tagged_parametri}\t2>\t/dev/null" ; local IFS=$'\t\n') )"
+			scelta="$(eval $(local IFS=$'\t' ; echo -e "${dialogo}\t${stdout}\t${no_tags}\t--title\t\"${supertitle:-EasyBashGUI}: menu\"\t${menubox}\t${text}\t\"Select the option...\"\t${dimensione_finestra}\t${dimensione_menu}\t${column}\t${tagged_parametri}\t2>\t/dev/null" ; local IFS=$'\t\n') )"
 			if [ "${dialogo}" = "dialog" ]
 				then
 				if [ $(echo -n "${scelta}" | wc -c) -gt 0 ]
@@ -6479,7 +6598,7 @@ elif [ "${mode}" = "dialog" ]
 # 				done )"
 			#echo "eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: menu\" --menu \"Select option...\" ${dim_finestra} ${dimensione_menu} ${parametri}"
 			[ ${dimensione_menu} -eq 6 ] && dimensione_menu=5
-			eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: menu\" --menu \"Select option...\" ${dim_finestra} ${dimensione_menu} ${tagged_parametri} 2> "${dir_tmp}/${file_tmp}"
+			eval ${dialogo} --title \"${supertitle:-EasyBashGUI}: menu\" --menu \"Select the option...\" ${dim_finestra} ${dimensione_menu} ${tagged_parametri} 2> "${dir_tmp}/${file_tmp}"
 			exit_if_user_closes_window
 			scelta="$(0< "${dir_tmp}/${file_tmp}" )"
 			#echo -e "\n\nparametri: ${parametri}\n\nscelta: ${scelta} ...capito?\n\n"
@@ -6498,7 +6617,7 @@ elif [ "${mode}" = "dialog" ]
 			#
 		else
 			local IFS=$'\t\n'
-				scelta="$(eval $(local IFS=$'\t' ; echo -e "${dialogo}\t${stdout}\t${no_tags}\t--title\t\"${supertitle:-EasyBashGUI}: menu\"\t${menubox}\t${text}\t\"Select option...\"\t${dimensione_finestra}\t${dimensione_menu}\t${column}\t${tagged_parametri}\t2>\t/dev/null" ; local IFS=$'\t\n') )"
+				scelta="$(eval $(local IFS=$'\t' ; echo -e "${dialogo}\t${stdout}\t${no_tags}\t--title\t\"${supertitle:-EasyBashGUI}: menu\"\t${menubox}\t${text}\t\"Select the option...\"\t${dimensione_finestra}\t${dimensione_menu}\t${column}\t${tagged_parametri}\t2>\t/dev/null" ; local IFS=$'\t\n') )"
 				if [ "${dialogo}" = "dialog" ]
 					then
 					if [ $(echo -n "${scelta}" | wc -c) -gt 0 ]
@@ -6870,7 +6989,7 @@ elif [ "${mode}" = "kdialog" ]
 		[ ${#exit_code} -gt 0 ] && return "${exit_code}"
 		#
 		}
-elif [ "${mode}" = "zenity" ]
+elif [ "${mode}" = "zenity" -o "${mode}" = "qarma" ]
 	then
 	list()
 		{
@@ -7507,7 +7626,7 @@ elif [ "${mode}" = "kdialog" ]
 		#
 		}
 	#
-elif [ "${mode}" = "zenity" ]
+elif [ "${mode}" = "zenity" -o "${mode}" = "qarma" ]
 	then
 	input()
 		{
@@ -8223,7 +8342,7 @@ elif [ "${mode}" = "kdialog" ]
 		#exit_if_user_closes_window
 		#
 		}
-elif [ "${mode}" = "zenity" ]
+elif [ "${mode}" = "zenity" -o "${mode}" = "qarma" ]
 	then
 	progress()
 		{
@@ -9077,7 +9196,7 @@ elif [ "${mode}" = "kdialog" ]
 		OUT_STDERR="${final_value}"
 		echo "${OUT_STDERR}" 1>&2
 		}
-elif [ "${mode}" = "zenity" ]
+elif [ "${mode}" = "zenity" -o "${mode}" = "qarma" ]
 	then
 	adjust()
 		{
