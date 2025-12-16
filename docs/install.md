@@ -22,6 +22,7 @@ Simplified way to code bash made GUI frontend dialogs! - Installation document!
   * `coreutils` 8.0+ https://www.gnu.org/software/coreutils/
   * `bash` 3.0+ https://tiswww.case.edu/php/chet/bash/bashtop.html
   * `bc` 6.1+ https://www.gnu.org/software/bc/
+  * `xwininfo` 1.0.3+ https://xorg.freedesktop.org/releases/individual/app/
   
 ## User module install
 
