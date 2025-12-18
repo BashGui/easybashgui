@@ -500,7 +500,7 @@ if [ "${yad}" = "SI" ]
 	if [ "${mode}" != "dialog" -a "${mode}" != "kdialog" ] # ...whatever dialog but "dialog" and "kdialog", moreover...
 		then
 		# ...only if DISPLAY var is set...
-		if [ ${#DISPLAY} -gt 0 ]
+		if [ -n "$WAYLAND_DISPLAY"  || ${#DISPLAY} -gt 0 ]
 			then
 			# ;)
 			mode="yad"
