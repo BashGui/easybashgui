@@ -7,6 +7,9 @@ Simplified way to code bash made GUI frontend dialogs! Check the youtube video:
  <img src="http://img.youtube.com/vi/FEn4doXmiX0/mqdefault.jpg" alt="Watch the video" width="240" height="180" border="10" />
 </a>
 
+If you want something similar for the web, please, take a look at **EasyBashWEB** (http://sites.google.com/site/easybashweb)
+**EasyBashWEB** aims to be for Web what **EasybashGUI** is for local machine.
+
 ## Introduction to EBG
 
 **E**asy **B**ash **G**ui shortened as EBG, is a Posix compliant Bash functions 
